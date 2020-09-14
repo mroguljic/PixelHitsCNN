@@ -113,17 +113,11 @@ history = model.fit(input_train, label_train,
 x_position_predicted = model.predict(input_test)
 print('R2 score for x_position: ', r2_score(label_test, x_position_predicted)
 
-plt.clf()
-fig = go.Figure()
-fig.add_trace(go.Scattergl(
-                    y=history.history['loss'],
-                    name='Train'))
-fig.add_trace(go.Scattergl(
-                    y=history.history['val_loss'],
-                    name='Valid'))
-fig.update_layout(height=500, 
-                  width=700,
-                  title='Loss and Val loss for x position training',
-                  xaxis_title='Epoch',
-                  yaxis_title='Mean Absolute Error')
-fig.show()
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
