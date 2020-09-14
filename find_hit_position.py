@@ -17,6 +17,7 @@ from keras.layers import Input
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 import pylab
+pylab.use("Agg")
 from sklearn.metrics import r2_score
 import numpy as np
 
@@ -33,8 +34,8 @@ input_test = f['test_hits'][...]
 label_test = f['x'][...]
 f.close()
 
-print(input_train[3])
-print(label_train[3])
+print(input_train.shape)
+print(label_train.shape)
 '''
 input_train = np.zeros((n_train,13,21,1))
 label_train = np.zeros((n_train,1))
