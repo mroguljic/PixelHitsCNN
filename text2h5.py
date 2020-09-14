@@ -50,8 +50,8 @@ for i in range(1,n_files+1):
 		array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
 		one_train=np.array(array2d)
 		#normalize the matrix 
-		norm = np.linalg.norm(one_train)
-		one_train = one_train/norm
+		#norm = np.linalg.norm(one_train)
+		#one_train = one_train/norm
 		#reshape to (13,21,1) -> "image"
 		train_data[j+n_events] = one_train[:,:,np.newaxis]
 

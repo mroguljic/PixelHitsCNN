@@ -33,6 +33,8 @@ input_test = f['test_hits'][...]
 label_test = f['x'][...]
 f.close()
 
+print(input_train[3])
+print(label_train[3])
 '''
 input_train = np.zeros((n_train,13,21,1))
 label_train = np.zeros((n_train,1))
@@ -117,6 +119,6 @@ pylab.title('model loss')
 pylab.ylabel('loss')
 pylab.xlabel('epoch')
 pylab.legend(['train', 'validation'], loc='upper left')
-pylab.show()
+#pylab.show()
 pylab.savefig("pixelcnn_x.png")
 pylab.close()
