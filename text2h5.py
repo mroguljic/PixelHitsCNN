@@ -3,6 +3,10 @@
 # Date: 13 Sep 20
 #=================================
 
+#no of events to train on = 1230000
+#no of events to test on = 1000000
+
+
 import numpy as np
 import h5py
 

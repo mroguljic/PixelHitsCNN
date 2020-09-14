@@ -111,7 +111,7 @@ history = model.fit(input_train, label_train,
 
 # Generate generalization metrics
 x_position_predicted = model.predict(input_test)
-print('R2 score for age: ', r2_score(label_test, x_position_predicted)
+print('R2 score for x_position: ', r2_score(label_test, x_position_predicted)
 
 plt.clf()
 fig = go.Figure()
