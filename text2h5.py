@@ -12,12 +12,14 @@ import h5py
 
 #=====train files===== 
 
-f = h5py.File("train_d49301_d49341.hdf5", "w")
+f = h5py.File("train_subset.hdf5", "w")
 
+
+n_per_file = 1000
 n_files = 41
 
 #30000 matrices per file
-n_train = 30000*n_files
+n_train = n_per_file*n_files
 
 #"image" size = 13x21x1
 train_data = np.zeros((n_train,13,21,1))
@@ -42,7 +44,7 @@ for i in range(1,n_files+1):
 	n=0
 	position_data=[]
 
-	for j in range(0,30000):
+	for j in range(0,n_per_file):
 
 		#there are n 13x21 arrays in the file, extract each array 
 		array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
@@ -64,7 +66,7 @@ for i in range(1,n_files+1):
 
 		n+=14
 
-	n_events+=30000	
+	n_events+=n_per_file	
 
 
 #IS IT BETTER TO SPECIFIY DTYPES?
@@ -80,9 +82,9 @@ print("making test h5 file\n")
 
 #======test files========
 
-f = h5py.File("test_d49350.hdf5", "w")
+f = h5py.File("test_subset.hdf5", "w")
 
-n_test = 1000000
+n_test = 4100
 
 #"image" size = 13x21x1
 test_data = np.zeros((n_test,13,21,1))

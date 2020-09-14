@@ -21,18 +21,19 @@ from sklearn.metrics import r2_score
 import numpy as np
 
 n_train = 41000
-n_test = 3000
+n_test = 4100
 
 # Load data
-f = h5py.File('train_d49301_d49341.hdf5', 'r')
-input_train_1 = f['train_hits'][...]
-label_train_1 = f['x'][...]
+f = h5py.File('train_subset.hdf5', 'r')
+input_train = f['train_hits'][...]
+label_train = f['x'][...]
 f.close()
-f = h5py.File('test_d49350.hdf5', 'r')
-input_test_1 = f['test_hits'][...]
-label_test_1 = f['x'][...]
+f = h5py.File('test_subset.hdf5', 'r')
+input_test = f['test_hits'][...]
+label_test = f['x'][...]
 f.close()
 
+'''
 input_train = np.zeros((n_train,13,21,1))
 label_train = np.zeros((n_train,1))
 #shuffle the training arrays -> FIND MORE EFFICIENT WAY TO DO THIS
@@ -45,7 +46,7 @@ for i in range(0,41):
 
 input_test = input_test_1[0:n_test]
 label_test = label_test_1[0:n_test]
-
+'''
 # Model configuration
 batch_size = 32
 loss_function = 'mean_squared_error'
