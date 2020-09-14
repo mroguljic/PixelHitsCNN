@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 import numpy as np
 
-n_train = 30000
+n_train = 41000
 n_test = 3000
 
 # Load data
@@ -33,14 +33,15 @@ input_test_1 = f['test_hits'][...]
 label_test_1 = f['x'][...]
 f.close()
 
-#shuffle the training arrays
-p = np.random.permutation(len(input_train))
-input_train = input_train_1[p]
-label_train = label_train_1[p]
+input_train = np.zeros((n_train,13,21,1))
+label_train = np.zeros((n_train,1))
+#shuffle the training arrays -> FIND MORE EFFICIENT WAY TO DO THIS
+for i in range(0,41):
+	input_train[1000*i:1000*(i+1)]=input_train_1[j:1000+j]
+	label_train[1000*i:1000*(i+1)]=label_train_1[j:1000+j]
+	j+=30000
 
-#train/test on lesser entries for now
-input_train = input_train_1[0:n_train]
-label_train = label_train_1[0:n_train]
+
 
 input_test = input_test_1[0:n_test]
 label_test = label_test_1[0:n_test]

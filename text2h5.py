@@ -67,7 +67,7 @@ for i in range(1,n_files+1):
 	n_events+=30000	
 
 
-		
+#IS IT BETTER TO SPECIFIY DTYPES?
 train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data)
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
 y_train_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
