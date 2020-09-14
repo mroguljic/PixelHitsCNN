@@ -15,11 +15,11 @@ validation_split = 0.2
 verbosity = 1
 
 # Load MNIST data
-f = h5py.File('train_d49301_d49341.hdf5', 'r')
+f = h5py.File('train_d49301.hdf5', 'r')
 input_train = f['train_hits'][...]
 label_train = f['x'][...]
 f.close()
-f = h5py.File('test_d49350.hdf5', 'r')
+f = h5py.File('test_d49350_smol.hdf5', 'r')
 input_test = f['test_hits'][...]
 label_test = f['x'][...]
 f.close()
