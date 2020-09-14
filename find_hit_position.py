@@ -1,8 +1,8 @@
 import h5py
-from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Conv2D
-from tensorflow.keras.losses import mean_squared_error as mse
-from tensorflow.keras.optimizers import Adam
+from keras.models import Sequential
+from keras.layers import Dense, Flatten, Conv2D
+from keras.losses import mean_squared_error as mse
+from keras.optimizers import Adam
 
 # Model configuration
 batch_size = 1000
