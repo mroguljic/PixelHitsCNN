@@ -57,5 +57,5 @@ history = model.fit(input_train, label_train,
 
 # Generate generalization metrics
 score = model.evaluate(input_test, label_test, verbose=0)
-print(f'Test loss: {score[0]} / Test accuracy: {score[1]}')
+print('Test: %f'%(score))
 
