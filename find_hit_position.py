@@ -25,25 +25,25 @@ n_test = 3000
 
 # Load data
 f = h5py.File('train_d49301_d49341.hdf5', 'r')
-input_train = f['train_hits'][...]
-label_train = f['x'][...]
+input_train_1 = f['train_hits'][...]
+label_train_1 = f['x'][...]
 f.close()
 f = h5py.File('test_d49350.hdf5', 'r')
-input_test = f['test_hits'][...]
-label_test = f['x'][...]
+input_test_1 = f['test_hits'][...]
+label_test_1 = f['x'][...]
 f.close()
 
 #shuffle the training arrays
 p = np.random.permutation(len(input_train))
-input_train = input_train[p]
-label_train = label_train[p]
+input_train = input_train_1[p]
+label_train = label_train_1[p]
 
 #train/test on lesser entries for now
-input_train = input_train[0:n_train]
-label_train = label_train[0:n_train]
+input_train = input_train_1[0:n_train]
+label_train = label_train_1[0:n_train]
 
-input_test = input_test[0:n_test]
-label_test = label_test[0:n_test]
+input_test = input_test_1[0:n_test]
+label_test = label_test_1[0:n_test]
 
 # Reshape data
 #input_train = input_train.reshape((len(input_train), img_width, img_height, img_num_channels))
