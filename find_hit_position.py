@@ -5,12 +5,12 @@
 
 import h5py
 from keras.models import Model
+from keras.optimizers import Adam
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
 from keras.layers.core import Activation
 from keras.layers.core import Dropout
-from keras.layers.core import Lambda
 from keras.layers.core import Dense
 from keras.layers import Flatten
 from keras.layers import Input
@@ -36,6 +36,7 @@ f.close()
 input_train = np.zeros((n_train,13,21,1))
 label_train = np.zeros((n_train,1))
 #shuffle the training arrays -> FIND MORE EFFICIENT WAY TO DO THIS
+j=0
 for i in range(0,41):
 	input_train[1000*i:1000*(i+1)]=input_train_1[j:1000+j]
 	label_train[1000*i:1000*(i+1)]=label_train_1[j:1000+j]
