@@ -1,5 +1,5 @@
 import h5py
-from tensorflow.keras.models import Sequential
+from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Flatten, Conv2D
 from tensorflow.keras.losses import mean_squared_error as mse
 from tensorflow.keras.optimizers import Adam
