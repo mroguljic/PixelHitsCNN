@@ -36,26 +36,21 @@ f.close()
 input_train = np.zeros((n_train,13,21,1))
 label_train = np.zeros((n_train,1))
 #shuffle the training arrays -> FIND MORE EFFICIENT WAY TO DO THIS
+#create subset
 j=0
 for i in range(0,41):
 	input_train[1000*i:1000*(i+1)]=input_train_1[j:1000+j]
 	label_train[1000*i:1000*(i+1)]=label_train_1[j:1000+j]
 	j+=30000
 
-
-
 input_test = input_test_1[0:n_test]
 label_test = label_test_1[0:n_test]
-
-# Reshape data
-#input_train = input_train.reshape((len(input_train), img_width, img_height, img_num_channels))
-#input_test  = input_test.reshape((len(input_test), img_width, img_height, img_num_channels))
 
 # Model configuration
 batch_size = 32
 loss_function = 'mean_squared_error'
-n_epochs = 25
-optimizer = Adam(lr=0.001,decay=0.0001/n_epochs)
+n_epochs = 5
+optimizer = Adam(lr=0.001)
 validation_split = 0.2
 verbosity = 1
         
@@ -90,14 +85,12 @@ model = Model(inputs=inputs,
               )
 
 # Display a model summary
-keras.utils.plot_model(model, "multi_input_and_output_model.png", show_shapes=True)
 model.summary()
 
 # Compile the model
 model.compile(loss=loss_function,
-			  loss_weights=4.,
               optimizer=optimizer,
-              metrics='mse'
+              metrics=['mse']
               )
 
 callbacks = [
@@ -113,8 +106,8 @@ history = model.fit(input_train, label_train,
             validation_split=validation_split)
 
 # Generate generalization metrics
-x_position_predicted = model.predict(input_test)
-print('R2 score for x_position: ', r2_score(label_test, x_position_predicted))
+results = model.evaluate(input_test, label_test, batch_size=32)
+print("test loss, test acc:", results)
 
 
 plt.plot(history.history['loss'])
