@@ -16,7 +16,7 @@ from keras.layers import Flatten
 from keras.layers import Input
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
-import matplotlib.pyplot as plt
+import pylab
 from sklearn.metrics import r2_score
 import numpy as np
 
@@ -110,10 +110,12 @@ results = model.evaluate(input_test, label_test, batch_size=32)
 print("test loss, test acc:", results)
 
 
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper left')
-plt.show()
+pylab.plot(history.history['loss'])
+pylab.plot(history.history['val_loss'])
+pylab.title('model loss')
+pylab.ylabel('loss')
+pylab.xlabel('epoch')
+pylab.legend(['train', 'validation'], loc='upper left')
+pylab.show()
+pylab.savefig("pixelcnn_x.png")
+pylab.close()
