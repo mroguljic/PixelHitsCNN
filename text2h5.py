@@ -1,8 +1,12 @@
+#=================================
+# Author: Sanjana Sekhar
+# Date: 13 Sep 20
+#=================================
+
 import numpy as np
 import h5py
 
 #=====train files===== 
-
 
 f = h5py.File("train_d49301_d49341.hdf5", "w")
 
@@ -106,9 +110,6 @@ for j in range(0,n_test):
 	cosz[j] = float(position_data[5])
 
 	n+=14
-
-
-
 		
 test_dset = f.create_dataset("test_hits", np.shape(test_data), data=test_data)
 x_test_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
