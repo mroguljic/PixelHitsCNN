@@ -35,7 +35,7 @@ input_test = f['test_hits'][...]
 label_test = f['x'][...]
 f.close()
 
-print(input_train.shape)
+print(np.reshape(input_train[2],(13,21)))
 print(label_train.shape)
 '''
 input_train = np.zeros((n_train,13,21,1))
