@@ -43,7 +43,7 @@ label_test = f['x'][...]
 f.close()
 
 #print(np.reshape(pix_train[2],(13,21)))
-print(cosx_train.shape)
+print(np.reshape(cosx_train,(41000)))
 '''
 pix_train = np.zeros((n_train,13,21,1))
 label_train = np.zeros((n_train,1))
