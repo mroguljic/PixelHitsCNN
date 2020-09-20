@@ -16,8 +16,9 @@ from keras.layers import Flatten
 from keras.layers import Input
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
-import pylab
-pylab.use("Agg")
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as pylab
 from sklearn.metrics import r2_score
 import numpy as np
 
@@ -53,7 +54,7 @@ label_test = label_test_1[0:n_test]
 # Model configuration
 batch_size = 32
 loss_function = 'mean_squared_error'
-n_epochs = 5
+n_epochs = 20
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 verbosity = 1
@@ -110,16 +111,20 @@ history = model.fit(input_train, label_train,
             validation_split=validation_split)
 
 # Generate generalization metrics
-results = model.evaluate(input_test, label_test, batch_size=32)
-print("test loss, test acc:", results)
-
-
+results = model.predict(input_test, batch_size=32)
+#print("test loss, test acc:", results)
+residuals = results-label_test
+'''
 pylab.plot(history.history['loss'])
 pylab.plot(history.history['val_loss'])
 pylab.title('model loss')
 pylab.ylabel('loss')
 pylab.xlabel('epoch')
-pylab.legend(['train', 'validation'], loc='upper left')
+pylab.legend(['train', 'validation'], loc='upper right')
 #pylab.show()
 pylab.savefig("pixelcnn_x.png")
 pylab.close()
+'''
+pylab.hist(residuals)
+pylab.savefig("residuals.png")
+
