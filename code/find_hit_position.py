@@ -34,7 +34,7 @@ cosy_train = f['cosy'][...]
 cosz_train = f['cosz'][...]
 label_train = f['x'][...]
 f.close()
-angles_train = np.hstack(cosx_train,cosy_train,cosz_train)
+angles_train = np.hstack((cosx_train,cosy_train,cosz_train))
 f = h5py.File('h5_files/test_subset.hdf5', 'r')
 pix_test = f['test_hits'][...]
 cosx_test = f['cosx'][...]
@@ -42,7 +42,7 @@ cosy_test = f['cosy'][...]
 cosz_test = f['cosz'][...]
 label_test = f['x'][...]
 f.close()
-angles_test = np.hstack(cosx_test,cosy_test,cosz_test)
+angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
 #print(np.reshape(pix_train[2],(13,21)))
 #print(np.reshape(cosx_train,(41000)))
 '''
@@ -70,6 +70,7 @@ verbosity = 1
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
 inputs = Input(shape=(13,21,1))
+angles = Input(shape=(1,3))
 x = Conv2D(32, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
@@ -86,7 +87,7 @@ x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
-angles = Input(shape=(3))
+
 x = Concatenate([x_cnn,angles])
 x = Dense(64)(x)
 x = Activation("relu")(x)
@@ -103,7 +104,7 @@ x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x_position")(x)
 
-model = Model(inputs=[inputs,angles]
+model = Model(inputs=[inputs,angles],
               outputs=x_position
               )
 
