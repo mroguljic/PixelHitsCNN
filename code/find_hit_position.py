@@ -32,7 +32,8 @@ pix_train = f['train_hits'][...]
 cosx_train = f['cosx'][...]
 cosy_train = f['cosy'][...]
 cosz_train = f['cosz'][...]
-label_train = f['x'][...]
+x_train = f['x'][...]
+y_train = f['y'][...]
 f.close()
 angles_train = np.hstack((cosx_train,cosy_train,cosz_train))
 f = h5py.File('h5_files/test_subset.hdf5', 'r')
@@ -40,24 +41,25 @@ pix_test = f['test_hits'][...]
 cosx_test = f['cosx'][...]
 cosy_test = f['cosy'][...]
 cosz_test = f['cosz'][...]
-label_test = f['x'][...]
+x_test = f['x'][...]
+y_test = f['y'][...]
 f.close()
 angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
 #print(np.reshape(pix_train[2],(13,21)))
 #print(np.reshape(cosx_train,(41000)))
 '''
 pix_train = np.zeros((n_train,13,21,1))
-label_train = np.zeros((n_train,1))
+x_train = np.zeros((n_train,1))
 #shuffle the training arrays -> FIND MORE EFFICIENT WAY TO DO THIS
 #create subset
 j=0
 for i in range(0,41):
 	pix_train[1000*i:1000*(i+1)]=pix_train_1[j:1000+j]
-	label_train[1000*i:1000*(i+1)]=label_train_1[j:1000+j]
+	x_train[1000*i:1000*(i+1)]=x_train_1[j:1000+j]
 	j+=30000
 
 pix_test = pix_test_1[0:n_test]
-label_test = label_test_1[0:n_test]
+x_test = x_test_1[0:n_test]
 '''
 # Model configuration
 batch_size = 64
@@ -87,9 +89,9 @@ x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
+concat_inputs = concatenate([x_cnn,angles])
 
-x = concatenate([x_cnn,angles])
-x = Dense(64)(x)
+x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
@@ -104,8 +106,23 @@ x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x_position")(x)
 
+y = Dense(64)(concat_inputs)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(128)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(64)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(1)(y)
+y_position = Activation("linear", name="y_position")(y)
+
 model = Model(inputs=[inputs,angles],
-              outputs=x_position
+              outputs=[x_position,y_position]
               )
 
 # Display a model summary
@@ -122,7 +139,7 @@ callbacks = [
 ]
 
 # Fit data to model
-history = model.fit([pix_train, angles_train], label_train,
+history = model.fit([pix_train, angles_train], [x_train, y_train],
             batch_size=batch_size,
             epochs=n_epochs,
             callbacks=callbacks,
@@ -131,10 +148,11 @@ history = model.fit([pix_train, angles_train], label_train,
 
 
 # Generate generalization metrics
-results = model.predict([pix_test,angles_test], batch_size=batch_size)
+x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
 #print("test loss, test acc:", results)
-print results[:20]
-residuals = results-label_test
+print y_pred[:20]
+residuals_x = x_pred - x_test
+residuals_y = y_pred - y_test
 '''
 pylab.plot(history.history['loss'])
 pylab.plot(history.history['val_loss'])
@@ -146,9 +164,11 @@ pylab.legend(['train', 'validation'], loc='upper right')
 pylab.savefig("pixelcnn_x.png")
 pylab.close()
 '''
-plt.hist(residuals, histtype='step')
-plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
+plt.hist([residuals_x, residuals_y], histtype='step',label=[r'$\vartriangle x$',r'$\vartriangle x$'])
+plt.title(r'$\vartriangle x = x_{pred} - x_{true}, \vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
-plt.xlabel(r'$\vartriangle x$')
+plt.xlabel(r'$\mu m$')
+plt.legend(loc='upper right')
 plt.show()
-plt.savefig("plots/x_residuals_sep19.png")
+#plt.savefig("plots/residuals_sep19.png")
+
