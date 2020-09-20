@@ -17,20 +17,20 @@ from keras.layers import Input
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as pylab
+#matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 import numpy as np
 
-n_train = 41000
-n_test = 4100
+#n_train = 41000
+#n_test = 4100
 
 # Load data
-f = h5py.File('train_subset.hdf5', 'r')
+f = h5py.File('train_d49301_d49341.hdf5', 'r')
 input_train = f['train_hits'][...]
 label_train = f['x'][...]
 f.close()
-f = h5py.File('test_subset.hdf5', 'r')
+f = h5py.File('test_d49350.hdf5', 'r')
 input_test = f['test_hits'][...]
 label_test = f['x'][...]
 f.close()
@@ -52,9 +52,9 @@ input_test = input_test_1[0:n_test]
 label_test = label_test_1[0:n_test]
 '''
 # Model configuration
-batch_size = 32
+batch_size = 128
 loss_function = 'mean_squared_error'
-n_epochs = 20
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 verbosity = 1
@@ -125,6 +125,10 @@ pylab.legend(['train', 'validation'], loc='upper right')
 pylab.savefig("pixelcnn_x.png")
 pylab.close()
 '''
-pylab.hist(residuals)
-pylab.savefig("residuals.png")
+plt.hist(residuals, histtype='step')
+plt.title(r'$\vartriangle x = x_pred - x_true$')
+plt.ylabel('No. of samples')
+plt.xlabel(r'$\vartriangle x$')
+plt.show()
+plt.savefig("x_residuals_sep19.png")
 
