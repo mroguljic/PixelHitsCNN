@@ -67,7 +67,7 @@ loss_function = 'mean_squared_error'
 n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
-verbosity = 1
+
         
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
@@ -143,7 +143,6 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
             batch_size=batch_size,
             epochs=n_epochs,
             callbacks=callbacks,
-            verbose=verbosity,
             validation_split=validation_split)
 
 
@@ -153,18 +152,19 @@ x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
 print y_pred[:20]
 residuals_x = x_pred - x_test
 residuals_y = y_pred - y_test
-'''
-pylab.plot(history.history['loss'])
-pylab.plot(history.history['val_loss'])
-pylab.title('model loss')
-pylab.ylabel('loss')
-pylab.xlabel('epoch')
-pylab.legend(['train', 'validation'], loc='upper right')
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper right')
 #pylab.show()
-pylab.savefig("pixelcnn_x.png")
-pylab.close()
-'''
-plt.hist([residuals_x, residuals_y], histtype='step',label=[r'$\vartriangle x$',r'$\vartriangle x$'])
+plt.savefig("pixelcnn_xy.png")
+#pylab.close()
+
+plt.hist(residuals_x, histtype='step', label=r'$\vartriangle x$')
+plt.hist(residuals_y, histtype='step', label=r'$\vartriangle y$')
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}, \vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
