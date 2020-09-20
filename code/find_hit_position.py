@@ -54,7 +54,7 @@ label_test = label_test_1[0:n_test]
 # Model configuration
 batch_size = 64
 loss_function = 'mean_squared_error'
-n_epochs = 30
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 verbosity = 1
@@ -78,15 +78,17 @@ x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
 x = Flatten()(x)
-x = Dense(128)(x)
+x_out_cnn = Dense(128)(x)
+print(x_out_cnn.shape)
+'''
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x_position")(x)
-
+'''
 model = Model(inputs=inputs,
-              outputs=x_position
+              outputs=x_out_cnn
               )
 
 # Display a model summary
@@ -109,13 +111,13 @@ history = model.fit(input_train, label_train,
             callbacks=callbacks,
             verbose=verbosity,
             validation_split=validation_split)
-
+''''
 # Generate generalization metrics
 results = model.predict(input_test, batch_size=batch_size)
 #print("test loss, test acc:", results)
 print results[:20]
 residuals = results-label_test
-'''
+
 pylab.plot(history.history['loss'])
 pylab.plot(history.history['val_loss'])
 pylab.title('model loss')
@@ -125,7 +127,7 @@ pylab.legend(['train', 'validation'], loc='upper right')
 #pylab.show()
 pylab.savefig("pixelcnn_x.png")
 pylab.close()
-'''
+
 plt.hist(residuals, histtype='step')
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
@@ -133,3 +135,4 @@ plt.xlabel(r'$\vartriangle x$')
 plt.show()
 plt.savefig("plots/x_residuals_sep19.png")
 
+'''
