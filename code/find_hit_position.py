@@ -24,7 +24,7 @@ from sklearn.metrics import r2_score
 import numpy as np
 
 # Load data
-f = h5py.File('h5_files/train_subset.hdf5', 'r')
+f = h5py.File('h5_files/train_d49301_d49341.hdf5', 'r')
 pix_train = f['train_hits'][...]
 cosx_train = f['cosx'][...]
 cosy_train = f['cosy'][...]
@@ -34,7 +34,7 @@ y_train = f['y'][...]
 f.close()
 angles_train = np.hstack((cosx_train,cosy_train,cosz_train))
 
-f = h5py.File('h5_files/test_subset.hdf5', 'r')
+f = h5py.File('h5_files/test_d49350.hdf5', 'r')
 pix_test = f['test_hits'][...]
 cosx_test = f['cosx'][...]
 cosy_test = f['cosy'][...]
@@ -45,13 +45,12 @@ f.close()
 angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
 
 # Model configuration
-batch_size = 64
+batch_size = 128
 loss_function = 'mean_squared_error'
-n_epochs = 10
+n_epochs = 20
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
-        
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
 inputs = Input(shape=(13,21,1))
@@ -136,14 +135,22 @@ residuals_y = y_pred - y_test
 
 plt.plot(history.history['x_loss'])
 plt.plot(history.history['val_x_loss'])
-plt.plot(history.history['y_loss'])
-plt.plot(history.history['val_y_loss'])
-plt.title('x and y position - model loss')
+plt.title('x position - model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
-plt.legend(['x-train', 'x-validation','y-train', 'y-validation'], loc='upper right')
+plt.legend(['x-train', 'x-validation'], loc='upper right')
 #plt.show()
-plt.savefig("loss_xy_sep20.png")
+plt.savefig("plots/loss_x_sep20.png")
+plt.close()
+
+plt.plot(history.history['y_loss'])
+plt.plot(history.history['val_y_loss'])
+plt.title('y position - model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['y-train', 'y-validation'], loc='upper right')
+#plt.show()
+plt.savefig("plots/loss_y_sep20.png")
 plt.close()
 
 plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$')
@@ -154,4 +161,5 @@ plt.xlabel(r'$\mu m$')
 plt.legend(loc='upper right')
 #plt.show()
 plt.savefig("plots/residuals_sep20.png")
+plt.close()
 

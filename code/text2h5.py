@@ -12,10 +12,10 @@ import h5py
 
 #=====train files===== 
 
-f = h5py.File("h5_files/train_subset.hdf5", "w")
+f = h5py.File("h5_files/train_d49301_d49341.hdf5", "w")
 
 
-n_per_file = 10000
+n_per_file = 30000
 n_files = 41
 
 #30000 matrices per file
@@ -73,14 +73,14 @@ cosx_train_dset = f.create_dataset("cosx", np.shape(cosx), data=cosx)
 cosy_train_dset = f.create_dataset("cosy", np.shape(cosy), data=cosy)
 cosz_train_dset = f.create_dataset("cosz", np.shape(cosz), data=cosz)
 
-print("made train h5 file. no of events to train on = %i"%(n_train))
+print("made train h5 file. no of events to train on = %i\n"%(n_train))
 print("making test h5 file\n")
 
 #======test files========
 
-f = h5py.File("h5_files/test_subset.hdf5", "w")
+f = h5py.File("h5_files/test_d49350.hdf5", "w")
 
-n_test = 41000
+n_test = 1000000
 
 #"image" size = 13x21x1
 test_data = np.zeros((n_test,13,21,1))
