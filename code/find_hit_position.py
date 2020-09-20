@@ -79,16 +79,14 @@ x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
 x = Flatten()(x)
 x_out_cnn = Dense(128)(x)
-print(x_out_cnn.shape)
-'''
-x = Activation("relu")(x)
+x = Activation("relu")(x_out_cnn)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x_position")(x)
-'''
+
 model = Model(inputs=inputs,
-              outputs=x_out_cnn
+              outputs=x_position
               )
 
 # Display a model summary
@@ -111,6 +109,8 @@ history = model.fit(input_train, label_train,
             callbacks=callbacks,
             verbose=verbosity,
             validation_split=validation_split)
+
+print(x_out_cnn)
 ''''
 # Generate generalization metrics
 results = model.predict(input_test, batch_size=batch_size)
