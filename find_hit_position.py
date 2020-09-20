@@ -26,11 +26,11 @@ import numpy as np
 #n_test = 4100
 
 # Load data
-f = h5py.File('train_d49301_d49341.hdf5', 'r')
+f = h5py.File('train_subset.hdf5', 'r')
 input_train = f['train_hits'][...]
 label_train = f['x'][...]
 f.close()
-f = h5py.File('test_d49350.hdf5', 'r')
+f = h5py.File('test_subset.hdf5', 'r')
 input_test = f['test_hits'][...]
 label_test = f['x'][...]
 f.close()
@@ -52,7 +52,7 @@ input_test = input_test_1[0:n_test]
 label_test = label_test_1[0:n_test]
 '''
 # Model configuration
-batch_size = 128
+batch_size = 64
 loss_function = 'mean_squared_error'
 n_epochs = 6
 optimizer = Adam(lr=0.001)
@@ -68,6 +68,11 @@ x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(3, 3))(x)
 x = Dropout(0.25)(x)
 x = Conv2D(32, (3, 3), padding="same")(x)
+x = Activation("relu")(x)
+x = BatchNormalization(axis=-1)(x)
+x = MaxPooling2D(pool_size=(2, 2))(x)
+x = Dropout(0.25)(x)
+x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
