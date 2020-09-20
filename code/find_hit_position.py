@@ -47,7 +47,7 @@ angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
 # Model configuration
 batch_size = 64
 loss_function = 'mean_squared_error'
-n_epochs = 1
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -142,7 +142,7 @@ plt.title('x and y position - model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['x-train', 'x-validation','y-train', 'y-validation'], loc='upper right')
-plt.show()
+#plt.show()
 plt.savefig("loss_xy_sep20.png")
 plt.close()
 
@@ -152,6 +152,6 @@ plt.title(r'$\vartriangle x = x_{pred} - x_{true}, \vartriangle y = y_{pred} - y
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.legend(loc='upper right')
-plt.show()
+#plt.show()
 plt.savefig("plots/residuals_sep20.png")
 
