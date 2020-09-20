@@ -14,7 +14,7 @@ from keras.layers.core import Dropout
 from keras.layers.core import Dense
 from keras.layers import Flatten
 from keras.layers import Input
-from keras.layers import Concatenate
+from keras.layers import concatenate
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 import matplotlib
@@ -62,7 +62,7 @@ label_test = label_test_1[0:n_test]
 # Model configuration
 batch_size = 64
 loss_function = 'mean_squared_error'
-n_epochs = 1
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 verbosity = 1
@@ -70,7 +70,7 @@ verbosity = 1
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
 inputs = Input(shape=(13,21,1))
-angles = Input(shape=(1,3))
+angles = Input(shape=(3,))
 x = Conv2D(32, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
@@ -88,7 +88,7 @@ x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 
-x = Concatenate([x_cnn,angles])
+x = concatenate([x_cnn,angles])
 x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
@@ -131,7 +131,7 @@ history = model.fit([pix_train, angles_train], label_train,
 
 
 # Generate generalization metrics
-results = model.predict(pix_test, batch_size=batch_size)
+results = model.predict([pix_test,angles_test], batch_size=batch_size)
 #print("test loss, test acc:", results)
 print results[:20]
 residuals = results-label_test
