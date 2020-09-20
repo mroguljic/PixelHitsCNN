@@ -54,7 +54,7 @@ label_test = label_test_1[0:n_test]
 # Model configuration
 batch_size = 128
 loss_function = 'mean_squared_error'
-n_epochs = 10
+n_epochs = 6
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 verbosity = 1
@@ -111,8 +111,9 @@ history = model.fit(input_train, label_train,
             validation_split=validation_split)
 
 # Generate generalization metrics
-results = model.predict(input_test, batch_size=32)
+results = model.predict(input_test, batch_size=batch_size)
 #print("test loss, test acc:", results)
+print results[:20]
 residuals = results-label_test
 '''
 pylab.plot(history.history['loss'])
@@ -126,7 +127,7 @@ pylab.savefig("pixelcnn_x.png")
 pylab.close()
 '''
 plt.hist(residuals, histtype='step')
-plt.title(r'$\vartriangle x = x_pred - x_true$')
+plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\vartriangle x$')
 plt.show()
