@@ -80,7 +80,7 @@ print("making test h5 file\n")
 
 f = h5py.File("h5_files/test_subset.hdf5", "w")
 
-n_test = 4100
+n_test = 41000
 
 #"image" size = 13x21x1
 test_data = np.zeros((n_test,13,21,1))
