@@ -23,9 +23,6 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 import numpy as np
 
-#n_train = 41000
-#n_test = 4100
-
 # Load data
 f = h5py.File('h5_files/train_subset.hdf5', 'r')
 pix_train = f['train_hits'][...]
@@ -36,6 +33,7 @@ x_train = f['x'][...]
 y_train = f['y'][...]
 f.close()
 angles_train = np.hstack((cosx_train,cosy_train,cosz_train))
+
 f = h5py.File('h5_files/test_subset.hdf5', 'r')
 pix_test = f['test_hits'][...]
 cosx_test = f['cosx'][...]
@@ -45,28 +43,13 @@ x_test = f['x'][...]
 y_test = f['y'][...]
 f.close()
 angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
-#print(np.reshape(pix_train[2],(13,21)))
-#print(np.reshape(cosx_train,(41000)))
-'''
-pix_train = np.zeros((n_train,13,21,1))
-x_train = np.zeros((n_train,1))
-#shuffle the training arrays -> FIND MORE EFFICIENT WAY TO DO THIS
-#create subset
-j=0
-for i in range(0,41):
-	pix_train[1000*i:1000*(i+1)]=pix_train_1[j:1000+j]
-	x_train[1000*i:1000*(i+1)]=x_train_1[j:1000+j]
-	j+=30000
 
-pix_test = pix_test_1[0:n_test]
-x_test = x_test_1[0:n_test]
-'''
 # Model configuration
 batch_size = 64
 loss_function = 'mean_squared_error'
-n_epochs = 10
+n_epochs = 1
 optimizer = Adam(lr=0.001)
-validation_split = 0.2
+validation_split = 0.3
 
         
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
@@ -104,7 +87,7 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
 x = Dense(1)(x)
-x_position = Activation("linear", name="x_position")(x)
+x_position = Activation("linear", name="x")(x)
 
 y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
@@ -119,7 +102,7 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
 y = Dense(1)(y)
-y_position = Activation("linear", name="y_position")(y)
+y_position = Activation("linear", name="y")(y)
 
 model = Model(inputs=[inputs,angles],
               outputs=[x_position,y_position]
@@ -131,7 +114,7 @@ model.summary()
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
-              metrics=['mse']
+              metrics=['mse','mse']
               )
 
 callbacks = [
@@ -148,27 +131,27 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
 
 # Generate generalization metrics
 x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
-#print("test loss, test acc:", results)
-print y_pred[:20]
 residuals_x = x_pred - x_test
 residuals_y = y_pred - y_test
 
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
+plt.plot(history.history['x_loss'])
+plt.plot(history.history['val_x_loss'])
+plt.plot(history.history['y_loss'])
+plt.plot(history.history['val_y_loss'])
+plt.title('x and y position - model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper right')
-#pylab.show()
-plt.savefig("pixelcnn_xy.png")
-#pylab.close()
+plt.legend(['x-train', 'x-validation','y-train', 'y-validation'], loc='upper right')
+plt.show()
+plt.savefig("loss_xy_sep20.png")
+plt.close()
 
-plt.hist(residuals_x, histtype='step', label=r'$\vartriangle x$')
-plt.hist(residuals_y, histtype='step', label=r'$\vartriangle y$')
+plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$')
+plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$')
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}, \vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.legend(loc='upper right')
 plt.show()
-#plt.savefig("plots/residuals_sep19.png")
+plt.savefig("plots/residuals_sep20.png")
 
