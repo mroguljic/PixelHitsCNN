@@ -47,7 +47,7 @@ angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
 # Model configuration
 batch_size = 128
 loss_function = 'mean_squared_error'
-n_epochs = 20
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -131,7 +131,11 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
 # Generate generalization metrics
 x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
 residuals_x = x_pred - x_test
+sigma_x = np.std(residuals_x)
+print("sigma_x = %f\n"%(sigma_x))
 residuals_y = y_pred - y_test
+sigma_y = np.std(residuals_y)
+print("sigma_y = %f\n"%(sigma_y))
 
 plt.plot(history.history['x_loss'])
 plt.plot(history.history['val_x_loss'])
