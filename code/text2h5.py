@@ -29,15 +29,15 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct4_chk"
+date = "oct4"
 
 #=====train files===== 
 
 f = h5py.File("h5_files/train_d49301_d49341_%s.hdf5"%(date), "w")
 
 
-n_per_file = 3
-n_files = 1
+n_per_file = 30000
+n_files = 41
 
 
 #no of events to train on = 1230000
@@ -113,7 +113,7 @@ x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all train matrices\nconverted train_labels from pixelav coords to cms coords \ncomputed train cota cotb\n")
-print(train_data.reshape((21,13)))
+
 
 #shifting central hit away from matrix centre
 for index in np.arange(len(train_data)):
@@ -145,12 +145,12 @@ for index in np.arange(len(train_data)):
 		x_position[index]-=pixelsize_x[index]
 
 print("shifted pixel hits away from matrix centre")
-print(train_data.reshape((21,13)))
+
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data 
 
 print("multiplied all elements by 10")
-print(train_data.reshape((21,13)))
+
 #add 2 types of noise
 
 if(fe_type==1): #linear gain
@@ -164,14 +164,14 @@ elif(fe_type==2): #tanh gain
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
-print(train_data.reshape((21,13)))
+
 
 #if n_elec < 1000 -> 0
 below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-print(train_data.reshape((21,13)))
+
 
 #IS IT BETTER TO SPECIFIY DTYPES?
 train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data)
@@ -182,7 +182,7 @@ cotb_train_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
 
 print("made train h5 file. no of events to train on = %i\n"%(n_train))
 print("making test h5 file\n")
-'''
+
 #-----------------------------------------------------------------------
 #====== test files ========
 #-----------------------------------------------------------------------
@@ -321,4 +321,3 @@ cota_test_dset = f.create_dataset("cota", np.shape(cota), data=cota)
 cotb_test_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
 
 print("made test h5 file. no of events to test on = %i"%(n_test))
-'''
