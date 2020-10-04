@@ -22,39 +22,42 @@ import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 import numpy as np
+import time
+
+date = "oct4"
 
 # Load data
-f = h5py.File('h5_files/train_d49301_d49341.hdf5', 'r')
+f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(date), 'r')
 pix_train = f['train_hits'][...]
-cosx_train = f['cosx'][...]
-cosy_train = f['cosy'][...]
-cosz_train = f['cosz'][...]
-x_train = f['x'][...]
+cota_train = f['cota'][...]
+cotb_train = f['cotb'][...]
+x_train = f['x'][...] #pav = pixelav
 y_train = f['y'][...]
+angles_train = np.hstack((cota_train,cotb_train))
 f.close()
-angles_train = np.hstack((cosx_train,cosy_train,cosz_train))
 
-f = h5py.File('h5_files/test_d49350.hdf5', 'r')
+
+f = h5py.File('h5_files/test_d49350_%s.hdf5'%(date), 'r')
 pix_test = f['test_hits'][...]
-cosx_test = f['cosx'][...]
-cosy_test = f['cosy'][...]
-cosz_test = f['cosz'][...]
+cota_test = f['cota'][...]
+cotb_test = f['cotb'][...]
 x_test = f['x'][...]
 y_test = f['y'][...]
+angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-angles_test = np.hstack((cosx_test,cosy_test,cosz_test))
+
 
 # Model configuration
 batch_size = 128
 loss_function = 'mean_squared_error'
-n_epochs = 1
+n_epochs = 2
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
-inputs = Input(shape=(13,21,1))
-angles = Input(shape=(3,))
+inputs = Input(shape=(21,13,1))
+angles = Input(shape=(2,))
 x = Conv2D(32, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
@@ -96,6 +99,10 @@ y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
+y = Dense(128)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
 y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
@@ -117,7 +124,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-    ModelCheckpoint(filepath="checkpoints/cp.ckpt", monitor='val_loss')
+    ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date), monitor='val_loss')
 ]
 
 # Fit data to model
@@ -129,7 +136,13 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
 
 
 # Generate generalization metrics
-x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
+
+start = time.process_time()
+x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)   
+inference_time = time.process_time() - start
+
+print("inference_time = ",inference_times)
+
 residuals_x = x_pred - x_test
 sigma_x = np.std(residuals_x)
 print("sigma_x = %f\n"%(sigma_x))
@@ -144,7 +157,7 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['x-train', 'x-validation'], loc='upper right')
 #plt.show()
-plt.savefig("plots/loss_x_sep20.png")
+plt.savefig("plots/loss_x_%s.png"%(date))
 plt.close()
 
 plt.plot(history.history['y_loss'])
@@ -154,7 +167,7 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['y-train', 'y-validation'], loc='upper right')
 #plt.show()
-plt.savefig("plots/loss_y_sep20.png")
+plt.savefig("plots/loss_y_%s.png"%(date))
 plt.close()
 
 plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$')
@@ -164,6 +177,6 @@ plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.legend(loc='upper right')
 #plt.show()
-plt.savefig("plots/residuals_sep20.png")
+plt.savefig("plots/residuals_%s.png"%(date))
 plt.close()
 
