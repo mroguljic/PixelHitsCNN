@@ -137,13 +137,13 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
             callbacks=callbacks,
             validation_split=validation_split)
 '''
-model.load_weights("checkpoints/cp_%s.ckpt"%(date))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
 
 # Generate generalization metrics
 
-start = time.process_time()
+start = time.process_time_ns()
 x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)   
-inference_time = time.process_time() - start
+inference_time = time.process_time_ns() - start
 
 print("inference_time = ",inference_time)
 
