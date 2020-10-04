@@ -48,7 +48,6 @@ for i in range(1,n_files+1):
 	del lines[0:2]
 
 	n=0
-	position_data=[], pixelsize_data=[]
 
 	for j in range(0,n_per_file):
 
@@ -212,7 +211,6 @@ pixelsize = lines[1]
 del lines[0:2]
 
 n=0
-position_data=[], pixelsize_data=[]
 
 for j in range(0,n_test):
 
