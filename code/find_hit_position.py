@@ -48,9 +48,9 @@ f.close()
 
 
 # Model configuration
-batch_size = 256
-loss_function = 'mean_squared_error'
-n_epochs = 1
+batch_size = 128
+loss_function = 'mse'
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -114,8 +114,10 @@ model = Model(inputs=[inputs,angles],
               outputs=[x_position,y_position]
               )
 
-# Display a model summary
+ # Display a model summary
 model.summary()
+
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -124,26 +126,24 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-    ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date), 
-                    save_weights_only=True,
-                    monitor='val_loss')
+ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date),
+                save_weights_only=True,
+                monitor='val_loss')
 ]
 
 # Fit data to model
-'''
 history = model.fit([pix_train, angles_train], [x_train, y_train],
-            batch_size=batch_size,
-            epochs=n_epochs,
-            callbacks=callbacks,
-            validation_split=validation_split)
-'''
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
+                batch_size=batch_size,
+                epochs=n_epochs,
+                callbacks=callbacks,
+                validation_split=validation_split)
+
 
 # Generate generalization metrics
 
-start = time.process_time_ns()
-x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)   
-inference_time = time.process_time_ns() - start
+start = time.clock()
+x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
+inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
 
@@ -153,7 +153,7 @@ print("sigma_x = %f\n"%(sigma_x))
 residuals_y = y_pred - y_test
 sigma_y = np.std(residuals_y)
 print("sigma_y = %f\n"%(sigma_y))
-
+'''
 plt.plot(history.history['x_loss'])
 plt.plot(history.history['val_x_loss'])
 plt.title('x position - model loss')
@@ -173,7 +173,7 @@ plt.legend(['y-train', 'y-validation'], loc='upper right')
 #plt.show()
 plt.savefig("plots/loss_y_%s.png"%(date))
 plt.close()
-
+'''
 plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$')
 plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$')
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}, \vartriangle y = y_{pred} - y_{true}$')
