@@ -95,32 +95,32 @@ print("transposed all train matrices\n converted train_labels from pixelav coord
 
 #shifting central hit away from matrix centre
 for index in np.arange(len(train_data)):
-  nonzero_list = np.asarray(np.nonzero(train_data[index]))
-  nonzero_i = np.sort(nonzero_list[0,:])
-  nonzero_j = np.sort(nonzero_list[1,:])
-  if(index%4 == 0 and nonzero_j[0]!=0):
-    #shift left iff there is no element at 0th column
-    train_data[index] = np.roll(train_data[index],-1,axis=1)
-    #shift hit position too
-    y_position[index]-=pixelsize_y[index]
+	nonzero_list = np.asarray(np.nonzero(train_data[index]))
+	nonzero_i = np.sort(nonzero_list[0,:])
+	nonzero_j = np.sort(nonzero_list[1,:])
+	if(index%4 == 0 and nonzero_j[0]!=0):
+		#shift left iff there is no element at 0th column
+		train_data[index] = np.roll(train_data[index],-1,axis=1)
+		#shift hit position too
+		y_position[index]-=pixelsize_y[index]
 
-  if(index%4 == 1 and nonzero_j[-1]!=12):
-    #shift right iff there is no element at the last column
-    train_data[index] = np.roll(train_data[index],1,axis=1)
-    #shift hit position too
-    y_position[index]+=pixelsize_y[index]
+	if(index%4 == 1 and nonzero_j[-1]!=12):
+		#shift right iff there is no element at the last column
+		train_data[index] = np.roll(train_data[index],1,axis=1)
+		#shift hit position too
+		y_position[index]+=pixelsize_y[index]
 
-  if(index%4 == 2 and nonzero_i[0]!=0):
-    #shift up iff there is no element in the 0th row
-    train_data[index] = np.roll(train_data[index],-1,axis=0)
-    #shift hit position too
-    x_position[index]+=pixelsize_x[index]
+	if(index%4 == 2 and nonzero_i[0]!=0):
+		#shift up iff there is no element in the 0th row
+		train_data[index] = np.roll(train_data[index],-1,axis=0)
+		#shift hit position too
+		x_position[index]+=pixelsize_x[index]
 
-  if(index%4 == 3 and nonzero_i[-1]!=20):
-    #shift down iff there is no element in the last row
-    train_data[index] = np.roll(train_data[index],1,axis=0)
-    #shift hit position too
-    x_position[index]-=pixelsize_x[index]
+	if(index%4 == 3 and nonzero_i[-1]!=20):
+		#shift down iff there is no element in the last row
+		train_data[index] = np.roll(train_data[index],1,axis=0)
+		#shift hit position too
+		x_position[index]-=pixelsize_x[index]
 
 print("shifted pixel hits away from matrix centre")
 
@@ -259,32 +259,32 @@ print("transposed all test matrices\n converted test_labels from pixelav coords 
 
 #shifting central hit away from matrix centre
 for index in np.arange(len(test_data)):
-  nonzero_list = np.asarray(np.nonzero(test_data[index]))
-  nonzero_i = np.sort(nonzero_list[0,:])
-  nonzero_j = np.sort(nonzero_list[1,:])
-  if(index%4 == 0 and nonzero_j[0]!=0):
-    #shift left iff there is no element at 0th column
-    test_data[index] = np.roll(test_data[index],-1,axis=1)
-    #shift hit position too
-    y_position[index]-=pixelsize_y[index]
+	nonzero_list = np.asarray(np.nonzero(test_data[index]))
+	nonzero_i = np.sort(nonzero_list[0,:])
+	nonzero_j = np.sort(nonzero_list[1,:])
+	if(index%4 == 0 and nonzero_j[0]!=0):
+		#shift left iff there is no element at 0th column
+		test_data[index] = np.roll(test_data[index],-1,axis=1)
+		#shift hit position too
+		y_position[index]-=pixelsize_y[index]
 
-  if(index%4 == 1 and nonzero_j[-1]!=12):
-    #shift right iff there is no element at the last column
-    test_data[index] = np.roll(test_data[index],1,axis=1)
-    #shift hit position too
-    y_position[index]+=pixelsize_y[index]
+	if(index%4 == 1 and nonzero_j[-1]!=12):
+		#shift right iff there is no element at the last column
+		test_data[index] = np.roll(test_data[index],1,axis=1)
+		#shift hit position too
+		y_position[index]+=pixelsize_y[index]
 
-  if(index%4 == 2 and nonzero_i[0]!=0):
-    #shift up iff there is no element in the 0th row
-    test_data[index] = np.roll(test_data[index],-1,axis=0)
-    #shift hit position too
-    x_position[index]+=pixelsize_x[index]
+	if(index%4 == 2 and nonzero_i[0]!=0):
+		#shift up iff there is no element in the 0th row
+		test_data[index] = np.roll(test_data[index],-1,axis=0)
+		#shift hit position too
+		x_position[index]+=pixelsize_x[index]
 
-  if(index%4 == 3 and nonzero_i[-1]!=20):
-    #shift down iff there is no element in the last row
-    test_data[index] = np.roll(test_data[index],1,axis=0)
-    #shift hit position too
-    x_position[index]-=pixelsize_x[index]
+	if(index%4 == 3 and nonzero_i[-1]!=20):
+		#shift down iff there is no element in the last row
+		test_data[index] = np.roll(test_data[index],1,axis=0)
+		#shift hit position too
+		x_position[index]-=pixelsize_x[index]
 
 print("shifted pixel hits away from matrix centre")
 
