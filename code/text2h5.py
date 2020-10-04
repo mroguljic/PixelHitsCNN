@@ -163,8 +163,8 @@ if(fe_type==1): #linear gain
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(train_data)):
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data + vcaloffst)/(7.0*vcal) - p1)))
-	    train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
-    print("applied tanh gain")
+		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
+	print("applied tanh gain")
 
 #if n_elec < 1000 -> 0
 below_threshold_i = train_data < threshold
@@ -304,8 +304,8 @@ if(fe_type==1): #linear gain
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(test_data)):
 		adc = (float)((int)(p3+p2*tanh(p0*(test_data + vcaloffst)/(7.0*vcal) - p1)))
-	    test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
-    print("applied tanh gain")
+		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
+	print("applied tanh gain")
 
 #if n_elec < 1000 -> 0
 below_threshold_i = test_data < threshold
