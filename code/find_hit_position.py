@@ -48,9 +48,9 @@ f.close()
 
 
 # Model configuration
-batch_size = 128
+batch_size = 256
 loss_function = 'mean_squared_error'
-n_epochs = 2
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -124,7 +124,9 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-    ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date), monitor='val_loss')
+    ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date), 
+                    save_weights_only=True,
+                    monitor='val_loss')
 ]
 
 # Fit data to model
