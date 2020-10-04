@@ -3,12 +3,31 @@
 # Date: 13 Sep 20
 #=================================
 
-#no of events to train on = 1230000
-#no of events to test on = 1000000
-
-
 import numpy as np
 import h5py
+
+fe_type = 1
+gain_frac     = 0.;
+readout_noise = 350.;
+
+#--- Variables we can change, but we start with good default values
+vcal = 47.0;	
+vcaloffst = 60.0;
+
+#--- PhaseII - initial guess
+threshold = 1000; # threshold in e-
+qperToT = 1500; # e- per TOT
+nbitsTOT = 4; # fixed and carved in stone?
+ADCMax = np.power(2, nbitsTOT)-1;
+dualslope = 4;
+
+#--- Constants (could be made variables later)
+gain  = 3.19;
+ped   = 16.46;
+p0    = 0.01218;
+p1    = 0.711;
+p2    = 203.;
+p3    = 148.;	
 
 date = "oct4"
 
@@ -20,6 +39,9 @@ f = h5py.File("h5_files/train_d49301_d49341_%s.hdf5"%(date), "w")
 n_per_file = 30000
 n_files = 41
 
+
+#no of events to train on = 1230000
+#no of events to test on = 1000000
 #30000 matrices per file
 n_train = n_per_file*n_files
 
@@ -66,7 +88,7 @@ for i in range(1,n_files+1):
 		cosy[j+n_events] = float(position_data[4])
 		cosz[j+n_events] = float(position_data[5])
 
-		pixelsize_data = pixelsize.split(' ')
+		pixelsize_data = pixelsize.split('  ')
 		pixelsize_x[j+n_events] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
 		pixelsize_y[j+n_events] = float(pixelsize_data[0])
 		pixelsize_z[j+n_events] = float(pixelsize_data[2])
@@ -129,39 +151,16 @@ train_data = 10*train_data
 print("multiplied all elements by 10")
 
 #add 2 types of noise
-fe_type = 1
-gain_frac     = 0.;
-readout_noise = 350.;
-
-#--- Variables we can change, but we start with good default values
-vcal = 47.0;	
-vcaloffst = 60.0;
-
-#--- PhaseII - initial guess
-threshold = 1000; # threshold in e-
-qperToT = 1500; # e- per TOT
-nbitsTOT = 4; # fixed and carved in stone?
-ADCMax = np.power(2, nbitsTOT)-1;
-dualslope = 4;
-
-#--- Constants (could be made variables later)
-gain  = 3.19;
-ped   = 16.46;
-p0    = 0.01218;
-p1    = 0.711;
-p2    = 203.;
-p3    = 148.;	
-
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(train_data)):
 		noise = np.random.normal(0,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
-		train_data[index]+= gain_frac*noise*train_data + readout_noise*noise
+		train_data[index]+= gain_frac*noise*train_data[index] + readout_noise*noise
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(train_data)):
-		adc = (float)((int)(p3+p2*tanh(p0*(train_data + vcaloffst)/(7.0*vcal) - p1)))
+		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
 
@@ -229,7 +228,7 @@ for j in range(0,n_test):
 	cosy[j] = float(position_data[4])
 	cosz[j] = float(position_data[5])
 
-	pixelsize_data = pixelsize.split(' ')
+	pixelsize_data = pixelsize.split('  ')
 	pixelsize_x[j] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
 	pixelsize_y[j] = float(pixelsize_data[0])
 	pixelsize_z[j] = float(pixelsize_data[2])
@@ -296,12 +295,12 @@ print("multiplied all elements by 10")
 if(fe_type==1): #linear gain
 	for index in np.arange(len(test_data)):
 		noise = np.random.normal(0,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
-		test_data[index]+= gain_frac*noise*test_data + readout_noise*noise
+		test_data[index]+= gain_frac*noise*test_data[index] + readout_noise*noise
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(test_data)):
-		adc = (float)((int)(p3+p2*tanh(p0*(test_data + vcaloffst)/(7.0*vcal) - p1)))
+		adc = (float)((int)(p3+p2*tanh(p0*(test_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
 
