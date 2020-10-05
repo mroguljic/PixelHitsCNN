@@ -118,14 +118,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date),
                 save_weights_only=True,
@@ -139,7 +139,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-
+'''
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
@@ -151,10 +151,10 @@ print("inference_time = ",inference_time)
 
 residuals_x = x_pred - x_test
 RMS_x = np.std(residuals_x)
-print("RMS_x = %f\n"%(sigma_x))
+print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
 RMS_y = np.std(residuals_y)
-print("RMS_y = %f\n"%(sigma_y))
+print("RMS_y = %f\n"%(RMS_y))
 '''
 plt.plot(history.history['x_loss'])
 plt.plot(history.history['val_x_loss'])
