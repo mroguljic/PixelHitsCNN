@@ -50,7 +50,7 @@ f.close()
 # Model configuration
 batch_size = 64
 loss_function = 'mse'
-n_epochs = 10
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -118,14 +118,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date),
                 save_weights_only=True,
@@ -138,7 +138,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
-'''
+
 
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
