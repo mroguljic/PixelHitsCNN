@@ -171,7 +171,7 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-train_data = int(train_data/10)
+train_data = (train_data/10).astype('int32')
 print("divided by 10")
 
 
@@ -314,7 +314,7 @@ below_threshold_i = test_data < threshold
 test_data[below_threshold_i] = 0
 print("applied threshold")
 
-test_data = int(test_data/10)
+test_data = (test_data/10).astype('int32')
 print("divided by 10")
 
 #IS IT BETTER TO SPECIFIY DTYPES?
