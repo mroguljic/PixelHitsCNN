@@ -121,14 +121,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -142,7 +142,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-
+'''
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
@@ -182,7 +182,7 @@ plt.close()
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plt.hist(residuals_x, bins=np.arange(-40,40,0.75), histtype='step', density=True)
+plt.hist(residuals_x, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle_x$')
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_x, sigma_x)
@@ -201,14 +201,15 @@ at2 = AnchoredText(r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x),
 #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 plt.add_artist(at,at2)
 '''
-plt.plot(x, p, 'k', linewidth=1)
+plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
+plt.legend()
 plt.savefig("plots/residuals_x_%s.png"%(img_ext))
 plt.close()
 
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plt.hist(residuals_y, bins=np.arange(-40,40,0.75), histtype='step', density=True)
+plt.hist(residuals_y, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle_y$')
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_y, sigma_y)
@@ -227,7 +228,7 @@ at2 = AnchoredText(r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y),
 #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 plt.add_artist(at,at2)
 '''
-plt.plot(x, p, 'k', linewidth=1)
+plt.plot(x, p, 'k', linewidth=1, color='red',label='gaussian fit')
 plt.savefig("plots/residuals_y_%s.png"%(img_ext))
 plt.close()
 
