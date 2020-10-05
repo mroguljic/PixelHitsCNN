@@ -20,6 +20,7 @@ from keras.callbacks import ModelCheckpoint
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 from sklearn.metrics import r2_score
 import numpy as np
 import time
@@ -50,7 +51,7 @@ f.close()
 # Model configuration
 batch_size = 64
 loss_function = 'mse'
-n_epochs = 1
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -176,13 +177,10 @@ plt.legend(['y-train', 'y-validation'], loc='upper right')
 plt.savefig("plots/loss_y_%s.png"%(date))
 plt.close()
 '''
-
-from scipy.stats import norm
-
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$', density=True)
+plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', density=True)
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_x, sigma_x)
@@ -190,7 +188,11 @@ plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.plot(x, p, 'k', linewidth=2)
-plt.legend(loc='upper right')
+textstr = '\n'.join((r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x, )),
+                     r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x, ))
+
+# place a text box in upper left in axes coords
+plt.text(0.05, 0.95, textstr, verticalalignment='top')
 #plt.show()
 plt.savefig("plots/residuals_x_%s.png"%(date))
 plt.close()
@@ -198,7 +200,7 @@ plt.close()
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$', density=True)
+plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', density=True)
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_y, sigma_y)
@@ -206,7 +208,11 @@ plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.plot(x, p, 'k', linewidth=2)
-plt.legend(loc='upper right')
+textstr = '\n'.join((r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y, )),
+                     r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y, ))
+
+# place a text box in upper left in axes coords
+plt.text(0.05, 0.95, textstr, verticalalignment='top')
 #plt.show()
 plt.savefig("plots/residuals_y_%s.png"%(date))
 plt.close()

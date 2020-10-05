@@ -171,6 +171,8 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
+train_data = int(train_data/10)
+print("divided by 10")
 
 
 #IS IT BETTER TO SPECIFIY DTYPES?
@@ -255,7 +257,7 @@ cotb = cosx/cosz
 x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
-print("transposed all test matrices\n converted test_labels from pixelav coords to cms coords \n computed test cota cotb\n")
+print("transposed all test matrices\nconverted test_labels from pixelav coords to cms coords \ncomputed test cota cotb\n")
 
 #shifting central hit away from matrix centre
 for index in np.arange(len(test_data)):
@@ -312,6 +314,8 @@ below_threshold_i = test_data < threshold
 test_data[below_threshold_i] = 0
 print("applied threshold")
 
+test_data = int(test_data/10)
+print("divided by 10")
 
 #IS IT BETTER TO SPECIFIY DTYPES?
 test_dset = f.create_dataset("test_hits", np.shape(test_data), data=test_data)
