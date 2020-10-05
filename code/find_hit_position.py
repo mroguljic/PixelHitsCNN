@@ -20,6 +20,7 @@ from keras.callbacks import ModelCheckpoint
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 from scipy.stats import norm
 from sklearn.metrics import r2_score
 import numpy as np
@@ -187,13 +188,17 @@ p = norm.pdf(x, mean_x, sigma_x)
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-textstr = '\n'.join((r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x, ),
-                     r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x, )))
 
-# place a text box in upper left in axes coords
-props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-plt.text(0.05, 0.95, textstr, transform=plt.transAxes, verticalalignment='top',bbox=props)
-#plt.show()
+at = AnchoredText(r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x),
+                  prop=dict(size=15), frameon=True,
+                  loc='upper right'
+                  )
+at2 = AnchoredText(r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x),
+                  prop=dict(size=15), frameon=True,
+                  loc='upper right'
+                  )
+#at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+plt.add_artist(at,at2)
 plt.plot(x, p, 'k', linewidth=2)
 plt.savefig("plots/residuals_x_%s.png"%(date))
 plt.close()
@@ -208,13 +213,17 @@ p = norm.pdf(x, mean_y, sigma_y)
 plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-textstr = '\n'.join((r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y, ),
-                     r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y, )))
 
-# place a text box in upper left in axes coords
-props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-plt.text(0.05, 0.95, textstr, transform=plt.transAxes, verticalalignment='top',bbox=props)
-#plt.show()
+at = AnchoredText(r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y),
+                  prop=dict(size=15), frameon=True,
+                  loc='upper right'
+                  )
+at2 = AnchoredText(r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y),
+                  prop=dict(size=15), frameon=True,
+                  loc='upper right'
+                  )
+#at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+plt.add_artist(at,at2)
 plt.plot(x, p, 'k', linewidth=2)
 plt.savefig("plots/residuals_y_%s.png"%(date))
 plt.close()
