@@ -26,10 +26,11 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 
-date = "oct4"
+h5_date = "oct4"
+img_ext = "oct5"
 
 # Load data
-f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(date), 'r')
+f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
 pix_train = f['train_hits'][...]
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
@@ -39,7 +40,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 
-f = h5py.File('h5_files/test_d49350_%s.hdf5'%(date), 'r')
+f = h5py.File('h5_files/test_d49350_%s.hdf5'%(h5_date), 'r')
 pix_test = f['test_hits'][...]
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
@@ -50,10 +51,10 @@ f.close()
 
 
 # Model configuration
-batch_size = 64
+batch_size = 128
 loss_function = 'mse'
-n_epochs = 10
-optimizer = Adam(lr=0.001)
+n_epochs = 5
+optimizer = Adam()
 validation_split = 0.3
 
 train_time_s = time.clock()
@@ -79,11 +80,7 @@ x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
-x = Dense(32)(concat_inputs)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(64)(x)
+x = Dense(16)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
@@ -91,22 +88,26 @@ x = Dense(32)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
+x = Dense(16)(x)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
-y = Dense(32)(concat_inputs)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(64)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(64)(y)
+y = Dense(16)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
 y = Dense(32)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(32)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(16)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
@@ -120,16 +121,16 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 callbacks = [
-ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date),
+ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
 ]
@@ -141,7 +142,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-'''
+
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
@@ -181,14 +182,14 @@ plt.close()
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plt.hist(residuals_x, bins=np.arange(-60,60,0.75), histtype='step', density=True)
+plt.hist(residuals_x, bins=np.arange(-40,40,0.75), histtype='step', density=True)
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_x, sigma_x)
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-
+'''
 at = AnchoredText(r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x),
                   prop=dict(size=15), frameon=True,
                   loc='upper right'
@@ -199,21 +200,22 @@ at2 = AnchoredText(r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x),
                   )
 #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 plt.add_artist(at,at2)
-plt.plot(x, p, 'k', linewidth=2)
-plt.savefig("plots/residuals_x_%s.png"%(date))
+'''
+plt.plot(x, p, 'k', linewidth=1)
+plt.savefig("plots/residuals_x_%s.png"%(img_ext))
 plt.close()
 
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plt.hist(residuals_y, bins=np.arange(-60,60,0.75), histtype='step', density=True)
+plt.hist(residuals_y, bins=np.arange(-40,40,0.75), histtype='step', density=True)
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_y, sigma_y)
 plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-
+'''
 at = AnchoredText(r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y),
                   prop=dict(size=15), frameon=True,
                   loc='upper right'
@@ -224,8 +226,9 @@ at2 = AnchoredText(r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y),
                   )
 #at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 plt.add_artist(at,at2)
-plt.plot(x, p, 'k', linewidth=2)
-plt.savefig("plots/residuals_y_%s.png"%(date))
+'''
+plt.plot(x, p, 'k', linewidth=1)
+plt.savefig("plots/residuals_y_%s.png"%(img_ext))
 plt.close()
 
 
