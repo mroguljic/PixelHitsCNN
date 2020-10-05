@@ -191,7 +191,8 @@ textstr = '\n'.join((r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x, ),
                      r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x, )))
 
 # place a text box in upper left in axes coords
-plt.text(0.05, 0.95, textstr, verticalalignment='top')
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+plt.text(0.05, 0.95, textstr, transform=plt.transAxes, verticalalignment='top',bbox=props)
 #plt.show()
 plt.plot(x, p, 'k', linewidth=2)
 plt.savefig("plots/residuals_x_%s.png"%(date))
@@ -211,7 +212,8 @@ textstr = '\n'.join((r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y, ),
                      r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y, )))
 
 # place a text box in upper left in axes coords
-plt.text(0.05, 0.95, textstr, verticalalignment='top')
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+plt.text(0.05, 0.95, textstr, transform=plt.transAxes, verticalalignment='top',bbox=props)
 #plt.show()
 plt.plot(x, p, 'k', linewidth=2)
 plt.savefig("plots/residuals_y_%s.png"%(date))
