@@ -182,7 +182,7 @@ from scipy.stats import norm
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$')
+plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$', density=True)
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_x, sigma_x)
@@ -198,7 +198,7 @@ plt.close()
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$')
+plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$', density=True)
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_y, sigma_y)
