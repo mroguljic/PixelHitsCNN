@@ -188,8 +188,8 @@ plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.plot(x, p, 'k', linewidth=2)
-textstr = '\n'.join((r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x, )),
-                     r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x, ))
+textstr = '\n'.join((r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x, ),
+                     r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x, )))
 
 # place a text box in upper left in axes coords
 plt.text(0.05, 0.95, textstr, verticalalignment='top')
@@ -208,8 +208,8 @@ plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
 plt.plot(x, p, 'k', linewidth=2)
-textstr = '\n'.join((r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y, )),
-                     r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y, ))
+textstr = '\n'.join((r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y, ),
+                     r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y, )))
 
 # place a text box in upper left in axes coords
 plt.text(0.05, 0.95, textstr, verticalalignment='top')
