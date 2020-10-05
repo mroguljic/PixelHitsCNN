@@ -48,27 +48,28 @@ f.close()
 
 
 # Model configuration
-batch_size = 128
+batch_size = 64
 loss_function = 'mse'
 n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
+train_time_s = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
 inputs = Input(shape=(21,13,1))
 angles = Input(shape=(2,))
-x = Conv2D(32, (3, 3), padding="same")(inputs)
+x = Conv2D(16, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(3, 3))(x)
 x = Dropout(0.25)(x)
-x = Conv2D(64, (3, 3), padding="same")(x)
+x = Conv2D(32, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
-x = Conv2D(64, (3, 3), padding="same")(x)
+x = Conv2D(32, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
@@ -76,11 +77,7 @@ x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
-x = Dense(64)(concat_inputs)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(128)(x)
+x = Dense(32)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
@@ -88,22 +85,26 @@ x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
+x = Dense(32)(x)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
-y = Dense(64)(concat_inputs)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(128)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(128)(y)
+y = Dense(32)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
 y = Dense(64)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(64)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(32)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
@@ -117,14 +118,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(date))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(date),
                 save_weights_only=True,
@@ -137,9 +138,10 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
-
+'''
 
 # Generate generalization metrics
+print("training time ",time.clock()-train_time_s)
 
 start = time.clock()
 x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
@@ -148,11 +150,11 @@ inference_time = time.clock() - start
 print("inference_time = ",inference_time)
 
 residuals_x = x_pred - x_test
-sigma_x = np.std(residuals_x)
-print("sigma_x = %f\n"%(sigma_x))
+RMS_x = np.std(residuals_x)
+print("RMS_x = %f\n"%(sigma_x))
 residuals_y = y_pred - y_test
-sigma_y = np.std(residuals_y)
-print("sigma_y = %f\n"%(sigma_y))
+RMS_y = np.std(residuals_y)
+print("RMS_y = %f\n"%(sigma_y))
 '''
 plt.plot(history.history['x_loss'])
 plt.plot(history.history['val_x_loss'])
@@ -174,13 +176,39 @@ plt.legend(['y-train', 'y-validation'], loc='upper right')
 plt.savefig("plots/loss_y_%s.png"%(date))
 plt.close()
 '''
+
+from scipy.stats import norm
+
+mean_x, sigma_x = norm.fit(residuals_x)
+print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
+
 plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle x$')
-plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$')
-plt.title(r'$\vartriangle x = x_{pred} - x_{true}, \vartriangle y = y_{pred} - y_{true}$')
+xmin, xmax = plt.xlim()
+x = np.linspace(xmin, xmax, 100)
+p = norm.pdf(x, mean_x, sigma_x)
+plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
+plt.plot(x, p, 'k', linewidth=2)
 plt.legend(loc='upper right')
 #plt.show()
-plt.savefig("plots/residuals_%s.png"%(date))
+plt.savefig("plots/residuals_x_%s.png"%(date))
 plt.close()
+
+mean_y, sigma_y = norm.fit(residuals_y)
+print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
+
+plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', label=r'$\vartriangle y$')
+xmin, xmax = plt.xlim()
+x = np.linspace(xmin, xmax, 100)
+p = norm.pdf(x, mean_y, sigma_y)
+plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
+plt.ylabel('No. of samples')
+plt.xlabel(r'$\mu m$')
+plt.plot(x, p, 'k', linewidth=2)
+plt.legend(loc='upper right')
+#plt.show()
+plt.savefig("plots/residuals_y_%s.png"%(date))
+plt.close()
+
 
