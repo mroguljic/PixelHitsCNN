@@ -54,7 +54,7 @@ f.close()
 batch_size = 128
 loss_function = 'mse'
 n_epochs = 20
-optimizer = Adam()
+optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
 train_time_s = time.clock()
@@ -62,17 +62,17 @@ train_time_s = time.clock()
 
 inputs = Input(shape=(21,13,1))
 angles = Input(shape=(2,))
-x = Conv2D(16, (3, 3), padding="same")(inputs)
+x = Conv2D(32, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(3, 3))(x)
 x = Dropout(0.25)(x)
-x = Conv2D(32, (3, 3), padding="same")(x)
+x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
-x = Conv2D(32, (3, 3), padding="same")(x)
+x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
@@ -121,14 +121,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -142,7 +142,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-'''
+
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
