@@ -187,13 +187,13 @@ p = norm.pdf(x, mean_x, sigma_x)
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-plt.plot(x, p, 'k', linewidth=2)
 textstr = '\n'.join((r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x, ),
                      r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x, )))
 
 # place a text box in upper left in axes coords
 plt.text(0.05, 0.95, textstr, verticalalignment='top')
 #plt.show()
+plt.plot(x, p, 'k', linewidth=2)
 plt.savefig("plots/residuals_x_%s.png"%(date))
 plt.close()
 
@@ -207,13 +207,13 @@ p = norm.pdf(x, mean_y, sigma_y)
 plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
 plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-plt.plot(x, p, 'k', linewidth=2)
 textstr = '\n'.join((r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y, ),
                      r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y, )))
 
 # place a text box in upper left in axes coords
 plt.text(0.05, 0.95, textstr, verticalalignment='top')
 #plt.show()
+plt.plot(x, p, 'k', linewidth=2)
 plt.savefig("plots/residuals_y_%s.png"%(date))
 plt.close()
 
