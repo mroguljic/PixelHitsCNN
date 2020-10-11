@@ -161,6 +161,7 @@ if(fe_type==1): #linear gain
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(train_data)):
+		noise = np.random.normal(0,1,(21*13)).reshape((21,13,1))
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
@@ -171,7 +172,7 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-train_data = (train_data/10).astype('int32')
+train_data = (train_data/10)#.astype('int32')
 print("divided by 10")
 
 

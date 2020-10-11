@@ -53,7 +53,7 @@ f.close()
 # Model configuration
 batch_size = 128
 loss_function = 'mse'
-n_epochs = 20
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -147,7 +147,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
 print("training time ",time.clock()-train_time_s)
 
 start = time.clock()
-x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=batch_size)
+x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=9000)
 inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
