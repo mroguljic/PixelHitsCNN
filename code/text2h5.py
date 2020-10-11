@@ -29,7 +29,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct4"
+date = "oct11_by10"
 
 #=====train files===== 
 
@@ -172,7 +172,7 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-train_data = (train_data/10)#.astype('int32')
+#train_data = (train_data/10)#.astype('int32')
 print("divided by 10")
 
 
@@ -315,7 +315,7 @@ below_threshold_i = test_data < threshold
 test_data[below_threshold_i] = 0
 print("applied threshold")
 
-test_data = (test_data/10).astype('int32')
+#test_data = (test_data/10)#.astype('int32')
 print("divided by 10")
 
 #IS IT BETTER TO SPECIFIY DTYPES?
