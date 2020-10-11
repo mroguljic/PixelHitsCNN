@@ -29,7 +29,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct11_by10"
+date = "oct11_intx10"
 
 #=====train files===== 
 
@@ -172,12 +172,9 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-#train_data = (train_data/10)#.astype('int32')
-print("divided by 10")
-
 
 #IS IT BETTER TO SPECIFIY DTYPES?
-train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data)
+train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data.astype('int32'))
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
 y_train_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
 cota_train_dset = f.create_dataset("cota", np.shape(cota), data=cota)
@@ -315,11 +312,9 @@ below_threshold_i = test_data < threshold
 test_data[below_threshold_i] = 0
 print("applied threshold")
 
-#test_data = (test_data/10)#.astype('int32')
-print("divided by 10")
 
 #IS IT BETTER TO SPECIFIY DTYPES?
-test_dset = f.create_dataset("test_hits", np.shape(test_data), data=test_data)
+test_dset = f.create_dataset("test_hits", np.shape(test_data), data=test_data.astype('int32'))
 x_test_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
 y_test_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
 cota_test_dset = f.create_dataset("cota", np.shape(cota), data=cota)
