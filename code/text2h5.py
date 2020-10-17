@@ -36,8 +36,8 @@ date = "oct11_intx10"
 f = h5py.File("h5_files/train_d49301_d49341_%s.hdf5"%(date), "w")
 
 
-n_per_file = 30000
-n_files = 41
+n_per_file = 5
+n_files = 1
 
 
 #no of events to train on = 1230000
@@ -117,7 +117,9 @@ print("transposed all train matrices\nconverted train_labels from pixelav coords
 
 #shifting central hit away from matrix centre
 for index in np.arange(len(train_data)):
-	nonzero_list = np.asarray(np.nonzero(train_data[index]))
+	nonzero_list = np.nonzero(train_data[index])
+	print(np.asarray(nonzero_list))
+	print(train_data[index][nonzero_list])
 	nonzero_i = np.sort(nonzero_list[0,:])
 	nonzero_j = np.sort(nonzero_list[1,:])
 	if(index%4 == 0 and nonzero_j[0]!=0):
@@ -172,7 +174,7 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-
+'''
 #IS IT BETTER TO SPECIFIY DTYPES?
 train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data.astype('int32'))
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
@@ -321,3 +323,4 @@ cota_test_dset = f.create_dataset("cota", np.shape(cota), data=cota)
 cotb_test_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
 
 print("made test h5 file. no of events to test on = %i"%(n_test))
+'''
