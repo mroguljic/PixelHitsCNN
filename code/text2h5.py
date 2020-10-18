@@ -117,17 +117,55 @@ print("transposed all train matrices\nconverted train_labels from pixelav coords
 
 #shifting central hit away from matrix centre
 #for index in np.arange(len(train_data)):
-for index in np.arange(30):
+for index in np.arange(50):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(train_data[index])))
 	nonzero_elements = train_data[index][np.nonzero(train_data[index])]
 	#print(nonzero_elements.shape)
-	nonzero_i = nonzero_list[:,0]
+	nonzero_i = nonzero_list[:,0] #x indices
 	#print(nonzero_i.shape)
-	nonzero_j = nonzero_list[:,1]
+	nonzero_j = nonzero_list[:,1] #y indices
 	wav_i = round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements))
 	wav_j = round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements))
-	print(wav_i,wav_j)
+	#print(wav_i-10,wav_j-6)
+	shift_i = wav_i - 10
+	shift_j = wav_j - 6
 
+	if(shift_i>0 and np.amax(nonzero_j)!=12):
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+		#shift right iff there is no element at the last column
+		train_data[index] = np.roll(train_data[index],shift_i,axis=1)
+		#shift hit position too
+		y_position[index]+=pixelsize_y[index]*shift_i
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+	if(shift_i<0 and np.amin(nonzero_j)!=0):
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+		#shift left iff there is no element at the first column
+		train_data[index] = np.roll(train_data[index],shift_i,axis=1)
+		#shift hit position too
+		y_position[index]-=pixelsize_y[index]*shift_i
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+	if(shift_j>0 and np.amax(nonzero_i)!=20):
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+		#shift down iff there is no element in the last row
+		train_data[index] = np.roll(train_data[index],shift_j,axis=0)
+		#shift hit position too
+		x_position[index]-=pixelsize_x[index]*shift_j
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+	if(shift_j<0 and np.amin(nonzero_i)!=0):
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
+		#shift up iff there is no element in the first row
+		train_data[index] = np.roll(train_data[index],shift_j,axis=0)
+		#shift hit position too
+		x_position[index]+=pixelsize_x[index]*shift_j
+		print(train_data[index].reshape((21,13)))
+		print(x_position[index],y_position[index])
 
 '''
 	nonzero_i = np.sort(nonzero_list[0,:])
@@ -155,8 +193,8 @@ for index in np.arange(30):
 		train_data[index] = np.roll(train_data[index],1,axis=0)
 		#shift hit position too
 		x_position[index]-=pixelsize_x[index]
-
-print("shifted pixel hits away from matrix centre")
+'''
+print("shifted wav of clusters to matrix centres")
 
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data 
@@ -167,7 +205,7 @@ print("multiplied all elements by 10")
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(train_data)):
-		noise = np.random.normal(0,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
+		noise = np.random.normal(-1,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
 		train_data[index]+= gain_frac*noise*train_data[index] + readout_noise*noise
 	print("applied linear gain")
 
@@ -184,7 +222,7 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-
+'''
 #IS IT BETTER TO SPECIFIY DTYPES?
 train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data.astype('int32'))
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
@@ -309,12 +347,13 @@ print("multiplied all elements by 10")
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(test_data)):
-		noise = np.random.normal(0,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
+		noise = np.random.normal(-1,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
 		test_data[index]+= gain_frac*noise*test_data[index] + readout_noise*noise
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(test_data)):
+		noise = np.random.normal(-1,1,(21*13)).reshape((21,13,1))
 		adc = (float)((int)(p3+p2*tanh(p0*(test_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
