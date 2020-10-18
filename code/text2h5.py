@@ -124,7 +124,9 @@ for index in np.arange(10):
 	nonzero_i = nonzero_list[:,0]
 	print(nonzero_i.shape)
 	nonzero_j = nonzero_list[:,1]
-	#wav_i = (nonzero_elements*nonzero_i)
+	wav_i = np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)
+	wav_j = np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)
+	print(wav_i,wav_j)
 
 
 '''
