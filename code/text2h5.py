@@ -29,7 +29,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct11_intx10"
+date = "oct18"
 
 #=====train files===== 
 
@@ -115,9 +115,9 @@ y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 print("transposed all train matrices\nconverted train_labels from pixelav coords to cms coords \ncomputed train cota cotb\n")
 
 
-#shifting central hit away from matrix centre
-#for index in np.arange(len(train_data)):
-for index in np.arange(50):
+#shifting wav of cluster to matrix centre
+for index in np.arange(len(train_data)):
+#for index in np.arange(50):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(train_data[index])))
 	nonzero_elements = train_data[index][np.nonzero(train_data[index])]
 	#print(nonzero_elements.shape)
@@ -131,77 +131,27 @@ for index in np.arange(50):
 	shift_j = int(6 - wav_j)
 
 	if(shift_i>0 and np.amax(nonzero_i)!=20):
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(wav_i,wav_j)
-		print(shift_i,shift_j)
 		#shift down iff there is no element at the last column
 		train_data[index] = np.roll(train_data[index],shift_i,axis=0)
 		#shift hit position too
 		y_position[index]-=pixelsize_y[index]*shift_i
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
 	if(shift_i<0 and np.amin(nonzero_i)!=0):
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(wav_i,wav_j)
-		print(shift_i,shift_j)
 		#shift up iff there is no element at the first column
 		train_data[index] = np.roll(train_data[index],shift_i,axis=0)
 		#shift hit position too
 		y_position[index]-=pixelsize_y[index]*shift_i
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
 	if(shift_j>0 and np.amax(nonzero_j)!=12):
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(wav_i,wav_j)
 		print(shift_i,shift_j)
 		#shift right iff there is no element in the last row
 		train_data[index] = np.roll(train_data[index],shift_j,axis=1)
 		#shift hit position too
 		x_position[index]+=pixelsize_x[index]*shift_j
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
 	if(shift_j<0 and np.amin(nonzero_j)!=0):
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(wav_i,wav_j)
-		print(shift_i,shift_j)
 		#shift left iff there is no element in the first row
 		train_data[index] = np.roll(train_data[index],shift_j,axis=1)
 		#shift hit position too
 		x_position[index]+=pixelsize_x[index]*shift_j
-		print(train_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
 
-'''
-	nonzero_i = np.sort(nonzero_list[0,:])
-	nonzero_j = np.sort(nonzero_list[1,:])
-	if(index%4 == 0 and nonzero_j[0]!=0):
-		#shift left iff there is no element at 0th column
-		train_data[index] = np.roll(train_data[index],-1,axis=1)
-		#shift hit position too
-		y_position[index]-=pixelsize_y[index]
-
-	if(index%4 == 1 and nonzero_j[-1]!=12):
-		#shift right iff there is no element at the last column
-		train_data[index] = np.roll(train_data[index],1,axis=1)
-		#shift hit position too
-		y_position[index]+=pixelsize_y[index]
-
-	if(index%4 == 2 and nonzero_i[0]!=0):
-		#shift up iff there is no element in the 0th row
-		train_data[index] = np.roll(train_data[index],-1,axis=0)
-		#shift hit position too
-		x_position[index]+=pixelsize_x[index]
-
-	if(index%4 == 3 and nonzero_i[-1]!=20):
-		#shift down iff there is no element in the last row
-		train_data[index] = np.roll(train_data[index],1,axis=0)
-		#shift hit position too
-		x_position[index]-=pixelsize_x[index]
-'''
 print("shifted wav of clusters to matrix centres")
 
 #n_elec were scaled down by 10 so multiply
@@ -230,7 +180,6 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-'''
 #IS IT BETTER TO SPECIFIY DTYPES?
 train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data.astype('int32'))
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
@@ -315,36 +264,44 @@ y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all test matrices\nconverted test_labels from pixelav coords to cms coords \ncomputed test cota cotb\n")
 
-#shifting central hit away from matrix centre
+#shifting wav of cluster to matrix centre
 for index in np.arange(len(test_data)):
-	nonzero_list = np.asarray(np.nonzero(test_data[index]))
-	nonzero_i = np.sort(nonzero_list[0,:])
-	nonzero_j = np.sort(nonzero_list[1,:])
-	if(index%4 == 0 and nonzero_j[0]!=0):
-		#shift left iff there is no element at 0th column
-		test_data[index] = np.roll(test_data[index],-1,axis=1)
-		#shift hit position too
-		y_position[index]-=pixelsize_y[index]
+#for index in np.arange(50):
+	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
+	nonzero_elements = test_data[index][np.nonzero(test_data[index])]
+	#print(nonzero_elements.shape)
+	nonzero_i = nonzero_list[:,0] #x indices
+	#print(nonzero_i.shape)
+	nonzero_j = nonzero_list[:,1] #y indices
+	wav_i = round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements))
+	wav_j = round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements))
+	#print(wav_i-10,wav_j-6)
+	shift_i = int(10 - wav_i)
+	shift_j = int(6 - wav_j)
 
-	if(index%4 == 1 and nonzero_j[-1]!=12):
-		#shift right iff there is no element at the last column
-		test_data[index] = np.roll(test_data[index],1,axis=1)
+	if(shift_i>0 and np.amax(nonzero_i)!=20):
+		#shift down iff there is no element at the last column
+		test_data[index] = np.roll(test_data[index],shift_i,axis=0)
 		#shift hit position too
-		y_position[index]+=pixelsize_y[index]
-
-	if(index%4 == 2 and nonzero_i[0]!=0):
-		#shift up iff there is no element in the 0th row
-		test_data[index] = np.roll(test_data[index],-1,axis=0)
+		y_position[index]-=pixelsize_y[index]*shift_i
+	if(shift_i<0 and np.amin(nonzero_i)!=0):
+		#shift up iff there is no element at the first column
+		test_data[index] = np.roll(test_data[index],shift_i,axis=0)
 		#shift hit position too
-		x_position[index]+=pixelsize_x[index]
-
-	if(index%4 == 3 and nonzero_i[-1]!=20):
-		#shift down iff there is no element in the last row
-		test_data[index] = np.roll(test_data[index],1,axis=0)
+		y_position[index]-=pixelsize_y[index]*shift_i
+	if(shift_j>0 and np.amax(nonzero_j)!=12):
+		print(shift_i,shift_j)
+		#shift right iff there is no element in the last row
+		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 		#shift hit position too
-		x_position[index]-=pixelsize_x[index]
+		x_position[index]+=pixelsize_x[index]*shift_j
+	if(shift_j<0 and np.amin(nonzero_j)!=0):
+		#shift left iff there is no element in the first row
+		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
+		#shift hit position too
+		x_position[index]+=pixelsize_x[index]*shift_j
 
-print("shifted pixel hits away from matrix centre")
+print("shifted wav of clusters to matrix centres")
 
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data 
@@ -380,4 +337,3 @@ cota_test_dset = f.create_dataset("cota", np.shape(cota), data=cota)
 cotb_test_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
 
 print("made test h5 file. no of events to test on = %i"%(n_test))
-'''
