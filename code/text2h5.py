@@ -36,7 +36,7 @@ date = "oct11_intx10"
 f = h5py.File("h5_files/train_d49301_d49341_%s.hdf5"%(date), "w")
 
 
-n_per_file = 5
+n_per_file = 30000
 n_files = 1
 
 
@@ -116,10 +116,18 @@ print("transposed all train matrices\nconverted train_labels from pixelav coords
 
 
 #shifting central hit away from matrix centre
-for index in np.arange(len(train_data)):
-	nonzero_list = np.nonzero(train_data[index])
-	print(np.asarray(nonzero_list))
-	print(train_data[index][nonzero_list])
+#for index in np.arange(len(train_data)):
+for index in np.arange(10):
+	nonzero_list = np.transpose(np.asarray(np.nonzero(train_data[index])))
+	nonzero_elements = train_data[index][np.nonzero(train_data[index])]
+	print(nonzero_elements.shape)
+	nonzero_i = nonzero_list[:,0]
+	print(nonzero_i.shape)
+	nonzero_j = nonzero_list[:,1]
+	#wav_i = (nonzero_elements*nonzero_i)
+
+
+'''
 	nonzero_i = np.sort(nonzero_list[0,:])
 	nonzero_j = np.sort(nonzero_list[1,:])
 	if(index%4 == 0 and nonzero_j[0]!=0):
@@ -174,7 +182,7 @@ below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
-'''
+
 #IS IT BETTER TO SPECIFIY DTYPES?
 train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data.astype('int32'))
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
