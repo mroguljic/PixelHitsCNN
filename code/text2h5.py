@@ -117,15 +117,15 @@ print("transposed all train matrices\nconverted train_labels from pixelav coords
 
 #shifting central hit away from matrix centre
 #for index in np.arange(len(train_data)):
-for index in np.arange(10):
+for index in np.arange(30):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(train_data[index])))
 	nonzero_elements = train_data[index][np.nonzero(train_data[index])]
-	print(nonzero_elements.shape)
+	#print(nonzero_elements.shape)
 	nonzero_i = nonzero_list[:,0]
-	print(nonzero_i.shape)
+	#print(nonzero_i.shape)
 	nonzero_j = nonzero_list[:,1]
-	wav_i = np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)
-	wav_j = np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)
+	wav_i = round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements))
+	wav_j = round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements))
 	print(wav_i,wav_j)
 
 
