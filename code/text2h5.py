@@ -133,6 +133,8 @@ for index in np.arange(50):
 	if(shift_i>0 and np.amax(nonzero_j)!=12):
 		print(train_data[index].reshape((21,13)))
 		print(x_position[index],y_position[index])
+		print(wav_i,wav_j)
+		print(shift_i,shift_j)
 		#shift right iff there is no element at the last column
 		train_data[index] = np.roll(train_data[index],shift_i,axis=1)
 		#shift hit position too
@@ -142,6 +144,8 @@ for index in np.arange(50):
 	if(shift_i<0 and np.amin(nonzero_j)!=0):
 		print(train_data[index].reshape((21,13)))
 		print(x_position[index],y_position[index])
+		print(wav_i,wav_j)
+		print(shift_i,shift_j)
 		#shift left iff there is no element at the first column
 		train_data[index] = np.roll(train_data[index],shift_i,axis=1)
 		#shift hit position too
@@ -151,6 +155,8 @@ for index in np.arange(50):
 	if(shift_j>0 and np.amax(nonzero_i)!=20):
 		print(train_data[index].reshape((21,13)))
 		print(x_position[index],y_position[index])
+		print(wav_i,wav_j)
+		print(shift_i,shift_j)
 		#shift down iff there is no element in the last row
 		train_data[index] = np.roll(train_data[index],shift_j,axis=0)
 		#shift hit position too
@@ -160,6 +166,8 @@ for index in np.arange(50):
 	if(shift_j<0 and np.amin(nonzero_i)!=0):
 		print(train_data[index].reshape((21,13)))
 		print(x_position[index],y_position[index])
+		print(wav_i,wav_j)
+		print(shift_i,shift_j)
 		#shift up iff there is no element in the first row
 		train_data[index] = np.roll(train_data[index],shift_j,axis=0)
 		#shift hit position too
