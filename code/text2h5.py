@@ -127,8 +127,8 @@ for index in np.arange(50):
 	wav_i = round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements))
 	wav_j = round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements))
 	#print(wav_i-10,wav_j-6)
-	shift_i = wav_i - 10
-	shift_j = wav_j - 6
+	shift_i = int(wav_i - 10)
+	shift_j = int(wav_j - 6)
 
 	if(shift_i>0 and np.amax(nonzero_j)!=12):
 		print(train_data[index].reshape((21,13)))
