@@ -101,15 +101,15 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
-for index in np.arange(50):
+for index in np.arange(100):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 	nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 	#print(nonzero_elements.shape)
 	nonzero_i = nonzero_list[:,0]-10. #x indices
 	#print(nonzero_i.shape)
 	nonzero_j = nonzero_list[:,1]-6. #y indices
-	shift_i = int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
-	shift_j = int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
+	shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
+	shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
 	#print(wav_i-10,wav_j-6)
 
 	if(shift_i>0 and np.amax(nonzero_i)!=20):

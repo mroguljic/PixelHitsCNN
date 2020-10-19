@@ -26,8 +26,8 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 
-h5_date = "oct18_nocentre"
-img_ext = "dnn_oct18_nocentre"
+h5_date = "oct19"
+img_ext = "dnn_oct19"
 
 # Load data
 f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
@@ -60,7 +60,7 @@ f.close()
 # Model configuration
 batch_size = 128
 loss_function = 'mse'
-n_epochs = 5
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -70,13 +70,15 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Dense(64)(inputs)
+concat_inputs = concatenate([inputs,angles])
+x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = Dense(128)(inputs)
 x = Activation("relu")(x)
 #x = BatchNormalization()(x)
-concat_inputs = concatenate([x,angles])
-x = Dense(256)(concat_inputs)
+x = Dense(256)(x)
+x = Activation("relu")(x)
+x = Dense(256)(x)
 x = Activation("relu")(x)
 x = Dense(128)(x)
 x = Activation("relu")(x)
@@ -137,13 +139,15 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,)) #21 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Dense(64)(inputs)
+concat_inputs = concatenate([inputs,angles])
+y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = Dense(128)(inputs)
 y = Activation("relu")(y)
 #y = BatchNormalization()(y)
-concat_inputs = concatenate([y,angles])
-y = Dense(256)(concat_inputs)
+y = Dense(256)(y)
+y = Activation("relu")(y)
+y = Dense(256)(y)
 y = Activation("relu")(y)
 y = Dense(128)(y)
 y = Activation("relu")(y)

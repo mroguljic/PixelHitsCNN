@@ -26,8 +26,8 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 
-h5_date = "oct18_nocentre"
-img_ext = "oct18_nocentre"
+h5_date = "oct19"
+img_ext = "oct19"
 
 # Load data
 f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
@@ -53,7 +53,7 @@ f.close()
 # Model configuration
 batch_size = 128
 loss_function = 'mse'
-n_epochs = 7
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -80,38 +80,38 @@ x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
-x = Dense(16)(concat_inputs)
+x = Dense(32)(concat_inputs)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
+x = Dense(64)(x)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
+x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
 x = Dense(32)(x)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(32)(x)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(16)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
-y = Dense(16)(concat_inputs)
+y = Dense(32)(concat_inputs)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(64)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
 y = Dense(32)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(32)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(16)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
