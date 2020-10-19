@@ -7,7 +7,7 @@ import numpy as np
 import h5py
 
 fe_type = 1
-gain_frac     = 0.;
+gain_frac     = 0.08;
 readout_noise = 350.;
 
 #--- Variables we can change, but we start with good default values
@@ -29,7 +29,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct18"
+date = "oct18_nonoise"
 
 #=====train files===== 
 
@@ -55,6 +55,8 @@ cosz = np.zeros((n_train,1))
 pixelsize_x = np.zeros((n_train,1))
 pixelsize_y = np.zeros((n_train,1))
 pixelsize_z = np.zeros((n_train,1))
+train_x_flat = np.zeros((n_train,13))
+train_y_flat = np.zeros((n_train,21))
 
 n_events = 0
 
@@ -156,7 +158,7 @@ print("shifted wav of clusters to matrix centres")
 train_data = 10*train_data 
 
 print("multiplied all elements by 10")
-
+'''
 #add 2 types of noise
 
 if(fe_type==1): #linear gain
@@ -171,19 +173,29 @@ elif(fe_type==2): #tanh gain
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
-
+'''
 
 #if n_elec < 1000 -> 0
 below_threshold_i = train_data < threshold
 train_data[below_threshold_i] = 0
 print("applied threshold")
 
+#for dnn
+for index in np.arange(len(train_data)):
+	train_x_flat[index] = train_data[index].sum(axis=1)
+	train_y_flat[index] = train_data[index].sum(axis=0)
+
+print('took x and y projections of all matrices')
+
 #IS IT BETTER TO SPECIFIY DTYPES?
-train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data.astype('int32'))
+train_dset = f.create_dataset("train_hits", np.shape(train_data), data=train_data)
 x_train_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
 y_train_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
 cota_train_dset = f.create_dataset("cota", np.shape(cota), data=cota)
 cotb_train_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
+train_x_flat_dset = f.create_dataset("train_x_flat", np.shape(train_x_flat), data=train_x_flat)
+train_y_flat_dset = f.create_dataset("train_y_flat", np.shape(train_y_flat), data=train_y_flat)
+
 
 print("made train h5 file. no of events to train on = %i\n"%(n_train))
 print("making test h5 file\n")
@@ -206,6 +218,8 @@ cosz = np.zeros((n_test,1))
 pixelsize_x = np.zeros((n_test,1))
 pixelsize_y = np.zeros((n_test,1))
 pixelsize_z = np.zeros((n_test,1))
+test_x_flat = np.zeros((n_test,13))
+test_y_flat = np.zeros((n_test,21))
 
 
 test_out = open("templates/template_events_d49350.out", "r")
@@ -325,7 +339,7 @@ print("shifted wav of clusters to matrix centres")
 test_data = 10*test_data 
 
 print("multiplied all elements by 10")
-
+'''
 #add 2 types of noise
 
 if(fe_type==1): #linear gain
@@ -340,18 +354,27 @@ elif(fe_type==2): #tanh gain
 		adc = (float)((int)(p3+p2*tanh(p0*(test_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
+'''
 
 #if n_elec < 1000 -> 0
 below_threshold_i = test_data < threshold
 test_data[below_threshold_i] = 0
 print("applied threshold")
 
+#for dnn
+for index in np.arange(len(test_data)):
+	test_x_flat[index] = test_data[index].sum(axis=1)
+	test_y_flat[index] = test_data[index].sum(axis=0)
+
+print('took x and y projections of all matrices')
 
 #IS IT BETTER TO SPECIFIY DTYPES?
-test_dset = f.create_dataset("test_hits", np.shape(test_data), data=test_data.astype('int32'))
+test_dset = f.create_dataset("test_hits", np.shape(test_data), data=test_data)
 x_test_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
 y_test_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
 cota_test_dset = f.create_dataset("cota", np.shape(cota), data=cota)
 cotb_test_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
+test_x_flat_dset = f.create_dataset("test_x_flat", np.shape(test_x_flat), data=test_x_flat)
+test_y_flat_dset = f.create_dataset("test_y_flat", np.shape(test_y_flat), data=test_y_flat)
 
 print("made test h5 file. no of events to test on = %i"%(n_test))
