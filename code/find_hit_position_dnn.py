@@ -101,14 +101,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -123,15 +123,6 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
                 validation_split=validation_split)
 
 
-#print("x training time for dnn",time.clock()-train_time_x)
-
-start = time.clock()
-x_pred = model.predict([xpix_flat_test,angles_test], batch_size=9000)
-inference_time_x = time.clock() - start
-
-train_time_y = time.clock()
-
-
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.title('x position - model loss')
@@ -141,6 +132,14 @@ plt.legend(['x-train', 'x-validation'], loc='upper right')
 #plt.show()
 plt.savefig("plots/loss_x_%s.png"%(img_ext))
 plt.close()
+'''
+print("x training time for dnn",time.clock()-train_time_x)
+
+start = time.clock()
+x_pred = model.predict([xpix_flat_test,angles_test], batch_size=9000)
+inference_time_x = time.clock() - start
+
+train_time_y = time.clock()
 
 #train flat y
 
@@ -156,7 +155,7 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
 concat_inputs = concatenate([y,angles])
-y = Dense(64)(inputs)
+y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
@@ -200,6 +199,17 @@ history = model.fit([ypix_flat_train,angles_train], [y_train],
                 validation_split=validation_split)
 
 
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('y position - model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['y-train', 'y-validation'], loc='upper right')
+#plt.show()
+plt.savefig("plots/loss_y_%s.png"%(img_ext))
+plt.close()
+
+
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
@@ -214,17 +224,6 @@ print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
 RMS_y = np.std(residuals_y)
 print("RMS_y = %f\n"%(RMS_y))
-
-
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('y position - model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['y-train', 'y-validation'], loc='upper right')
-#plt.show()
-plt.savefig("plots/loss_y_%s.png"%(img_ext))
-plt.close()
 
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
