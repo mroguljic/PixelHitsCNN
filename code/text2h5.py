@@ -37,7 +37,7 @@ f = h5py.File("h5_files/train_d49301_d49341_%s.hdf5"%(date), "w")
 
 
 n_per_file = 30000
-n_files = 1
+n_files = 41
 
 
 #no of events to train on = 1230000
@@ -141,7 +141,6 @@ for index in np.arange(len(train_data)):
 		#shift hit position too
 		y_position[index]-=pixelsize_y[index]*shift_i
 	if(shift_j>0 and np.amax(nonzero_j)!=12):
-		print(shift_i,shift_j)
 		#shift right iff there is no element in the last row
 		train_data[index] = np.roll(train_data[index],shift_j,axis=1)
 		#shift hit position too
@@ -290,7 +289,6 @@ for index in np.arange(len(test_data)):
 		#shift hit position too
 		y_position[index]-=pixelsize_y[index]*shift_i
 	if(shift_j>0 and np.amax(nonzero_j)!=12):
-		print(shift_i,shift_j)
 		#shift right iff there is no element in the last row
 		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 		#shift hit position too
