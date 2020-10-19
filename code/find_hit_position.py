@@ -34,7 +34,7 @@ f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
 pix_train = f['train_hits'][...]
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
-x_train = f['x'][...] #pav = pixelav
+x_train = f['x'][...] 
 y_train = f['y'][...]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
@@ -53,7 +53,7 @@ f.close()
 # Model configuration
 batch_size = 128
 loss_function = 'mse'
-n_epochs = 1
+n_epochs = 3
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -182,7 +182,7 @@ plt.close()
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plt.hist(residuals_x, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle x$')
+plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', density=True,linewidth=2, label=r'$\vartriangle x$')
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_x, sigma_x)
@@ -209,7 +209,7 @@ plt.close()
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plt.hist(residuals_y, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle y$')
+plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', density=True,linewidth=2, label=r'$\vartriangle y$')
 xmin, xmax = plt.xlim()
 x = np.linspace(xmin, xmax, 100)
 p = norm.pdf(x, mean_y, sigma_y)
