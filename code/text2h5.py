@@ -277,8 +277,8 @@ y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 print("transposed all test matrices\nconverted test_labels from pixelav coords to cms coords \ncomputed test cota cotb\n")
 
 #shifting wav of cluster to matrix centre
-#for index in np.arange(len(test_data)):
-for index in np.arange(50):
+for index in np.arange(len(test_data)):
+#for index in np.arange(50):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 	nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 	#print(nonzero_elements.shape)
