@@ -26,8 +26,8 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 
-h5_date = "oct18_nonoise"
-img_ext = "dnn_oct18_nonoise"
+h5_date = "oct18_nocentre"
+img_ext = "dnn_oct18_nocentre"
 
 # Load data
 f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
@@ -58,7 +58,7 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 32
+batch_size = 128
 loss_function = 'mse'
 n_epochs = 5
 optimizer = Adam(lr=0.001)
@@ -74,7 +74,7 @@ x = Dense(64)(inputs)
 x = Activation("relu")(x)
 x = Dense(128)(inputs)
 x = Activation("relu")(x)
-x = BatchNormalization()(x)
+#x = BatchNormalization()(x)
 concat_inputs = concatenate([x,angles])
 x = Dense(256)(concat_inputs)
 x = Activation("relu")(x)
@@ -141,7 +141,7 @@ y = Dense(64)(inputs)
 y = Activation("relu")(y)
 y = Dense(128)(inputs)
 y = Activation("relu")(y)
-y = BatchNormalization()(y)
+#y = BatchNormalization()(y)
 concat_inputs = concatenate([y,angles])
 y = Dense(256)(concat_inputs)
 y = Activation("relu")(y)
