@@ -53,7 +53,7 @@ f.close()
 # Model configuration
 batch_size = 64
 loss_function = 'mse'
-n_epochs = 3
+n_epochs = 5
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -170,7 +170,7 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['x-train', 'x-validation'], loc='upper right')
 #plt.show()
-plt.savefig("plots/loss_x_%s.png"%(date))
+plt.savefig("plots/loss_x_%s.png"%(img_ext))
 plt.close()
 
 plt.plot(history.history['y_loss'])
@@ -180,7 +180,7 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['y-train', 'y-validation'], loc='upper right')
 #plt.show()
-plt.savefig("plots/loss_y_%s.png"%(date))
+plt.savefig("plots/loss_y_%s.png"%(img_ext))
 plt.close()
 
 mean_x, sigma_x = norm.fit(residuals_x)
