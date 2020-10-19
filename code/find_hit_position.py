@@ -51,7 +51,7 @@ f.close()
 
 
 # Model configuration
-batch_size = 128
+batch_size = 64
 loss_function = 'mse'
 n_epochs = 3
 optimizer = Adam(lr=0.001)
@@ -81,6 +81,10 @@ x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
 x = Dense(16)(concat_inputs)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
+x = Dense(32)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
@@ -158,7 +162,7 @@ print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
 RMS_y = np.std(residuals_y)
 print("RMS_y = %f\n"%(RMS_y))
-'''
+
 plt.plot(history.history['x_loss'])
 plt.plot(history.history['val_x_loss'])
 plt.title('x position - model loss')
@@ -178,7 +182,7 @@ plt.legend(['y-train', 'y-validation'], loc='upper right')
 #plt.show()
 plt.savefig("plots/loss_y_%s.png"%(date))
 plt.close()
-'''
+
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
