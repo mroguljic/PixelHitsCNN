@@ -39,6 +39,7 @@ x_train = f['x'][...]
 y_train = f['y'][...]
 inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))
+angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 print(inputs_x_train.shape)
@@ -53,6 +54,7 @@ x_test = f['x'][...]
 y_test = f['y'][...]
 inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))
+angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
@@ -66,12 +68,18 @@ train_time_x = time.clock()
 #train flat x
 
 
-inputs = Input(shape=(15,)) #13 in x dimension + 2 angles
+inputs = Input(shape=(13,)) #13 in x dimension + 2 angles
+angles = Input(shape=(2,))
+x = Dense(16)(inputs)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
 x = Dense(32)(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
-x = Dense(64)(x)
+concat_inputs = concatenate([x,angles])
+x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
@@ -86,7 +94,7 @@ x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
-model = Model(inputs=[inputs],
+model = Model(inputs=[inputs,angles],
               outputs=[x_position]
               )
 
@@ -108,7 +116,7 @@ ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([inputs_x_train], [x_train],
+history = model.fit([xpix_flat_train,angles_train], [x_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
@@ -118,7 +126,7 @@ history = model.fit([inputs_x_train], [x_train],
 #print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
-x_pred = model.predict([inputs_x_test], batch_size=9000)
+x_pred = model.predict([xpix_flat_test,angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
 
 train_time_y = time.clock()
@@ -137,12 +145,18 @@ plt.close()
 #train flat y
 
 
-inputs = Input(shape=(23,)) #21 in y dimension + 2 angles
-y = Dense(32)(inputs)
+inputs = Input(shape=(21,)) #21 in y dimension + 2 angles
+angles = Input(shape=(2,))
+y = Dense(16)(inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
-y = Dense(64)(y)
+y = Dense(32)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+concat_inputs = concatenate([y,angles])
+y = Dense(64)(inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
@@ -157,7 +171,7 @@ y = Dropout(0.5)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
 
-model = Model(inputs=[inputs],
+model = Model(inputs=[inputs,angles],
               outputs=[y_position]
               )
 
@@ -179,7 +193,7 @@ ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([inputs_y_train], [y_train],
+history = model.fit([ypix_flat_train,angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
@@ -189,7 +203,7 @@ history = model.fit([inputs_y_train], [y_train],
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-y_pred = model.predict([inputs_y_test], batch_size=9000)
+y_pred = model.predict([ypix_flat_test,angles_test], batch_size=9000)
 inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
