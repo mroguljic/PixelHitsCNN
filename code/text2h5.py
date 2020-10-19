@@ -122,15 +122,12 @@ for index in np.arange(len(train_data)):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(train_data[index])))
 	nonzero_elements = train_data[index][np.nonzero(train_data[index])]
 	#print(nonzero_elements.shape)
-	nonzero_i = nonzero_list[:,0] #x indices
+	nonzero_i = nonzero_list[:,0]-10. #x indices
 	#print(nonzero_i.shape)
-	nonzero_j = nonzero_list[:,1] #y indices
-	wav_i = round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements))
-	wav_j = round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements))
-	#print(wav_i-10,wav_j-6)
-	shift_i = int(10 - wav_i)
-	shift_j = int(6 - wav_j)
-
+	nonzero_j = nonzero_list[:,1]-6. #y indices
+	shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
+	shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
+	
 	if(shift_i>0 and np.amax(nonzero_i)!=20):
 		#shift down iff there is no element at the last column
 		train_data[index] = np.roll(train_data[index],shift_i,axis=0)
@@ -282,14 +279,11 @@ for index in np.arange(len(test_data)):
 	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 	nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 	#print(nonzero_elements.shape)
-	nonzero_i = nonzero_list[:,0] #x indices
+	nonzero_i = nonzero_list[:,0]-10. #x indices
 	#print(nonzero_i.shape)
-	nonzero_j = nonzero_list[:,1] #y indices
-	wav_i = round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements))
-	wav_j = round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements))
-	#print(wav_i-10,wav_j-6)
-	shift_i = int(10 - wav_i)
-	shift_j = int(6 - wav_j)
+	nonzero_j = nonzero_list[:,1]-6. #y indices
+	shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
+	shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
 
 	if(shift_i>0 and np.amax(nonzero_i)!=20):
 		#shift down iff there is no element at the last column
