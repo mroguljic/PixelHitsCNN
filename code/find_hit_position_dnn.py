@@ -70,27 +70,18 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Dense(16)(inputs)
+x = Dense(64)(inputs)
+x = Activation("relu")(x)
+x = Dense(128)(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(32)(inputs)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
 concat_inputs = concatenate([x,angles])
-x = Dense(64)(concat_inputs)
+x = Dense(256)(concat_inputs)
 x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
+x = Dense(128)(x)
+x = Activation("relu")(x)
 x = Dense(64)(x)
 x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(32)(x)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
@@ -101,14 +92,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -132,7 +123,7 @@ plt.legend(['x-train', 'x-validation'], loc='upper right')
 #plt.show()
 plt.savefig("plots/loss_x_%s.png"%(img_ext))
 plt.close()
-'''
+
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -146,27 +137,18 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,)) #21 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Dense(16)(inputs)
+y = Dense(64)(inputs)
+y = Activation("relu")(y)
+y = Dense(128)(inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(32)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
 concat_inputs = concatenate([y,angles])
-y = Dense(64)(concat_inputs)
+y = Dense(256)(concat_inputs)
 y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
+y = Dense(128)(y)
+y = Activation("relu")(y)
 y = Dense(64)(y)
 y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(32)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
 
@@ -184,7 +166,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -208,7 +190,7 @@ plt.legend(['y-train', 'y-validation'], loc='upper right')
 #plt.show()
 plt.savefig("plots/loss_y_%s.png"%(img_ext))
 plt.close()
-'''
+
 
 print("y training time for dnn",time.clock()-train_time_y)
 
