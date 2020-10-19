@@ -184,7 +184,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -208,7 +208,7 @@ plt.legend(['y-train', 'y-validation'], loc='upper right')
 #plt.show()
 plt.savefig("plots/loss_y_%s.png"%(img_ext))
 plt.close()
-
+'''
 
 print("y training time for dnn",time.clock()-train_time_y)
 
@@ -221,9 +221,12 @@ print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 residuals_x = x_pred - x_test
 RMS_x = np.std(residuals_x)
 print("RMS_x = %f\n"%(RMS_x))
+print(np.amin(residuals_x),np.amax(residuals_x))
 residuals_y = y_pred - y_test
 RMS_y = np.std(residuals_y)
 print("RMS_y = %f\n"%(RMS_y))
+print(np.amin(residuals_y),np.amax(residuals_y))
+
 
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
