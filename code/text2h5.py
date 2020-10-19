@@ -182,8 +182,8 @@ print("applied threshold")
 
 #for dnn
 for index in np.arange(len(train_data)):
-	train_x_flat[index] = train_data[index].reshape((21,13)).sum(axis=1)
-	train_y_flat[index] = train_data[index].reshape((21,13)).sum(axis=0)
+	train_x_flat[index] = train_data[index].reshape((21,13)).sum(axis=0)
+	train_y_flat[index] = train_data[index].reshape((21,13)).sum(axis=1)
 
 print('took x and y projections of all matrices')
 
@@ -363,8 +363,8 @@ print("applied threshold")
 
 #for dnn
 for index in np.arange(len(test_data)):
-	test_x_flat[index] = test_data[index].reshape((21,13)).sum(axis=1)
-	test_y_flat[index] = test_data[index].reshape((21,13)).sum(axis=0)
+	test_x_flat[index] = test_data[index].reshape((21,13)).sum(axis=0)
+	test_y_flat[index] = test_data[index].reshape((21,13)).sum(axis=1)
 
 print('took x and y projections of all matrices')
 
