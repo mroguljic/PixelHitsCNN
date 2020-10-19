@@ -41,6 +41,8 @@ inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))
 f.close()
 
+print(inputs_x_train.shape)
+print(inputs_y_train.shape)
 
 f = h5py.File('h5_files/test_d49350_%s.hdf5'%(h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
@@ -54,9 +56,9 @@ inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 64
+batch_size = 32
 loss_function = 'mse'
-n_epochs = 10
+n_epochs = 5
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -65,19 +67,19 @@ train_time_x = time.clock()
 
 
 inputs = Input(shape=(15,)) #13 in x dimension + 2 angles
-x = Dense(16)(inputs)
+x = Dense(32)(inputs)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
+x = Dense(64)(x)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.5)(x)
+x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
 x = Dense(32)(x)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(32)(x)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.5)(x)
-x = Dense(16)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.5)(x)
@@ -91,7 +93,7 @@ model = Model(inputs=[inputs],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -100,7 +102,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-ModelCheckpoint(filepath="checkpoints/cp_dnn_x%s.ckpt"%(img_ext),
+ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
 ]
@@ -113,7 +115,7 @@ history = model.fit([inputs_x_train], [x_train],
                 validation_split=validation_split)
 
 
-print("x training time for dnn",time.clock()-train_time_x)
+#print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
 x_pred = model.predict([inputs_x_test], batch_size=9000)
@@ -122,9 +124,8 @@ inference_time_x = time.clock() - start
 train_time_y = time.clock()
 
 
-
-plt.plot(history.history['x_loss'])
-plt.plot(history.history['val_x_loss'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
 plt.title('x position - model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
@@ -137,19 +138,19 @@ plt.close()
 
 
 inputs = Input(shape=(23,)) #21 in y dimension + 2 angles
-y = Dense(16)(inputs)
+y = Dense(32)(inputs)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(64)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.5)(y)
+y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
 y = Dense(32)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(32)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.5)(y)
-y = Dense(16)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.5)(y)
@@ -163,7 +164,7 @@ model = Model(inputs=[inputs],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -172,7 +173,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-ModelCheckpoint(filepath="checkpoints/cp_dnn_y%s.ckpt"%(img_ext),
+ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
 ]
@@ -188,7 +189,7 @@ history = model.fit([inputs_y_train], [y_train],
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-y_pred = model.predict([ypix_flat_test], batch_size=9000)
+y_pred = model.predict([inputs_y_test], batch_size=9000)
 inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
@@ -201,8 +202,8 @@ RMS_y = np.std(residuals_y)
 print("RMS_y = %f\n"%(RMS_y))
 
 
-plt.plot(history.history['y_loss'])
-plt.plot(history.history['val_y_loss'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
 plt.title('y position - model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
