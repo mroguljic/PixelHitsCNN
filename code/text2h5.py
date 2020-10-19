@@ -29,7 +29,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct18_nocentre"
+date = "oct19"
 
 #=====train files===== 
 
@@ -115,7 +115,7 @@ x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all train matrices\nconverted train_labels from pixelav coords to cms coords \ncomputed train cota cotb\n")
-'''
+
 #shifting wav of cluster to matrix centre
 for index in np.arange(len(train_data)):
 #for index in np.arange(50):
@@ -153,7 +153,7 @@ for index in np.arange(len(train_data)):
 		x_position[index]+=pixelsize_x[index]*shift_j
 
 print("shifted wav of clusters to matrix centres")
-'''
+
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data 
 
@@ -275,7 +275,7 @@ x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all test matrices\nconverted test_labels from pixelav coords to cms coords \ncomputed test cota cotb\n")
-'''
+
 #shifting wav of cluster to matrix centre
 for index in np.arange(len(test_data)):
 #for index in np.arange(50):
@@ -334,7 +334,7 @@ for index in np.arange(len(test_data)):
 		#print('shift left done')
 
 print("shifted wav of clusters to matrix centres")
-'''
+
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data 
 
