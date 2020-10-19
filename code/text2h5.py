@@ -29,7 +29,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "oct18_nonoise"
+date = "oct18_nocentre"
 
 #=====train files===== 
 
@@ -115,7 +115,7 @@ x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all train matrices\nconverted train_labels from pixelav coords to cms coords \ncomputed train cota cotb\n")
-
+'''
 #shifting wav of cluster to matrix centre
 for index in np.arange(len(train_data)):
 #for index in np.arange(50):
@@ -153,12 +153,12 @@ for index in np.arange(len(train_data)):
 		x_position[index]+=pixelsize_x[index]*shift_j
 
 print("shifted wav of clusters to matrix centres")
-
+'''
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data 
 
 print("multiplied all elements by 10")
-'''
+
 #add 2 types of noise
 
 if(fe_type==1): #linear gain
@@ -173,7 +173,7 @@ elif(fe_type==2): #tanh gain
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
-'''
+
 
 #if n_elec < 1000 -> 0
 below_threshold_i = train_data < threshold
@@ -275,7 +275,7 @@ x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all test matrices\nconverted test_labels from pixelav coords to cms coords \ncomputed test cota cotb\n")
-
+'''
 #shifting wav of cluster to matrix centre
 for index in np.arange(len(test_data)):
 #for index in np.arange(50):
@@ -334,12 +334,12 @@ for index in np.arange(len(test_data)):
 		#print('shift left done')
 
 print("shifted wav of clusters to matrix centres")
-
+'''
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data 
 
 print("multiplied all elements by 10")
-'''
+
 #add 2 types of noise
 
 if(fe_type==1): #linear gain
@@ -354,7 +354,7 @@ elif(fe_type==2): #tanh gain
 		adc = (float)((int)(p3+p2*tanh(p0*(test_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
-'''
+
 
 #if n_elec < 1000 -> 0
 below_threshold_i = test_data < threshold

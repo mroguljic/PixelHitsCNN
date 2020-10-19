@@ -26,8 +26,8 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 
-h5_date = "oct18_nonoise"
-img_ext = "oct18_nonoise"
+h5_date = "oct18_nocentre"
+img_ext = "oct18_nocentre"
 
 # Load data
 f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
