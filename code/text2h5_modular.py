@@ -23,21 +23,21 @@ def extract_matrices(lines,cluster_matrices):
 		array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
 		#reshape to (13,21,1) -> "image"
 		#convert from pixelav sensor coords to normal coords
-		cluster_matrices[j+n_events] = np.array(array2d).transpose()[:,:,np.newaxis]
+		cluster_matrices[j] = np.array(array2d).transpose()[:,:,np.newaxis]
 
 		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
 		#cota = cos y/cos z ; cotb = cos x/cos z
 		position_data = lines[n].split(' ')
-		x_position_pav[j+n_events] = float(position_data[0])
-		y_position_pav[j+n_events] = float(position_data[1])
-		cosx[j+n_events] = float(position_data[3])
-		cosy[j+n_events] = float(position_data[4])
-		cosz[j+n_events] = float(position_data[5])
+		x_position_pav[j] = float(position_data[0])
+		y_position_pav[j] = float(position_data[1])
+		cosx[j] = float(position_data[3])
+		cosy[j] = float(position_data[4])
+		cosz[j] = float(position_data[5])
 
 		pixelsize_data = pixelsize.split('  ')
-		pixelsize_x[j+n_events] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
-		pixelsize_y[j+n_events] = float(pixelsize_data[0])
-		pixelsize_z[j+n_events] = float(pixelsize_data[2])
+		pixelsize_x[j] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
+		pixelsize_y[j] = float(pixelsize_data[0])
+		pixelsize_z[j] = float(pixelsize_data[2])
 
 		n+=14
 
