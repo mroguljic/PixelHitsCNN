@@ -5,7 +5,7 @@
 
 import numpy as np
 import h5py
-from np.random import default_rng
+from numpy.random import default_rng
 rng = default_rng()
 
 def extract_matrices(lines,cluster_matrices):
