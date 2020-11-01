@@ -41,6 +41,8 @@ def extract_matrices(lines,cluster_matrices):
 
 		n+=14
 
+		print("read in matrices from txt file")
+
 def convert_pav_to_cms():
 	#============= preprocessing =====================
 	#switching out of pixelav coords to localx and localy
@@ -58,7 +60,7 @@ def convert_pav_to_cms():
 	x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 	y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
-	print("transposed all train matrices\nconverted train_labels from pixelav coords to cms coords \ncomputed train cota cotb\n")
+	print("transposed all matrices\nconverted labels from pixelav coords to cms coords \ncomputed cota cotb\n")
 
 
 def center_clusters(cluster_matrices):
