@@ -163,15 +163,15 @@ print("multiplied all elements by 10")
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(train_data)):
-		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
+		noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
 		train_data[index]+= gain_frac*noise_1*train_data[index] + readout_noise*noise_2
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(train_data)):
-		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
+		noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		train_data[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
 	print("applied tanh gain")
@@ -343,15 +343,15 @@ print("multiplied all elements by 10")
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(test_data)):
-		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
+		noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
 		test_data[index]+= gain_frac*noise*test_data[index] + readout_noise*noise
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(test_data)):
-		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
+		noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
 		adc = (float)((int)(p3+p2*tanh(p0*(test_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
