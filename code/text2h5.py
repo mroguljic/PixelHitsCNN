@@ -5,6 +5,8 @@
 
 import numpy as np
 import h5py
+from np.random import default_rng
+rng = default_rng()
 
 fe_type = 1
 gain_frac     = 0.08;
@@ -30,10 +32,11 @@ p2    = 203.;
 p3    = 148.;	
 
 date = "oct19"
+filename = "original"
 
 #=====train files===== 
 
-f = h5py.File("h5_files/train_d49301_d49341_%s.hdf5"%(date), "w")
+f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 
 n_per_file = 30000
@@ -160,15 +163,17 @@ print("multiplied all elements by 10")
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(train_data)):
-		noise = np.random.normal(-1,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
-		train_data[index]+= gain_frac*noise*train_data[index] + readout_noise*noise
+		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
+		train_data[index]+= gain_frac*noise_1*train_data[index] + readout_noise*noise_2
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(train_data)):
-		noise = np.random.normal(0,1,(21*13)).reshape((21,13,1))
+		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
 		adc = (float)((int)(p3+p2*tanh(p0*(train_data[index] + vcaloffst)/(7.0*vcal) - p1)))
-		train_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
+		train_data[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
 	print("applied tanh gain")
 
 
@@ -201,7 +206,7 @@ print("making test h5 file\n")
 #====== test files ========
 #-----------------------------------------------------------------------
 
-f = h5py.File("h5_files/test_d49350_%s.hdf5"%(date), "w")
+f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 n_test = 1000000
 
@@ -338,13 +343,15 @@ print("multiplied all elements by 10")
 
 if(fe_type==1): #linear gain
 	for index in np.arange(len(test_data)):
-		noise = np.random.normal(-1,1,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist
+		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
 		test_data[index]+= gain_frac*noise*test_data[index] + readout_noise*noise
 	print("applied linear gain")
 
 elif(fe_type==2): #tanh gain
 	for index in np.arange(len(test_data)):
-		noise = np.random.normal(-1,1,(21*13)).reshape((21,13,1))
+		noise_1 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,(21*13)).reshape((21,13,1))
 		adc = (float)((int)(p3+p2*tanh(p0*(test_data[index] + vcaloffst)/(7.0*vcal) - p1)))
 		test_data[index] = ((float)((1.+gain_frac*noise)*(vcal*gain*(adc-ped))) - vcaloffst + noise*readout_noise)
 	print("applied tanh gain")
