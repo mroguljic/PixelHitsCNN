@@ -41,7 +41,7 @@ def extract_matrices(lines,cluster_matrices):
 
 		n+=14
 
-		print("read in matrices from txt file")
+	print("read in matrices from txt file")
 
 def convert_pav_to_cms():
 	#============= preprocessing =====================
