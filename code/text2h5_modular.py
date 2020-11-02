@@ -68,6 +68,8 @@ def convert_pav_to_cms():
 
 	print("converted labels from pixelav coords to cms coords \ncomputed cota cotb")
 
+	return cota,cotb,x_position,y_position
+
 
 def center_clusters(cluster_matrices):
 	#shifting wav of cluster to matrix centre
@@ -129,10 +131,7 @@ def apply_threshold(cluster_matrices,threshold):
 	cluster_matrices[below_threshold_i] = 0
 	print("applied threshold")
 
-def project_matrices_xy(cluster_matrices,x_flat,y_flat):
-
-	x_flat = np.zeros((len(cluster_matrices),13))
-	y_flat = np.zeros((len(cluster_matrices),21))
+def project_matrices_xy(cluster_matrices):
 
 	#for dnn
 	for index in np.arange(len(cluster_matrices)):
@@ -211,8 +210,8 @@ pixelsize_y = np.zeros((n_train,1))
 pixelsize_z = np.zeros((n_train,1))
 clustersize_x = np.zeros((n_train,1))
 clustersize_y = np.zeros((n_train,1))
-train_x_flat = np.zeros((n_train,13))
-train_y_flat = np.zeros((n_train,21))
+x_flat = np.zeros((n_train,13))
+y_flat = np.zeros((n_train,21))
 '''
 extract_matrices(lines,train_data)
 convert_pav_to_cms()
@@ -224,11 +223,11 @@ print("multiplied all elements by 10")
 
 apply_noise(train_data,fe_type)
 apply_threshold(train_data,threshold)
-project_matrices_xy(train_data,train_x_flat,train_y_flat)
+project_matrices_xy(train_data,x_flat,y_flat)
 
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
-create_datasets(f,train_data,train_x_flat,train_y_flat,"train")
+create_datasets(f,train_data,x_flat,y_flat,"train")
 '''
 #====== test files ========
 
@@ -246,13 +245,9 @@ print("n_test = ",n_test)
 test_data = np.zeros((n_test,21,13,1))
 x_position_pav = np.zeros((n_test,1))
 y_position_pav = np.zeros((n_test,1))
-x_position = np.zeros((n_test,1))
-y_position = np.zeros((n_test,1))
 cosx = np.zeros((n_test,1))
 cosy = np.zeros((n_test,1))
 cosz = np.zeros((n_test,1))
-cota = np.zeros((n_test,1))
-cotb = np.zeros((n_test,1))
 pixelsize_x = np.zeros((n_test,1))
 pixelsize_y = np.zeros((n_test,1))
 pixelsize_z = np.zeros((n_test,1))
@@ -263,7 +258,7 @@ y_flat = np.zeros((n_test,21))
 
 extract_matrices(lines,test_data)
 print(test_data[0].reshape((21,13)))
-convert_pav_to_cms()
+cota,cotb,x_position,y_position = convert_pav_to_cms()
 print(x_position_pav[0],y_position_pav[0])
 print(x_position[0],y_position[0])
 center_clusters(test_data)
@@ -278,11 +273,11 @@ apply_noise(test_data,fe_type)
 print(test_data[0].reshape((21,13)))
 apply_threshold(test_data,threshold)
 print(test_data[0].reshape((21,13)))
-project_matrices_xy(test_data,test_x_flat,test_y_flat)
+project_matrices_xy(test_data)
 print(x_flat[0],y_flat[0])
 print(clustersize_x[0],clustersize_y[0])
 
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
-create_datasets(f,test_data,test_x_flat,test_y_flat,"test")
+create_datasets(f,test_data,x_flat,y_flat,"test")
 
