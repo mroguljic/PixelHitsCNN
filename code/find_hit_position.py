@@ -51,7 +51,7 @@ f.close()
 
 
 # Model configuration
-batch_size = 128
+batch_size = 512
 loss_function = 'mse'
 n_epochs = 1
 optimizer = Adam(lr=0.001)
