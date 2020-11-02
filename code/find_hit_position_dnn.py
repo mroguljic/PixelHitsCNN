@@ -192,13 +192,13 @@ inference_time_y = time.clock() - start
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 
 residuals_x = x_pred - x_test
-RMS_x = np.std(residuals_x)
-print("RMS_x = %f\n"%(RMS_x))
+RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
 print(np.amin(residuals_x),np.amax(residuals_x))
+print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
-RMS_y = np.std(residuals_y)
-print("RMS_y = %f\n"%(RMS_y))
+RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print(np.amin(residuals_y),np.amax(residuals_y))
+print("RMS_y = %f\n"%(RMS_y))
 
 
 mean_x, sigma_x = norm.fit(residuals_x)
