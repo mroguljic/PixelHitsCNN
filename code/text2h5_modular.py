@@ -135,7 +135,7 @@ def project_matrices_xy(cluster_matrices,x_flat,y_flat):
 	y_flat = np.zeros((len(cluster_matrices),21))
 
 	#for dnn
-	for index in np.arange(len(train_data)):
+	for index in np.arange(len(cluster_matrices)):
 		x_flat[index] = cluster_matrices[index].reshape((21,13)).sum(axis=0)
 		y_flat[index] = cluster_matrices[index].reshape((21,13)).sum(axis=1)
 
