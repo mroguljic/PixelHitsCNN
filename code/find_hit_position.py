@@ -157,10 +157,10 @@ inference_time = time.clock() - start
 print("inference_time = ",inference_time)
 
 residuals_x = x_pred - x_test
-RMS_x = np.std(residuals_x)
+RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
-RMS_y = np.std(residuals_y)
+RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
 plt.plot(history.history['x_loss'])
