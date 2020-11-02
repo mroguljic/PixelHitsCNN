@@ -209,7 +209,7 @@ pixelsize_y = np.zeros((n_train,1))
 pixelsize_z = np.zeros((n_train,1))
 train_x_flat = np.zeros((n_train,13))
 train_y_flat = np.zeros((n_train,21))
-
+'''
 extract_matrices(lines,train_data)
 convert_pav_to_cms()
 center_clusters(train_data)
@@ -220,7 +220,7 @@ project_matrices_xy(train_data,train_x_flat,train_y_flat)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,train_x_flat,train_y_flat,"train")
-
+'''
 #====== test files ========
 
 print("making test h5 file.")
