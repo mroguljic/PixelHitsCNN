@@ -198,13 +198,9 @@ print("n_train = ",n_train)
 train_data = np.zeros((n_train,21,13,1))
 x_position_pav = np.zeros((n_train,1))
 y_position_pav = np.zeros((n_train,1))
-x_position = np.zeros((n_train,1))
-y_position = np.zeros((n_train,1))
 cosx = np.zeros((n_train,1))
 cosy = np.zeros((n_train,1))
 cosz = np.zeros((n_train,1))
-cota = np.zeros((n_train,1))
-cotb = np.zeros((n_train,1))
 pixelsize_x = np.zeros((n_train,1))
 pixelsize_y = np.zeros((n_train,1))
 pixelsize_z = np.zeros((n_train,1))
@@ -212,23 +208,32 @@ clustersize_x = np.zeros((n_train,1))
 clustersize_y = np.zeros((n_train,1))
 x_flat = np.zeros((n_train,13))
 y_flat = np.zeros((n_train,21))
-'''
-extract_matrices(lines,train_data)
-convert_pav_to_cms()
-center_clusters(train_data)
 
+extract_matrices(lines,train_data)
+#print(train_data[0].reshape((21,13)))
+cota,cotb,x_position,y_position = convert_pav_to_cms()
+#print(x_position_pav[0],y_position_pav[0])
+#print(x_position[0],y_position[0])
+center_clusters(train_data)
+#print(train_data[0].reshape((21,13)))
+#print(x_position[0],y_position[0])
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data
 print("multiplied all elements by 10")
+#print(train_data[0].reshape((21,13)))
 
 apply_noise(train_data,fe_type)
+#print(train_data[0].reshape((21,13)))
 apply_threshold(train_data,threshold)
-project_matrices_xy(train_data,x_flat,y_flat)
+#print(train_data[0].reshape((21,13)))
+project_matrices_xy(train_data)
+#print(x_flat[0],y_flat[0])
+#print(clustersize_x[0],clustersize_y[0])
 
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-'''
+
 #====== test files ========
 
 print("making test h5 file.")
@@ -257,27 +262,29 @@ x_flat = np.zeros((n_test,13))
 y_flat = np.zeros((n_test,21))
 
 extract_matrices(lines,test_data)
-print(test_data[0].reshape((21,13)))
+#print(test_data[0].reshape((21,13)))
 cota,cotb,x_position,y_position = convert_pav_to_cms()
-print(x_position_pav[0],y_position_pav[0])
-print(x_position[0],y_position[0])
+#print(x_position_pav[0],y_position_pav[0])
+#print(x_position[0],y_position[0])
 center_clusters(test_data)
-print(test_data[0].reshape((21,13)))
-print(x_position[0],y_position[0])
+#print(test_data[0].reshape((21,13)))
+#print(x_position[0],y_position[0])
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
 print("multiplied all elements by 10")
-print(test_data[0].reshape((21,13)))
+#print(test_data[0].reshape((21,13)))
 
 apply_noise(test_data,fe_type)
-print(test_data[0].reshape((21,13)))
+#print(test_data[0].reshape((21,13)))
 apply_threshold(test_data,threshold)
-print(test_data[0].reshape((21,13)))
+#print(test_data[0].reshape((21,13)))
 project_matrices_xy(test_data)
-print(x_flat[0],y_flat[0])
-print(clustersize_x[0],clustersize_y[0])
+#print(x_flat[0],y_flat[0])
+#print(clustersize_x[0],clustersize_y[0])
 
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
+
+
 
