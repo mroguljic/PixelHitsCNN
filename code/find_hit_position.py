@@ -39,6 +39,8 @@ y_train = f['y'][...]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
+for i in range(10):
+	print(pix_train[i].reshape((21,13)))
 
 f = h5py.File('h5_files/test_full_angle_scan_%s.hdf5'%(h5_date), 'r')
 pix_test = f['test_hits'][...]
@@ -53,7 +55,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 2
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -193,18 +195,7 @@ p = norm.pdf(x, mean_x, sigma_x)
 plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
 #plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-'''
-at = AnchoredText(r'$\sigma_{\vartriangle_x}=%.2f$' % (sigma_x),
-                  prop=dict(size=15), frameon=True,
-                  loc='upper right'
-                  )
-at2 = AnchoredText(r'$RMS_{\vartriangle_x}=%.2f$' % (RMS_x),
-                  prop=dict(size=15), frameon=True,
-                  loc='upper right'
-                  )
-#at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-plt.add_artist(at,at2)
-'''
+
 plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
 plt.legend()
 plt.savefig("plots/residuals_x_%s.png"%(img_ext))
@@ -220,21 +211,8 @@ p = norm.pdf(x, mean_y, sigma_y)
 plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
 #plt.ylabel('No. of samples')
 plt.xlabel(r'$\mu m$')
-'''
-at = AnchoredText(r'$\sigma_{\vartriangle_y}=%.2f$' % (sigma_y),
-                  prop=dict(size=15), frameon=True,
-                  loc='upper right'
-                  )
-at2 = AnchoredText(r'$RMS_{\vartriangle_y}=%.2f$' % (RMS_y),
-                  prop=dict(size=15), frameon=True,
-                  loc='upper right'
-                  )
-#at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-plt.add_artist(at,at2)
-'''
 plt.plot(x, p, 'k', linewidth=1, color='red',label='gaussian fit')
 plt.legend()
 plt.savefig("plots/residuals_y_%s.png"%(img_ext))
 plt.close()
-
 
