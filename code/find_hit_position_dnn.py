@@ -25,7 +25,7 @@ from scipy.stats import norm
 from sklearn.metrics import r2_score
 import numpy as np
 import time
-import code.plotter
+from plotter import *
 
 h5_date = "nov1"
 img_ext = "dnn_nov1"
@@ -63,9 +63,9 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 128
+batch_size = 256
 loss_function = 'mse'
-n_epochs = 10
+n_epochs = 2
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
