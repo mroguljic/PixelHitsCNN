@@ -60,4 +60,5 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	plt.ylabel('resolution in %s'%(label))
 	plt.title('resolution vs clustersize in %s'%(label))
 	plt.savefig("plots/resvssize_%s_%s"%(label,img_ext))
+	plt.close()
 

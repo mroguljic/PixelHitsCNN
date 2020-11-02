@@ -38,6 +38,8 @@ cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
 x_train = f['x'][...] 
 y_train = f['y'][...]
+clustersize_x_train = f['clustersize_x'][...]
+clustersize_y_train = f['clustersize_y'][...]
 inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))
 angles_train = np.hstack((cota_train,cotb_train))
@@ -53,6 +55,8 @@ cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
 x_test = f['x'][...] 
 y_test = f['y'][...]
+clustersize_x_test = f['clustersize_x'][...]
+clustersize_y_test = f['clustersize_y'][...]
 inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))
 angles_test = np.hstack((cota_test,cotb_test))
@@ -207,3 +211,5 @@ print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
 plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
+plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
+plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
