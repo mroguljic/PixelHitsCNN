@@ -44,4 +44,8 @@ def plot_residuals(residuals,mean,sigma,RMS,label,img_ext)
 
 def plot_by_clustersize(residuals,clustersize):
 
+	unique,indices,counts, = np.unique(clustersize,return_index=True,return_counts=True)
+	print(dict(zip(unique,counts)))
+	print(indices[:100])
+
 

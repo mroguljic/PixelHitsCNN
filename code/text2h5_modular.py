@@ -47,7 +47,7 @@ def extract_matrices(lines,cluster_matrices):
 
 		n+=14
 
-	print("read in matrices from txt file")
+	print("read in matrices from txt file\ntransposed all matrices")
 
 def convert_pav_to_cms():
 	#============= preprocessing =====================
@@ -66,7 +66,7 @@ def convert_pav_to_cms():
 	x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
 	y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
 
-	print("transposed all matrices\nconverted labels from pixelav coords to cms coords \ncomputed cota cotb\n")
+	print("converted labels from pixelav coords to cms coords \ncomputed cota cotb")
 
 
 def center_clusters(cluster_matrices):
