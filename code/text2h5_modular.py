@@ -101,10 +101,7 @@ def center_clusters(cluster_matrices):
 
 def apply_noise(cluster_matrices,fe_type):
 
-	#n_elec were scaled down by 10 so multiply
-	cluster_matrices = 10*cluster_matrices 
-
-	print("multiplied all elements by 10")
+	
 
 	#add 2 types of noise
 
@@ -255,6 +252,11 @@ print(test_data[0].reshape((13,21)))
 convert_pav_to_cms()
 center_clusters(test_data)
 print(test_data[0].reshape((13,21)))
+
+#n_elec were scaled down by 10 so multiply
+test_data = 10*test_data
+
+print("multiplied all elements by 10")
 apply_noise(test_data,fe_type)
 print(test_data[0].reshape((13,21)))
 apply_threshold(test_data,threshold)
