@@ -53,7 +53,7 @@ f.close()
 
 
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
 n_epochs = 2
 optimizer = Adam(lr=0.001)
@@ -127,14 +127,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -148,7 +148,7 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-'''
+
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
@@ -158,8 +158,8 @@ inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
 
-#plot_cnn_loss(history,"x",img_ext)
-#plot_cnn_loss(history,"y",img_ext)
+plot_cnn_loss(history.history,"x",img_ext)
+plot_cnn_loss(history.history,"y",img_ext)
 
 residuals_x = x_pred - x_test
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
