@@ -25,6 +25,12 @@ def extract_matrices(lines,cluster_matrices):
 		#convert from pixelav sensor coords to normal coords
 		cluster_matrices[j] = np.array(array2d).transpose()[:,:,np.newaxis]
 
+		x_flat = cluster_matrices[j].reshape((21,13)).sum(axis=0)
+		y_flat = cluster_matrices[j].reshape((21,13)).sum(axis=1)
+
+		clustersize_x[j] = len(np.nonzero(x_flat)[0])
+		clustersize_y[j] = len(np.nonzero(y_flat)[0])
+
 		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
 		#cota = cos y/cos z ; cotb = cos x/cos z
 		position_data = lines[n].split(' ')
@@ -100,9 +106,6 @@ def center_clusters(cluster_matrices):
 	print("shifted wav of clusters to matrix centres")
 
 def apply_noise(cluster_matrices,fe_type):
-
-	
-
 	#add 2 types of noise
 
 	if(fe_type==1): #linear gain
@@ -146,6 +149,8 @@ def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
 	y_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
 	cota_dset = f.create_dataset("cota", np.shape(cota), data=cota)
 	cotb_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
+	clustersize_x_dset = f.create_dataset("clustersize_x", np.shape(clustersize_x), data=clustersize_x)
+	clustersize_y_dset = f.create_dataset("clustersize_y", np.shape(clustersize_y), data=clustersize_y)
 	x_flat_dset = f.create_dataset("%s_x_flat"%(dset_type), np.shape(x_flat), data=x_flat)
 	y_flat_dset = f.create_dataset("%s_y_flat"%(dset_type), np.shape(y_flat), data=y_flat)
 
@@ -204,6 +209,8 @@ cotb = np.zeros((n_train,1))
 pixelsize_x = np.zeros((n_train,1))
 pixelsize_y = np.zeros((n_train,1))
 pixelsize_z = np.zeros((n_train,1))
+clustersize_x = np.zeros((n_train,1))
+clustersize_y = np.zeros((n_train,1))
 train_x_flat = np.zeros((n_train,13))
 train_y_flat = np.zeros((n_train,21))
 
@@ -249,23 +256,21 @@ cotb = np.zeros((n_test,1))
 pixelsize_x = np.zeros((n_test,1))
 pixelsize_y = np.zeros((n_test,1))
 pixelsize_z = np.zeros((n_test,1))
+clustersize_x = np.zeros((n_test,1))
+clustersize_y = np.zeros((n_test,1))
 test_x_flat = np.zeros((n_test,13))
 test_y_flat = np.zeros((n_test,21))
 
 extract_matrices(lines,test_data)
-print(test_data[0].reshape((13,21)))
 convert_pav_to_cms()
 center_clusters(test_data)
-print(test_data[0].reshape((13,21)))
 
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
 print("multiplied all elements by 10")
 
 apply_noise(test_data,fe_type)
-print(test_data[0].reshape((13,21)))
 apply_threshold(test_data,threshold)
-print(test_data[0].reshape((13,21)))
 project_matrices_xy(test_data,test_x_flat,test_y_flat)
 
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")

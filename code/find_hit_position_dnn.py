@@ -25,12 +25,13 @@ from scipy.stats import norm
 from sklearn.metrics import r2_score
 import numpy as np
 import time
+import code.plotter
 
-h5_date = "oct19"
-img_ext = "dnn_oct19"
+h5_date = "nov1"
+img_ext = "dnn_nov1"
 
 # Load data
-f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/train_full_angle_scan_%s.hdf5'%(h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -45,7 +46,7 @@ f.close()
 print(inputs_x_train.shape)
 print(inputs_y_train.shape)
 
-f = h5py.File('h5_files/test_d49350_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/test_full_angle_scan_%s.hdf5'%(h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
@@ -115,16 +116,7 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('x position - model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['x-train', 'x-validation'], loc='upper right')
-#plt.show()
-plt.savefig("plots/loss_x_%s.png"%(img_ext))
-plt.close()
+plot_dnn_loss(history.history,'x',img_ext)
 
 print("x training time for dnn",time.clock()-train_time_x)
 
@@ -185,16 +177,7 @@ history = model.fit([ypix_flat_train,angles_train], [y_train],
                 validation_split=validation_split)
 
 
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('y position - model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['y-train', 'y-validation'], loc='upper right')
-#plt.show()
-plt.savefig("plots/loss_y_%s.png"%(img_ext))
-plt.close()
-
+plot_dnn_loss(history.history,'y',img_ext)
 
 print("y training time for dnn",time.clock()-train_time_y)
 
@@ -217,31 +200,10 @@ print(np.amin(residuals_y),np.amax(residuals_y))
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plt.hist(residuals_x, bins=np.arange(-60,60,0.5), histtype='step', density=True,linewidth=2, label=r'$\vartriangle x$')
-xmin, xmax = plt.xlim()
-x = np.linspace(xmin, xmax, 100)
-p = norm.pdf(x, mean_x, sigma_x)
-plt.title(r'$\vartriangle x = x_{pred} - x_{true}$')
-#plt.ylabel('No. of samples')
-plt.xlabel(r'$\mu m$')
-plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
-plt.legend()
-plt.savefig("plots/residuals_x_%s.png"%(img_ext))
-plt.close()
+plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plt.hist(residuals_y, bins=np.arange(-60,60,0.5), histtype='step', density=True,linewidth=2, label=r'$\vartriangle y$')
-xmin, xmax = plt.xlim()
-x = np.linspace(xmin, xmax, 100)
-p = norm.pdf(x, mean_y, sigma_y)
-plt.title(r'$\vartriangle y = y_{pred} - y_{true}$')
-#plt.ylabel('No. of samples')
-plt.xlabel(r'$\mu m$')
-plt.plot(x, p, 'k', linewidth=1, color='red',label='gaussian fit')
-plt.legend()
-plt.savefig("plots/residuals_y_%s.png"%(img_ext))
-plt.close()
-
+plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
