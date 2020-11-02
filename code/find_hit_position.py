@@ -26,11 +26,11 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 
-h5_date = "oct19"
-img_ext = "oct19"
+h5_date = "nov1"
+img_ext = "nov1"
 
 # Load data
-f = h5py.File('h5_files/train_d49301_d49341_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/train_full_angle_scan_%s.hdf5'%(h5_date), 'r')
 pix_train = f['train_hits'][...]
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
@@ -40,7 +40,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 
-f = h5py.File('h5_files/test_d49350_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/test_full_angle_scan_%s.hdf5'%(h5_date), 'r')
 pix_test = f['test_hits'][...]
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
@@ -53,7 +53,7 @@ f.close()
 # Model configuration
 batch_size = 128
 loss_function = 'mse'
-n_epochs = 10
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
