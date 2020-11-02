@@ -179,4 +179,5 @@ print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
 plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
-plot_by_clustersize(residuals_x,clustersize_x_test)
+plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
+plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)

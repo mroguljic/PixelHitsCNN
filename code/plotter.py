@@ -28,7 +28,7 @@ def plot_dnn_loss(history,label,img_ext):
 	plt.close()
 
 
-def plot_residuals(residuals,mean,sigma,RMS,label,img_ext)
+def plot_residuals(residuals,mean,sigma,RMS,label,img_ext):
 	plt.hist(residuals, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle$'+label)
 	xmin, xmax = plt.xlim()
 	x = np.linspace(xmin, xmax, 100)
@@ -42,10 +42,19 @@ def plot_residuals(residuals,mean,sigma,RMS,label,img_ext)
 	plt.savefig("plots/residuals_%s_%s.png"%(label,img_ext))
 	plt.close()
 
-def plot_by_clustersize(residuals,clustersize):
+def plot_by_clustersize(residuals,clustersize,label,img_ext):
 
-	unique,indices,counts, = np.unique(clustersize,return_index=True,return_counts=True)
-	print(dict(zip(unique,counts)))
-	print(indices[:100])
+	max_size = np.amax(clustersize)
+	sigma_per_size = np.zeros((max_size,1))
+	for i in range(max_size):
+		indices = np.argwhere(clustersize==i)
+		residuals_per_size = residuals[indices]
+		sigma_per_size[i] = np.std(residuals_per_size)
 
+	x = np.linspace(1, 13, 13)
+	plt.plot(x,sigma_per_size,linewidth=2)
+	plt.xlabel('clustersize in %s'%(label))
+	plt.ylabel('resolution in %s'%(label))
+	plt.title('resolution vs clustersize in %s'%(label))
+	plt.savefig("plots/resvssize_%s_%s"%(label,img_ext))
 
