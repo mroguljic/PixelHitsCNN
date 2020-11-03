@@ -49,12 +49,14 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	sigma_per_size = np.zeros((max_size,1))
 	for i in range(max_size):
 		indices = np.argwhere(clustersize==i)
-		print(indices)
+		
 		if(len(indices)==0):
 			sigma_per_size[i]=0.
 		else:
 			residuals_per_size = residuals[indices]
 			sigma_per_size[i] = np.std(residuals_per_size)
+			print(i)
+			print(indices)
 			print(residuals_per_size)
 			plt.hist(residuals_per_size, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle$'+label)
 			plt.xlabel(r'$\mu m$')
