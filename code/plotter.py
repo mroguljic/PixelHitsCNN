@@ -44,10 +44,12 @@ def plot_residuals(residuals,mean,sigma,RMS,label,img_ext):
 
 def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	residuals = np.asarray(residuals)
+	clustersize = np.asarray(clustersize)
 	max_size = int(np.amax(clustersize))
 	sigma_per_size = np.zeros((max_size,1))
 	for i in range(max_size):
 		indices = np.argwhere(clustersize==i)
+		print(indices)
 		if(len(indices)==0):
 			sigma_per_size[i]=0.
 		else:
