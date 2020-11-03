@@ -28,7 +28,7 @@ import time
 from plotter import *
 
 h5_date = "nov1"
-img_ext = "dnn_nov1"
+img_ext = "dnn_nov2"
 
 # Load data
 f = h5py.File('h5_files/train_full_angle_scan_%s.hdf5'%(h5_date), 'r')
@@ -45,8 +45,6 @@ inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
-print(inputs_x_train.shape)
-print(inputs_y_train.shape)
 
 f = h5py.File('h5_files/test_full_angle_scan_%s.hdf5'%(h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
@@ -99,14 +97,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(h5_date))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -121,7 +119,7 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
                 validation_split=validation_split)
 
 plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -159,14 +157,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_y%s.ckpt"%(h5_date))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -182,7 +180,7 @@ history = model.fit([ypix_flat_train,angles_train], [y_train],
 
 
 plot_dnn_loss(history.history,'y',img_ext)
-
+'''
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
