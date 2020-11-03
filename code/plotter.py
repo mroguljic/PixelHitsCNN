@@ -53,10 +53,10 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 		else:
 			residuals_per_size = residuals[indices]
 			sigma_per_size[i] = np.std(residuals_per_size)
-
+			print(residuals_per_size)
 			plt.hist(residuals_per_size, bins=np.arange(-60,60,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle$'+label)
 			plt.xlabel(r'$\mu m$')
-			plt.title('residuals in %s for clustersize = %i, %s = %0.2f'%(label,i,RMS,r'$\sigma$',sigma_per_size[i]))
+			plt.title('residuals in %s for clustersize = %i, %s = %0.2f'%(label,i,r'$\sigma$',sigma_per_size[i]))
 			plt.savefig("plots/res_%s_csize%i_%s.png"%(label,i,img_ext))
 			plt.close()
 
