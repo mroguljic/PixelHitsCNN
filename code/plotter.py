@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 import numpy as np
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 def plot_cnn_loss(history,label,img_ext):
@@ -43,10 +44,14 @@ def plot_residuals(residuals,mean,sigma,RMS,label,img_ext):
 	plt.close()
 
 def plot_by_clustersize(residuals,clustersize,label,img_ext):
+
 	residuals = np.asarray(residuals)
 	clustersize = np.asarray(clustersize)
 	max_size = int(np.amax(clustersize))
 	sigma_per_size = np.zeros((max_size,1))
+
+	pp = PdfPages('res_%s_csize_%s.pdf'%(label,img_ext))
+
 	for i in range(1,max_size):
 		indices = np.argwhere(clustersize==i)[:,0]
 		print(i,':',indices.shape)
@@ -58,8 +63,10 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 			plt.hist(residuals_per_size, bins=np.arange(-60,60,0.25), histtype='step',linewidth=2, label=r'$\vartriangle$'+label)
 			plt.xlabel(r'$\mu m$')
 			plt.title('residuals in %s for clustersize = %i, %s = %0.2f'%(label,i,r'$\sigma$',sigma_per_size[i]))
-			plt.savefig("plots/res_%s_csize%i_%s.png"%(label,i,img_ext))
+			pp.savefig()
 			plt.close()
+			
+	pp.close()
 
 	x = np.linspace(1, max_size, max_size)
 	plt.scatter(x,sigma_per_size)
