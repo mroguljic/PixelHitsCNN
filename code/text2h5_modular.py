@@ -28,6 +28,7 @@ def extract_matrices(lines,cluster_matrices):
 		x_flat = cluster_matrices[j].reshape((21,13)).sum(axis=0)
 		y_flat = cluster_matrices[j].reshape((21,13)).sum(axis=1)
 
+		#possible issue: clustersize calc before noise added
 		clustersize_x[j] = len(np.nonzero(x_flat)[0])
 		clustersize_y[j] = len(np.nonzero(y_flat)[0])
 

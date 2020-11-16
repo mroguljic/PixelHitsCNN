@@ -29,7 +29,13 @@ date = "oct19"
 
 f = h5py.File("h5_files/test_d49350_%s.hdf5"%(date), "w")
 
-n_test = 1000000
+test_out = open("templates/template_events_d99353.out", "r")
+#print("writing to file %i \n",i)
+lines = test_out.readlines()
+test_out.close()
+
+n_test = int((len(lines)-2)/14)
+print("n_test = ",n_test)
 
 #"image" size = 13x21x1
 test_data = np.zeros((n_test,21,13,1))
@@ -41,44 +47,53 @@ cosz = np.zeros((n_test,1))
 pixelsize_x = np.zeros((n_test,1))
 pixelsize_y = np.zeros((n_test,1))
 pixelsize_z = np.zeros((n_test,1))
-test_x_flat = np.zeros((n_test,13))
-test_y_flat = np.zeros((n_test,21))
+clustersize_x = np.zeros((n_test,1))
+clustersize_y = np.zeros((n_test,1))
+x_flat = np.zeros((n_test,13))
+y_flat = np.zeros((n_test,21))
 
 
-test_out = open("templates/template_events_d49350.out", "r")
-#print("writing to file %i \n",i)
-lines = test_out.readlines()
-test_out.close()
+
 
 #delete first 2 lines
-pixelsize = lines[1]		
-del lines[0:2]
+	pixelsize = lines[1] 		
+	del lines[0:2]
 
-n=0
+	n=0
 
-for j in range(0,n_test):
+	n_per_file = int(len(lines)/14)
 
-	#there are n 13x21 arrays in the file, extract each array 
-	array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
-	#reshape (13,21)->(13,21,1)
-	#convert from pixelav sensor coords to normal coords
-	test_data[j] = np.array(array2d).transpose()[:,:,np.newaxis]
+	for j in range(0,n_per_file):
 
-	#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
-	#cota = cos y/cos z ; cotb = cos x/cos z
-	position_data = lines[n].split(' ')
-	x_position_pav[j] = float(position_data[0])
-	y_position_pav[j] = float(position_data[1])
-	cosx[j] = float(position_data[3])
-	cosy[j] = float(position_data[4])
-	cosz[j] = float(position_data[5])
+		#there are n 13x21 arrays in the file, extract each array 
+		array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
+		#reshape to (13,21,1) -> "image"
+		#convert from pixelav sensor coords to normal coords
+		test_data[j] = np.array(array2d).transpose()[:,:,np.newaxis]
 
-	pixelsize_data = pixelsize.split('  ')
-	pixelsize_x[j] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
-	pixelsize_y[j] = float(pixelsize_data[0])
-	pixelsize_z[j] = float(pixelsize_data[2])
+		x_flat = test_data[j].reshape((21,13)).sum(axis=0)
+		y_flat = test_data[j].reshape((21,13)).sum(axis=1)
 
-	n+=14
+		clustersize_x[j] = len(np.nonzero(x_flat)[0])
+		clustersize_y[j] = len(np.nonzero(y_flat)[0])
+
+		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
+		#cota = cos y/cos z ; cotb = cos x/cos z
+		position_data = lines[n].split(' ')
+		x_position_pav[j] = float(position_data[0])
+		y_position_pav[j] = float(position_data[1])
+		cosx[j] = float(position_data[3])
+		cosy[j] = float(position_data[4])
+		cosz[j] = float(position_data[5])
+
+		pixelsize_data = pixelsize.split('  ')
+		pixelsize_x[j] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
+		pixelsize_y[j] = float(pixelsize_data[0])
+		pixelsize_z[j] = float(pixelsize_data[2])
+
+		n+=14
+
+	print("read in matrices from txt file\ntransposed all matrices")
 
 
 #============= preprocessing =====================
@@ -102,70 +117,71 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
 for index in np.arange(100):
-	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
-	nonzero_elements = test_data[index][np.nonzero(test_data[index])]
-	#print(nonzero_elements.shape)
-	nonzero_i = nonzero_list[:,0]-10. #x indices
-	#print(nonzero_i.shape)
-	nonzero_j = nonzero_list[:,1]-6. #y indices
-	shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
-	shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
-	#print(wav_i-10,wav_j-6)
+	if(clustersize_x[index]==2):
+		nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
+		nonzero_elements = test_data[index][np.nonzero(test_data[index])]
+		#print(nonzero_elements.shape)
+		nonzero_i = nonzero_list[:,0]-10. #x indices
+		#print(nonzero_i.shape)
+		nonzero_j = nonzero_list[:,1]-6. #y indices
+		shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
+		shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
+		#print(wav_i-10,wav_j-6)
 
-	if(shift_i>0 and np.amax(nonzero_i)!=20):
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(shift_i,shift_j)
-		#shift down iff there is no element at the last column
-		test_data[index] = np.roll(test_data[index],shift_i,axis=0)
-		#shift hit position too
-		y_position[index]-=pixelsize_y[index]*shift_i
+		if(shift_i>0 and np.amax(nonzero_i)!=20):
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print(shift_i,shift_j)
+			#shift down iff there is no element at the last column
+			test_data[index] = np.roll(test_data[index],shift_i,axis=0)
+			#shift hit position too
+			y_position[index]-=pixelsize_y[index]*shift_i
 
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print('shift down done')
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print('shift down done')
 
-	if(shift_i<0 and np.amin(nonzero_i)!=0):
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(shift_i,shift_j)
+		if(shift_i<0 and np.amin(nonzero_i)!=0):
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print(shift_i,shift_j)
 
-		#shift up iff there is no element at the first column
-		test_data[index] = np.roll(test_data[index],shift_i,axis=0)
-		#shift hit position too
-		y_position[index]-=pixelsize_y[index]*shift_i
+			#shift up iff there is no element at the first column
+			test_data[index] = np.roll(test_data[index],shift_i,axis=0)
+			#shift hit position too
+			y_position[index]-=pixelsize_y[index]*shift_i
 
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print('shift up done')
-	if(shift_j>0 and np.amax(nonzero_j)!=12):
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print('shift up done')
+		if(shift_j>0 and np.amax(nonzero_j)!=12):
 
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(shift_i,shift_j)
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print(shift_i,shift_j)
 
-		#shift right iff there is no element in the last row
-		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
-		#shift hit position too
-		x_position[index]+=pixelsize_x[index]*shift_j
+			#shift right iff there is no element in the last row
+			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
+			#shift hit position too
+			x_position[index]+=pixelsize_x[index]*shift_j
 
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print('shift right done')
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print('shift right done')
 
-	if(shift_j<0 and np.amin(nonzero_j)!=0):
+		if(shift_j<0 and np.amin(nonzero_j)!=0):
 
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print(shift_i,shift_j)
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print(shift_i,shift_j)
 
-		#shift left iff there is no element in the first row
-		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
-		#shift hit position too
-		x_position[index]+=pixelsize_x[index]*shift_j
+			#shift left iff there is no element in the first row
+			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
+			#shift hit position too
+			x_position[index]+=pixelsize_x[index]*shift_j
 
-		print(test_data[index].reshape((21,13)))
-		print(x_position[index],y_position[index])
-		print('shift left done')
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print('shift left done')
 
 print("shifted wav of clusters to matrix centres")
