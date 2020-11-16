@@ -61,9 +61,9 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 128
+batch_size = 256
 loss_function = 'mse'
-n_epochs = 3
+n_epochs = 5
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
