@@ -117,71 +117,77 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
 for index in np.arange(300):
-	if(clustersize_x[index]==2):
+	if(clustersize_x[index]==1):
 		nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 		nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 		#print(nonzero_elements.shape)
 		nonzero_i = nonzero_list[:,0]-10. #x indices
 		#print(nonzero_i.shape)
-		nonzero_j = nonzero_list[:,1]-6. #y indices
+		nonzero_j = nonzero_list[:,1]-5. #y indices
 		shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
 		shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
 		#print(wav_i-10,wav_j-6)
 
 		if(shift_i>0 and np.amax(nonzero_i)!=20):
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print(shift_i,shift_j)
+			#print(test_data[index].reshape((21,13)))
+			#print(x_position[index],y_position[index])
+			#print(shift_i,shift_j)
 			#shift down iff there is no element at the last column
 			test_data[index] = np.roll(test_data[index],shift_i,axis=0)
 			#shift hit position too
 			y_position[index]-=pixelsize_y[index]*shift_i
 
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print('shift down done')
+			#print(test_data[index].reshape((21,13)))
+			#print(x_position[index],y_position[index])
+			#print('shift down done')
 
 		if(shift_i<0 and np.amin(nonzero_i)!=0):
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print(shift_i,shift_j)
+			#print(test_data[index].reshape((21,13)))
+			#print(x_position[index],y_position[index])
+			#print(shift_i,shift_j)
 
 			#shift up iff there is no element at the first column
 			test_data[index] = np.roll(test_data[index],shift_i,axis=0)
 			#shift hit position too
 			y_position[index]-=pixelsize_y[index]*shift_i
 
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print('shift up done')
+			#print(test_data[index].reshape((21,13)))
+			#print(x_position[index],y_position[index])
+			#print('shift up done')
 		if(shift_j>0 and np.amax(nonzero_j)!=12):
 
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print(shift_i,shift_j)
-
+			#print(test_data[index].reshape((21,13)))
+			#print(x_position[index],y_position[index])
+			#print(shift_i,shift_j)
+			temp=test_data[index]
+			temp_x=x_position[index]
 			#shift right iff there is no element in the last row
 			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 			#shift hit position too
-			if(clustersize_x[index]!=1): x_position[index]+=pixelsize_x[index]*shift_j
-
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print('shift right done')
+			x_position[index]+=pixelsize_x[index]*shift_j
+			if(x_position[index]>25.):
+				print(temp.reshape((21,13)))
+				print(temp_x)
+				print(x_position[index],y_position[index])
+				print('shift right done')
+				print(test_data[index].reshape((21,13)))
 
 		if(shift_j<0 and np.amin(nonzero_j)!=0):
 
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print(shift_i,shift_j)
-
+			#print(test_data[index].reshape((21,13)))
+			#print(x_position[index],y_position[index])
+			#print(shift_i,shift_j)
+			temp=test_data[index]
+			temp_x=x_position[index]
 			#shift left iff there is no element in the first row
 			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 			#shift hit position too
-			if(clustersize_x[index]!=1): x_position[index]+=pixelsize_x[index]*shift_j
-
-			print(test_data[index].reshape((21,13)))
-			print(x_position[index],y_position[index])
-			print('shift left done')
+			x_position[index]+=pixelsize_x[index]*shift_j
+			if(x_position[index]>25.):
+				print(temp.reshape((21,13)))
+				print(temp_x)
+				print(x_position[index],y_position[index])
+				print('shift left done')
+				print(test_data[index].reshape((21,13)))
 
 print("shifted wav of clusters to matrix centres")
