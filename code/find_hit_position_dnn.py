@@ -27,7 +27,7 @@ import numpy as np
 import time
 from plotter import *
 
-h5_date = "nov1"
+h5_date = "nov16"
 img_ext = "dnn_nov16"
 
 # Load data

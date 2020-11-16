@@ -179,7 +179,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "nov1"
+date = "nov16"
 filename = "full_angle_scan"
 
 #=====train files===== 
