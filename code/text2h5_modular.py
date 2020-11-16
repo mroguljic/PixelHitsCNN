@@ -75,6 +75,7 @@ def convert_pav_to_cms():
 def center_clusters(cluster_matrices):
 	#shifting wav of cluster to matrix centre
 	for index in np.arange(len(cluster_matrices)):
+		if(clustersize_x[index]==1): continue
 	#for index in np.arange(50):
 		nonzero_list = np.transpose(np.asarray(np.nonzero(cluster_matrices[index])))
 		nonzero_elements = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
