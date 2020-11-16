@@ -56,44 +56,44 @@ y_flat = np.zeros((n_test,21))
 
 
 #delete first 2 lines
-	pixelsize = lines[1] 		
-	del lines[0:2]
+pixelsize = lines[1] 		
+del lines[0:2]
 
-	n=0
+n=0
 
-	n_per_file = int(len(lines)/14)
+n_per_file = int(len(lines)/14)
 
-	for j in range(0,n_per_file):
+for j in range(0,n_per_file):
 
-		#there are n 13x21 arrays in the file, extract each array 
-		array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
-		#reshape to (13,21,1) -> "image"
-		#convert from pixelav sensor coords to normal coords
-		test_data[j] = np.array(array2d).transpose()[:,:,np.newaxis]
+	#there are n 13x21 arrays in the file, extract each array 
+	array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
+	#reshape to (13,21,1) -> "image"
+	#convert from pixelav sensor coords to normal coords
+	test_data[j] = np.array(array2d).transpose()[:,:,np.newaxis]
 
-		x_flat = test_data[j].reshape((21,13)).sum(axis=0)
-		y_flat = test_data[j].reshape((21,13)).sum(axis=1)
+	x_flat = test_data[j].reshape((21,13)).sum(axis=0)
+	y_flat = test_data[j].reshape((21,13)).sum(axis=1)
 
-		clustersize_x[j] = len(np.nonzero(x_flat)[0])
-		clustersize_y[j] = len(np.nonzero(y_flat)[0])
+	clustersize_x[j] = len(np.nonzero(x_flat)[0])
+	clustersize_y[j] = len(np.nonzero(y_flat)[0])
 
-		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
-		#cota = cos y/cos z ; cotb = cos x/cos z
-		position_data = lines[n].split(' ')
-		x_position_pav[j] = float(position_data[0])
-		y_position_pav[j] = float(position_data[1])
-		cosx[j] = float(position_data[3])
-		cosy[j] = float(position_data[4])
-		cosz[j] = float(position_data[5])
+	#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
+	#cota = cos y/cos z ; cotb = cos x/cos z
+	position_data = lines[n].split(' ')
+	x_position_pav[j] = float(position_data[0])
+	y_position_pav[j] = float(position_data[1])
+	cosx[j] = float(position_data[3])
+	cosy[j] = float(position_data[4])
+	cosz[j] = float(position_data[5])
 
-		pixelsize_data = pixelsize.split('  ')
-		pixelsize_x[j] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
-		pixelsize_y[j] = float(pixelsize_data[0])
-		pixelsize_z[j] = float(pixelsize_data[2])
+	pixelsize_data = pixelsize.split('  ')
+	pixelsize_x[j] = float(pixelsize_data[1]) #flipped on purpose cus matrix has transposed
+	pixelsize_y[j] = float(pixelsize_data[0])
+	pixelsize_z[j] = float(pixelsize_data[2])
 
-		n+=14
+	n+=14
 
-	print("read in matrices from txt file\ntransposed all matrices")
+print("read in matrices from txt file\ntransposed all matrices")
 
 
 #============= preprocessing =====================
@@ -117,7 +117,7 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
 for index in np.arange(100):
-	if(clustersize_x[index]==2):
+	if(clustersize_x[index]==1):
 		nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 		nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 		#print(nonzero_elements.shape)
