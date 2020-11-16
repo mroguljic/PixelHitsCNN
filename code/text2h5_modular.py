@@ -51,7 +51,7 @@ def extract_matrices(lines,cluster_matrices):
 	print("read in matrices from txt file\ntransposed all matrices")
 
 def convert_pav_to_cms():
-	#============= preprocessing =====================
+	
 	#switching out of pixelav coords to localx and localy
 	#remember that h5 files have already been made with transposed matrices
 	'''
