@@ -116,7 +116,7 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
-for index in np.arange(300):
+for index in np.arange(5000):
 	if(clustersize_x[index]==1):
 		nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 		nonzero_elements = test_data[index][np.nonzero(test_data[index])]
@@ -155,10 +155,9 @@ for index in np.arange(300):
 			#print(x_position[index],y_position[index])
 			#print('shift up done')
 		if(shift_j>0 and np.amax(nonzero_j)!=12):
-
-			#print(test_data[index].reshape((21,13)))
-			#print(x_position[index],y_position[index])
-			#print(shift_i,shift_j)
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print(shift_i,shift_j)
 			temp=test_data[index]
 			temp_x=x_position[index]
 			#shift right iff there is no element in the last row
@@ -173,10 +172,9 @@ for index in np.arange(300):
 				print(test_data[index].reshape((21,13)))
 
 		if(shift_j<0 and np.amin(nonzero_j)!=0):
-
-			#print(test_data[index].reshape((21,13)))
-			#print(x_position[index],y_position[index])
-			#print(shift_i,shift_j)
+			print(test_data[index].reshape((21,13)))
+			print(x_position[index],y_position[index])
+			print(shift_i,shift_j)
 			temp=test_data[index]
 			temp_x=x_position[index]
 			#shift left iff there is no element in the first row
