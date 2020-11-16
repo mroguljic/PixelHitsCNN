@@ -50,7 +50,7 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	max_size = int(np.amax(clustersize))
 	sigma_per_size = np.zeros((max_size,1))
 
-	pp = PdfPages('res_%s_csize_%s.pdf'%(label,img_ext))
+	pp = PdfPages('plots/res_%s_csize_%s.pdf'%(label,img_ext))
 
 	for i in range(1,max_size):
 		indices = np.argwhere(clustersize==i)[:,0]
@@ -65,7 +65,7 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 			plt.title('residuals in %s for clustersize = %i, %s = %0.2f'%(label,i,r'$\sigma$',sigma_per_size[i]))
 			pp.savefig()
 			plt.close()
-			
+
 	pp.close()
 
 	x = np.linspace(1, max_size, max_size)
