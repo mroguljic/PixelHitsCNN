@@ -116,8 +116,8 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
-for index in np.arange(200):
-	if(clustersize_x[index]==1 and x_position[index]>10.):
+for index in np.arange(300):
+	if(clustersize_x[index]==2):
 		nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 		nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 		#print(nonzero_elements.shape)
@@ -163,7 +163,7 @@ for index in np.arange(200):
 			#shift right iff there is no element in the last row
 			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 			#shift hit position too
-			x_position[index]+=pixelsize_x[index]*shift_j
+			if(clustersize_x[index]!=1): x_position[index]+=pixelsize_x[index]*shift_j
 
 			print(test_data[index].reshape((21,13)))
 			print(x_position[index],y_position[index])
@@ -178,7 +178,7 @@ for index in np.arange(200):
 			#shift left iff there is no element in the first row
 			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 			#shift hit position too
-			x_position[index]+=pixelsize_x[index]*shift_j
+			if(clustersize_x[index]!=1): x_position[index]+=pixelsize_x[index]*shift_j
 
 			print(test_data[index].reshape((21,13)))
 			print(x_position[index],y_position[index])
