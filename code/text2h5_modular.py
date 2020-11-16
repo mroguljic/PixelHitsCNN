@@ -81,7 +81,7 @@ def center_clusters(cluster_matrices):
 		#print(nonzero_elements.shape)
 		nonzero_i = nonzero_list[:,0]-10. #x indices
 		#print(nonzero_i.shape)
-		nonzero_j = nonzero_list[:,1]-6. #y indices
+		nonzero_j = nonzero_list[:,1]-5. #y indices
 		shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
 		shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
 		
@@ -99,12 +99,12 @@ def center_clusters(cluster_matrices):
 			#shift right iff there is no element in the last row
 			cluster_matrices[index] = np.roll(cluster_matrices[index],shift_j,axis=1)
 			#shift hit position too
-			if(clustersize_x[index]!=1): x_position[index]+=pixelsize_x[index]*shift_j
+			x_position[index]+=pixelsize_x[index]*shift_j
 		if(shift_j<0 and np.amin(nonzero_j)!=0):
 			#shift left iff there is no element in the first row
 			cluster_matrices[index] = np.roll(cluster_matrices[index],shift_j,axis=1)
 			#shift hit position too
-			if(clustersize_x[index]!=1): x_position[index]+=pixelsize_x[index]*shift_j
+			x_position[index]+=pixelsize_x[index]*shift_j
 
 	print("shifted wav of clusters to matrix centres")
 
