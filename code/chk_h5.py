@@ -160,8 +160,6 @@ for index in np.arange(len(x_position)):
 			#print(shift_i,shift_j)
 			print(index)
 			
-			temp=test_data[index]
-			temp_x=x_position[index]
 			#shift right iff there is no element in the last row
 			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 			#shift hit position too
@@ -174,8 +172,6 @@ for index in np.arange(len(x_position)):
 			#print(shift_i,shift_j)
 			print(index)
 
-			temp=test_data[index]
-			temp_x=x_position[index]
 			#shift left iff there is no element in the first row
 			test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 			#shift hit position too
