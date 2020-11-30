@@ -141,21 +141,25 @@ for index in np.arange(len(x_position)):
 
 	if(n_clusters>1):
 		for i in range(1,n_clusters+1):
-			cluster_idxs = np.argwhere(labels==i)[:,0]
-			cluster_size = len(cluster_idxs)
+			cluster_idxs_x = np.argwhere(labels==i)[:,0]
+			cluster_idxs_y = np.argwhere(labels==i)[:,1]
+			cluster_size = len(cluster_idxs_x)
 			if cluster_size>max_cluster_size:
 				max_cluster_size = cluster_size
-				largest_idxs = cluster_idxs
+				largest_idxs_x = cluster_idxs_x
+				largest_idxs_y = cluster_idxs_y
 			if cluster_size==max_cluster_size: #eg. 2 clusters of size 2
-				if(np.amax(one_mat[largest_idxs])<np.amax(one_mat[cluster_idxs])):
-					largest_idxs = cluster_idxs
+				if(np.amax(one_mat[largest_idxs_x,largest_idxs_y])<np.amax(one_mat[cluster_idxs_x,cluster_idxs_y])):
+					largest_idxs_x = cluster_idxs_x
+					largest_idxs_y = cluster_idxs_y
 	else:
-		largest_idxs = np.argwhere(labels==1)[:,0]
-		max_cluster_size = len(largest_idxs)
+		largest_idxs_x = np.argwhere(labels==1)[:,0]
+		largest_idxs_y = np.argwhere(labels==1)[:,1]
+		max_cluster_size = len(largest_idxs_x)
 	print(one_mat)
 	print(labels)
 	print('max_cluster_size=',max_cluster_size)
-	print('largest_idxs=',largest_idxs)
+	print('largest_idxs=',[largest_idxs_x,largest_idxs_y])
 
 '''
 	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
