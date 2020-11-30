@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 from skimage.measure import label
+import numpy.random as rng
 
 fe_type = 1
 gain_frac     = 0.08;
@@ -70,7 +71,8 @@ for j in range(0,n_per_file):
 	#reshape to (13,21,1) -> "image"
 	#convert from pixelav sensor coords to normal coords
 	testdata = np.array(array2d)
-	testdata = np.flip(testdata)
+	testdata = np.flip(testdata,0)
+	testdata = np.flip(testdata,1)
 	#print('flipped')
 	#print(test_data[j])
 	test_data[j]=testdata[:,:,np.newaxis]
@@ -81,7 +83,7 @@ for j in range(0,n_per_file):
 	test_data[j]+= gain_frac*noise_1*test_data[j] + readout_noise*noise_2
 	below_threshold_i = test_data[j] < 1000
 	(test_data[j])[below_threshold_i] = 0
-	test_data[j]=(test_data[j]/10.).astype(int)s
+	test_data[j]=(test_data[j]/10.).astype(int)
 	#print('added noise and threshold')
 	#print(test_data[j])
 
@@ -138,8 +140,8 @@ for index in np.arange(len(x_position)):
 	max_cluster_size=0
 
 	if(n_clusters>1):
-		for i in range(1,n_clusters):
-			cluster_idxs = np.argwhere(labels==i)
+		for i in range(1,n_clusters+1):
+			cluster_idxs = np.argwhere(labels==i)[:,0]
 			cluster_size = len(cluster_idxs)
 			if cluster_size>max_cluster_size:
 				max_cluster_size = cluster_size
@@ -148,9 +150,10 @@ for index in np.arange(len(x_position)):
 				if(np.amax(one_mat[largest_idxs])<np.amax(one_mat[cluster_idxs])):
 					largest_idxs = cluster_idxs
 	else:
-		largest_idxs = np.argwhere(labels==1)
-		max_cluster_size = len(cluster_idxs)
+		largest_idxs = np.argwhere(labels==1)[:,0]
+		max_cluster_size = len(largest_idxs)
 	print(one_mat)
+	print(labels)
 	print('max_cluster_size=',max_cluster_size)
 	print('largest_idxs=',largest_idxs)
 
