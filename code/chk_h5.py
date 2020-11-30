@@ -1,5 +1,6 @@
 import numpy as np
 import h5py
+from skimage.measure import label
 
 fe_type = 1
 gain_frac     = 0.08;
@@ -68,10 +69,10 @@ for j in range(0,n_per_file):
 	array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
 	#reshape to (13,21,1) -> "image"
 	#convert from pixelav sensor coords to normal coords
-	test_data[j] = np.array(array2d).flip()
-	print('flipped')
-	print(test_data[j])
-	test_data[j]=(test_data[j])[:,:,np.newaxis]
+	testdata = np.array(array2d).flip()
+	#print('flipped')
+	#print(test_data[j])
+	test_data[j]=testdata[:,:,np.newaxis]
 
 	test_data[j]=test_data[j]*10.
 	noise_1 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
@@ -79,8 +80,8 @@ for j in range(0,n_per_file):
 	test_data[j]+= gain_frac*noise_1*test_data[j] + readout_noise*noise_2
 	below_threshold_i = test_data[j] < 1000
 	(test_data[j])[below_threshold_i] = 0
-	print('added noise and threshold')
-	print(test_data[j])
+	#print('added noise and threshold')
+	#print(test_data[j])
 
 	#x_flat = test_data[j].reshape((21,13)).sum(axis=1)
 	#y_flat = test_data[j].reshape((21,13)).sum(axis=0)
@@ -98,8 +99,8 @@ for j in range(0,n_per_file):
 	cosz[j] = float(position_data[5])
 
 	pixelsize_data = pixelsize.split('  ')
-	pixelsize_x[j] = float(pixelsize_data[0]) 
-	pixelsize_y[j] = float(pixelsize_data[1])
+	pixelsize_x[j] = float(pixelsize_data[1]) 
+	pixelsize_y[j] = float(pixelsize_data[0])
 	pixelsize_z[j] = float(pixelsize_data[2])
 
 	n+=14
@@ -115,7 +116,7 @@ print("read in matrices from txt file\nflipped all matrices")
 #float xhit = x1 + (z_center - z1) * cosx/cosz; cosx/cosz = cotb
 #float yhit = y1 + (z_center - z1) * cosy/cosz; cosy/cosz = cota
 #z1 is always 0 
-'''
+
 cota = cosy/cosz
 cotb = cosx/cosz
 x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
@@ -127,25 +128,50 @@ print("transposed all test matrices\nconverted test_labels from pixelav coords t
 #shifting wav of cluster to matrix centre
 #for index in np.arange(len(test_data)):
 for index in np.arange(len(x_position)):
-	
+
+	#find clusters
+	one_mat = test_data[index].reshape((13,21))
+	labels = label(one_mat.clip(0,1))
+	n_clusters = np.amax(labels)
+	max_cluster_size=0
+
+	if(n_clusters>1):
+		for i in range(1,n_clusters):
+			cluster_idxs = np.argwhere(labels==i)
+			cluster_size = len(cluster_idxs)
+			if cluster_size>max_cluster_size:
+				max_cluster_size = cluster_size
+				largest_idxs = cluster_idxs
+			if cluster_size==max_cluster_size: #eg. 2 clusters of size 2
+				if(np.amax(one_mat[largest_idxs])<np.amax(one_mat[cluster_idxs])):
+					largest_idxs = cluster_idxs
+	else:
+		largest_idxs = np.argwhere(labels==1)
+		max_cluster_size = len(cluster_idxs)
+	print(one_mat)
+	print('max_cluster_size=',max_cluster_size)
+	print('largest_idxs=',largest_idxs)
+
+'''
 	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
 	nonzero_elements = test_data[index][np.nonzero(test_data[index])]
 	#print(nonzero_elements.shape)
-	nonzero_i = nonzero_list[:,0]-5. #x indices
+	nonzero_i = nonzero_list[:,0]-6. #x indices
 	#print(nonzero_i.shape)
 	nonzero_j = nonzero_list[:,1]-10. #y indices
-	shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
-	shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
+	shift_i = -int(np.sum(nonzero_i)/len(nonzero_i))
+	shift_j = -int(np.sum(nonzero_j)/len(nonzero_j))
 	#print(wav_i-10,wav_j-6)
 
-	if(shift_i>0 and np.amax(nonzero_i)!=20):
+#CHEXK THIS ONWARDS
+	if(shift_i>0 and np.amax(nonzero_i)!=12):
 		#print(test_data[index].reshape((21,13)))
 		#print(x_position[index],y_position[index])
 		#print(shift_i,shift_j)
 		#shift down iff there is no element at the last column
 		test_data[index] = np.roll(test_data[index],shift_i,axis=0)
 		#shift hit position too
-		y_position[index]-=pixelsize_y[index]*shift_i
+		x_position[index]-=pixelsize_x[index]*shift_i
 
 		#print(test_data[index].reshape((21,13)))
 		#print(x_position[index],y_position[index])
@@ -159,12 +185,12 @@ for index in np.arange(len(x_position)):
 		#shift up iff there is no element at the first column
 		test_data[index] = np.roll(test_data[index],shift_i,axis=0)
 		#shift hit position too
-		y_position[index]-=pixelsize_y[index]*shift_i
+		x_position[index]-=pixelsize_x[index]*shift_i
 
 		#print(test_data[index].reshape((21,13)))
 		#print(x_position[index],y_position[index])
 		#print('shift up done')
-	if(shift_j>0 and np.amax(nonzero_j)!=12):
+	if(shift_j>0 and np.amax(nonzero_j)!=20):
 		#print(test_data[index].reshape((21,13)))
 		#print(x_position[index],y_position[index])
 		#print(shift_i,shift_j)
@@ -173,7 +199,7 @@ for index in np.arange(len(x_position)):
 		#shift right iff there is no element in the last row
 		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 		#shift hit position too
-		x_position[index]+=pixelsize_x[index]*shift_j
+		y_position[index]+=pixelsize_y[index]*shift_j
 		
 
 	if(shift_j<0 and np.amin(nonzero_j)!=0):
@@ -185,7 +211,7 @@ for index in np.arange(len(x_position)):
 		#shift left iff there is no element in the first row
 		test_data[index] = np.roll(test_data[index],shift_j,axis=1)
 		#shift hit position too
-		x_position[index]+=pixelsize_x[index]*shift_j
+		y_position[index]+=pixelsize_y[index]*shift_j
 			
 
 print("shifted wav of clusters to matrix centres")
