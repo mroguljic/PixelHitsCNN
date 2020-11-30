@@ -71,6 +71,30 @@ def convert_pav_to_cms():
 
 	return cota,cotb,x_position,y_position
 
+def apply_noise(cluster_matrices,fe_type):
+	#add 2 types of noise
+
+	if(fe_type==1): #linear gain
+		for index in np.arange(len(cluster_matrices)):
+			noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
+			cluster_matrices[index]+= gain_frac*noise_1*cluster_matrices[index] + readout_noise*noise_2
+		print("applied linear gain")
+
+	elif(fe_type==2): #tanh gain
+		for index in np.arange(len(cluster_matrices)):
+			noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
+			adc = (float)((int)(p3+p2*tanh(p0*(cluster_matrices[index] + vcaloffst)/(7.0*vcal) - p1)))
+			cluster_matrices[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
+		print("applied tanh gain")
+
+def apply_threshold(cluster_matrices,threshold):
+	#if n_elec < 1000 -> 0
+	below_threshold_i = cluster_matrices < threshold
+	cluster_matrices[below_threshold_i] = 0
+	print("applied threshold")
+
 
 def center_clusters(cluster_matrices):
 	#shifting wav of cluster to matrix centre
@@ -109,29 +133,6 @@ def center_clusters(cluster_matrices):
 
 	print("shifted wav of clusters to matrix centres")
 
-def apply_noise(cluster_matrices,fe_type):
-	#add 2 types of noise
-
-	if(fe_type==1): #linear gain
-		for index in np.arange(len(cluster_matrices)):
-			noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
-			cluster_matrices[index]+= gain_frac*noise_1*cluster_matrices[index] + readout_noise*noise_2
-		print("applied linear gain")
-
-	elif(fe_type==2): #tanh gain
-		for index in np.arange(len(cluster_matrices)):
-			noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
-			adc = (float)((int)(p3+p2*tanh(p0*(cluster_matrices[index] + vcaloffst)/(7.0*vcal) - p1)))
-			cluster_matrices[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
-		print("applied tanh gain")
-
-def apply_threshold(cluster_matrices,threshold):
-	#if n_elec < 1000 -> 0
-	below_threshold_i = cluster_matrices < threshold
-	cluster_matrices[below_threshold_i] = 0
-	print("applied threshold")
 
 def project_matrices_xy(cluster_matrices):
 
@@ -216,9 +217,7 @@ extract_matrices(lines,train_data)
 cota,cotb,x_position,y_position = convert_pav_to_cms()
 #print(x_position_pav[0],y_position_pav[0])
 #print(x_position[0],y_position[0])
-center_clusters(train_data)
-#print(train_data[0].reshape((21,13)))
-#print(x_position[0],y_position[0])
+
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data
 print("multiplied all elements by 10")
@@ -228,6 +227,11 @@ apply_noise(train_data,fe_type)
 #print(train_data[0].reshape((21,13)))
 apply_threshold(train_data,threshold)
 #print(train_data[0].reshape((21,13)))
+
+center_clusters(train_data)
+#print(train_data[0].reshape((21,13)))
+#print(x_position[0],y_position[0])
+
 project_matrices_xy(train_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
@@ -268,9 +272,7 @@ extract_matrices(lines,test_data)
 cota,cotb,x_position,y_position = convert_pav_to_cms()
 #print(x_position_pav[0],y_position_pav[0])
 #print(x_position[0],y_position[0])
-center_clusters(test_data)
-#print(test_data[0].reshape((21,13)))
-#print(x_position[0],y_position[0])
+
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
 print("multiplied all elements by 10")
@@ -280,6 +282,11 @@ apply_noise(test_data,fe_type)
 #print(test_data[0].reshape((21,13)))
 apply_threshold(test_data,threshold)
 #print(test_data[0].reshape((21,13)))
+
+center_clusters(test_data)
+#print(test_data[0].reshape((21,13)))
+#print(x_position[0],y_position[0])
+
 project_matrices_xy(test_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
