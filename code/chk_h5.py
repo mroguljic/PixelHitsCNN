@@ -69,7 +69,8 @@ for j in range(0,n_per_file):
 	array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
 	#reshape to (13,21,1) -> "image"
 	#convert from pixelav sensor coords to normal coords
-	testdata = np.array(array2d).flip()
+	testdata = np.array(array2d)
+	testdata = np.flip(testdata)
 	#print('flipped')
 	#print(test_data[j])
 	test_data[j]=testdata[:,:,np.newaxis]
@@ -80,6 +81,7 @@ for j in range(0,n_per_file):
 	test_data[j]+= gain_frac*noise_1*test_data[j] + readout_noise*noise_2
 	below_threshold_i = test_data[j] < 1000
 	(test_data[j])[below_threshold_i] = 0
+	test_data[j]=(test_data[j]/10.).astype(int)s
 	#print('added noise and threshold')
 	#print(test_data[j])
 
