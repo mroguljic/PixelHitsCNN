@@ -92,6 +92,7 @@ def apply_threshold(cluster_matrices,threshold):
 	cluster_matrices[below_threshold_i] = 0
 	cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied threshold")
+	return cluster_matrices
 
 
 def center_clusters(cluster_matrices):
@@ -260,7 +261,7 @@ print(train_data[0].reshape((13,21)))
 
 apply_noise(train_data,fe_type)
 print(train_data[0].reshape((13,21)))
-apply_threshold(train_data,threshold)
+train_data = apply_threshold(train_data,threshold)
 print(train_data[0].reshape((13,21)))
 
 center_clusters(train_data)
