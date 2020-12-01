@@ -217,7 +217,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "nov30"
+date = "dec1"
 filename = "subset"
 
 #=====train files===== 
@@ -225,7 +225,7 @@ filename = "subset"
 #print("making train h5 file")
 
 
-train_out = open("templates/template_events_d99353_subset.out", "r")
+train_out = open("templates/template_events_d99352_subset.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
