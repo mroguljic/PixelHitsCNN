@@ -59,8 +59,8 @@ def convert_pav_to_cms():
 	y -> -x
 	z1 is always 0 
 	'''
-	cota = cosy/cosz
-	cotb = cosx/cosz
+	cota = cosx/cosz
+	cotb = cosy/cosz
 	x_position = -(x_position_pav + (pixelsize_z/2.)*cota)
 	y_position = -(y_position_pav + (pixelsize_z/2.)*cotb)
 

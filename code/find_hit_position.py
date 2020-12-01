@@ -29,7 +29,7 @@ h5_date = "dec1"
 img_ext = "dec1"
 
 # Load data
-f = h5py.File('h5_files/train_full_angle_scan_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/train_subset_%s.hdf5'%(h5_date), 'r')
 pix_train = f['train_hits'][...]
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
@@ -40,7 +40,7 @@ clustersize_y_train = f['clustersize_y'][...]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
-f = h5py.File('h5_files/test_full_angle_scan_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/test_subset_%s.hdf5'%(h5_date), 'r')
 pix_test = f['test_hits'][...]
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]

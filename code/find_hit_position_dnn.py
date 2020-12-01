@@ -31,7 +31,7 @@ h5_date = "dec1"
 img_ext = "dnn_dec1"
 
 # Load data
-f = h5py.File('h5_files/train_full_angle_scan_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/train_subset_%s.hdf5'%(h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -46,7 +46,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 
-f = h5py.File('h5_files/test_full_angle_scan_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/test_subset_%s.hdf5'%(h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
