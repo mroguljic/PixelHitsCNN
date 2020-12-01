@@ -165,12 +165,13 @@ for index in np.arange(len(x_position)):
 
 	print(one_mat)
 	print(labels)
-	print('max_cluster_size=',max_cluster_size)
-	print('largest_idxs=',[largest_idxs_x,largest_idxs_y])
+	#print('max_cluster_size=',max_cluster_size)
+	#print('largest_idxs=',[largest_idxs_x,largest_idxs_y])
 	print('clustersize_x=',clustersize_x[index],'clustersize_y=',clustersize_y[index])
 	#find geometric centre of the main cluster using avg
 	center_x = int(np.mean(largest_idxs_x))
 	center_y = int(np.mean(largest_idxs_y))
+	print('centers',[center_x,center_y])
 	#if the geometric centre is not at (7,11) shift cluster
 	nonzero_list = np.asarray(np.nonzero(test_data[index]))
 	nonzero_x = nonzero_list[0,:]
@@ -182,7 +183,7 @@ for index in np.arange(len(x_position)):
 			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,shift,axis=0)
 			x_position[index]-=pixelsize_x[index]*shift
-			print('shift down')
+			print('shift down ',shift)
 			print(x_position[index],y_position[index])
 			print(one_mat)
 
@@ -193,7 +194,7 @@ for index in np.arange(len(x_position)):
 			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,-shift,axis=0)
 			x_position[index]+=pixelsize_x[index]*shift
-			print('shift up')
+			print('shift up ',shift)
 			print(x_position[index],y_position[index])
 			print(one_mat)
 
@@ -204,7 +205,7 @@ for index in np.arange(len(x_position)):
 			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,shift,axis=1)
 			y_position[index]+=pixelsize_y[index]*shift
-			print('shift right')
+			print('shift right ',shift)
 			print(x_position[index],y_position[index])
 			print(one_mat)
 
@@ -215,7 +216,7 @@ for index in np.arange(len(x_position)):
 			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,-shift,axis=1)
 			y_position[index]-=pixelsize_y[index]*shift
-			print('shift left')
+			print('shift left ',shift)
 			print(x_position[index],y_position[index])
 			print(one_mat)
 
