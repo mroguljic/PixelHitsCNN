@@ -179,36 +179,44 @@ for index in np.arange(len(x_position)):
 		#shift down
 		shift = 6-center_x
 		if(np.amax(nonzero_x)+shift<=12):
+			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,shift,axis=0)
 			x_position[index]-=pixelsize_x[index]*shift
 			print('shift down')
+			print(x_position[index],y_position[index])
 			print(one_mat)
 
 	if(center_x>6):
 		#shift up
 		shift = center_x-6
 		if(np.amin(nonzero_x)-shift>=0):
+			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,-shift,axis=0)
 			x_position[index]+=pixelsize_x[index]*shift
-			print('shift down')
+			print('shift up')
+			print(x_position[index],y_position[index])
 			print(one_mat)
 
 	if(center_y<10):
 		#shift right
 		shift = 10-center_y
 		if(np.amax(nonzero_y)+shift<=20):
+			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,shift,axis=1)
 			y_position[index]+=pixelsize_y[index]*shift
-			print('shift down')
+			print('shift right')
+			print(x_position[index],y_position[index])
 			print(one_mat)
 
 	if(center_y>10):
 		#shift left
 		shift = center_y-10
 		if(np.amin(nonzero_y)-shift>=0):
+			print(x_position[index],y_position[index])
 			one_mat=np.roll(one_mat,-shift,axis=1)
 			y_position[index]-=pixelsize_y[index]*shift
-			print('shift down')
+			print('shift left')
+			print(x_position[index],y_position[index])
 			print(one_mat)
 
 	test_data[index]=one_mat[:,:,np.newaxis]
