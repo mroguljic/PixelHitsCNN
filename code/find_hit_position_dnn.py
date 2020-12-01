@@ -27,8 +27,8 @@ import numpy as np
 import time
 from plotter import *
 
-h5_date = "nov16"
-img_ext = "dnn_nov16"
+h5_date = "nov30"
+img_ext = "dnn_nov30"
 
 # Load data
 f = h5py.File('h5_files/train_full_angle_scan_%s.hdf5'%(h5_date), 'r')
