@@ -61,8 +61,8 @@ def convert_pav_to_cms():
 	'''
 	cota = cosy/cosz
 	cotb = cosx/cosz
-	x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
-	y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
+	x_position = -(x_position_pav + (pixelsize_z/2.)*cota)
+	y_position = -(y_position_pav + (pixelsize_z/2.)*cotb)
 
 	print("converted labels from pixelav coords to cms coords \ncomputed cota cotb")
 
@@ -218,20 +218,20 @@ p2    = 203.;
 p3    = 148.;	
 
 date = "nov30"
-filename = "full_angle_scan"
+filename = "subset"
 
 #=====train files===== 
 
-print("making train h5 file")
+#print("making train h5 file")
 
 
-train_out = open("templates/practice.out", "r")
-#print("writing to file %i \n",i)
+train_out = open("templates/template_events_d99353_subset.out", "r")
+##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
 
 n_train = int((len(lines)-2)/14)
-print("n_train = ",n_train)
+#print("n_train = ",n_train)
 
 #"image" size = 13x21x1
 train_data = np.zeros((n_train,13,21,1))
@@ -249,44 +249,44 @@ x_flat = np.zeros((n_train,13))
 y_flat = np.zeros((n_train,21))
 
 extract_matrices(lines,train_data)
-print(train_data[0].reshape((13,21)))
+#print(train_data[0].reshape((13,21)))
 cota,cotb,x_position,y_position = convert_pav_to_cms()
-print(x_position_pav[0],y_position_pav[0])
-print(x_position[0],y_position[0])
+#print(x_position_pav[0],y_position_pav[0])
+#print(x_position[0],y_position[0])
 
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data
-print("multiplied all elements by 10")
-print(train_data[0].reshape((13,21)))
+#print("multiplied all elements by 10")
+#print(train_data[0].reshape((13,21)))
 
 apply_noise(train_data,fe_type)
-print(train_data[0].reshape((13,21)))
+#print(train_data[0].reshape((13,21)))
 train_data = apply_threshold(train_data,threshold)
-print(train_data[0].reshape((13,21)))
+#print(train_data[0].reshape((13,21)))
 
 center_clusters(train_data)
-print(train_data[0].reshape((13,21)))
-print(x_position[0],y_position[0])
+#print(train_data[0].reshape((13,21)))
+#print(x_position[0],y_position[0])
 
 project_matrices_xy(train_data)
-print(x_flat[0],y_flat[0])
-print(clustersize_x[0],clustersize_y[0])
+#print(x_flat[0],y_flat[0])
+#print(clustersize_x[0],clustersize_y[0])
 
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
 
 #====== test files ========
-'''
-print("making test h5 file.")
+
+#print("making test h5 file.")
 
 test_out = open("templates/template_events_d99353.out", "r")
-#print("writing to file %i \n",i)
+##print("writing to file %i \n",i)
 lines = test_out.readlines()
 test_out.close()
 
 n_test = int((len(lines)-2)/14)
-print("n_test = ",n_test)
+#print("n_test = ",n_test)
 
 #"image" size = 13x21x1
 test_data = np.zeros((n_test,13,21,1))
@@ -304,32 +304,32 @@ x_flat = np.zeros((n_test,13))
 y_flat = np.zeros((n_test,21))
 
 extract_matrices(lines,test_data)
-#print(test_data[0].reshape((21,13)))
+##print(test_data[0].reshape((21,13)))
 cota,cotb,x_position,y_position = convert_pav_to_cms()
-#print(x_position_pav[0],y_position_pav[0])
-#print(x_position[0],y_position[0])
+##print(x_position_pav[0],y_position_pav[0])
+##print(x_position[0],y_position[0])
 
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
-print("multiplied all elements by 10")
-#print(test_data[0].reshape((21,13)))
+#print("multiplied all elements by 10")
+##print(test_data[0].reshape((21,13)))
 
 apply_noise(test_data,fe_type)
-#print(test_data[0].reshape((21,13)))
-apply_threshold(test_data,threshold)
-#print(test_data[0].reshape((21,13)))
+##print(test_data[0].reshape((21,13)))
+test_data = apply_threshold(test_data,threshold)
+##print(test_data[0].reshape((21,13)))
 
 center_clusters(test_data)
-#print(test_data[0].reshape((21,13)))
-#print(x_position[0],y_position[0])
+##print(test_data[0].reshape((21,13)))
+##print(x_position[0],y_position[0])
 
 project_matrices_xy(test_data)
-#print(x_flat[0],y_flat[0])
-#print(clustersize_x[0],clustersize_y[0])
+##print(x_flat[0],y_flat[0])
+##print(clustersize_x[0],clustersize_y[0])
 
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
-'''
+
 
 
