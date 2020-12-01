@@ -26,10 +26,11 @@ import time
 from plotter import *
 
 h5_date = "dec1"
+h5_ext = ""
 img_ext = "dec1"
 
 # Load data
-f = h5py.File('h5_files/train_subset_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_train = f['train_hits'][...]
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
@@ -40,7 +41,7 @@ clustersize_y_train = f['clustersize_y'][...]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
-f = h5py.File('h5_files/test_subset_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_test = f['test_hits'][...]
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
@@ -57,12 +58,12 @@ batch_size = 256
 loss_function = 'mse'
 n_epochs = 2
 optimizer = Adam(lr=0.001)
-validation_split = 0.3
+validation_split = 0.2
 
 train_time_s = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
-inputs = Input(shape=(21,13,1))
+inputs = Input(shape=(13,21,1))
 angles = Input(shape=(2,))
 x = Conv2D(32, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)

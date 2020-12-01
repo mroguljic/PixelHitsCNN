@@ -28,10 +28,11 @@ import time
 from plotter import *
 
 h5_date = "dec1"
+h5_ext = ""
 img_ext = "dnn_dec1"
 
 # Load data
-f = h5py.File('h5_files/train_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -46,7 +47,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 
-f = h5py.File('h5_files/test_%s.hdf5'%(h5_date), 'r')
+f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
