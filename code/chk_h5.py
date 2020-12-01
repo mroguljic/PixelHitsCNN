@@ -135,10 +135,12 @@ for index in np.arange(len(x_position)):
 
 	#find clusters
 	one_mat = test_data[index].reshape((13,21))
+	#find connected components 
 	labels = label(one_mat.clip(0,1))
+	#find no of clusters
 	n_clusters = np.amax(labels)
 	max_cluster_size=0
-
+	#if there is more than 1 cluster, the largest one is the main one
 	if(n_clusters>1):
 		for i in range(1,n_clusters+1):
 			cluster_idxs_x = np.argwhere(labels==i)[:,0]
@@ -148,6 +150,7 @@ for index in np.arange(len(x_position)):
 				max_cluster_size = cluster_size
 				largest_idxs_x = cluster_idxs_x
 				largest_idxs_y = cluster_idxs_y
+			#if there are 2 clusters of the same size then the largest hit is the main one
 			if cluster_size==max_cluster_size: #eg. 2 clusters of size 2
 				if(np.amax(one_mat[largest_idxs_x,largest_idxs_y])<np.amax(one_mat[cluster_idxs_x,cluster_idxs_y])):
 					largest_idxs_x = cluster_idxs_x
@@ -155,11 +158,60 @@ for index in np.arange(len(x_position)):
 	else:
 		largest_idxs_x = np.argwhere(labels==1)[:,0]
 		largest_idxs_y = np.argwhere(labels==1)[:,1]
-		max_cluster_size = len(largest_idxs_x)
+	
+	#find clustersize
+	clustersize_x[index] = len(np.unique(largest_idxs_x))
+	clustersize_y[index] = len(np.unique(largest_idxs_y))
+
 	print(one_mat)
 	print(labels)
 	print('max_cluster_size=',max_cluster_size)
 	print('largest_idxs=',[largest_idxs_x,largest_idxs_y])
+	print('clustersize_x=',clustersize_x[index],'clustersize_y=',clustersize_y[index])
+	#find geometric centre of the main cluster using avg
+	center_x = int(np.mean(largest_idxs_x))
+	center_y = int(np.mean(largest_idxs_y))
+	#if the geometric centre is not at (7,11) shift cluster
+	nonzero_list = np.asarray(np.nonzero(test_data[index]))
+	nonzero_x = nonzero_list[0,:]
+	nonzero_y = nonzero_list[1,:]
+	if(center_x<6):
+		#shift down
+		shift = 6-center_x
+		if(np.amax(nonzero_x)+shift<=12):
+			one_mat=np.roll(one_mat,shift,axis=0)
+			x_position[index]-=pixelsize_x[index]*shift
+			print('shift down')
+			print(one_mat)
+
+	if(center_x>6):
+		#shift up
+		shift = center_x-6
+		if(np.amin(nonzero_x)-shift>=0):
+			one_mat=np.roll(one_mat,-shift,axis=0)
+			x_position[index]+=pixelsize_x[index]*shift
+			print('shift down')
+			print(one_mat)
+
+	if(center_y<10):
+		#shift right
+		shift = 10-center_y
+		if(np.amax(nonzero_y)+shift<=20):
+			one_mat=np.roll(one_mat,shift,axis=1)
+			y_position[index]+=pixelsize_y[index]*shift
+			print('shift down')
+			print(one_mat)
+
+	if(center_y>10):
+		#shift left
+		shift = center_y-10
+		if(np.amin(nonzero_y)-shift>=0):
+			one_mat=np.roll(one_mat,-shift,axis=1)
+			y_position[index]-=pixelsize_y[index]*shift
+			print('shift down')
+			print(one_mat)
+
+	test_data[index]=one_mat[:,:,np.newaxis]
 
 '''
 	nonzero_list = np.transpose(np.asarray(np.nonzero(test_data[index])))
