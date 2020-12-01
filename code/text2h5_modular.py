@@ -224,7 +224,7 @@ filename = "full_angle_scan"
 print("making train h5 file")
 
 
-train_out = open("templates/template_events_d99352.out", "r")
+train_out = open("templates/practice.out", "r")
 #print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
@@ -248,35 +248,35 @@ x_flat = np.zeros((n_train,13))
 y_flat = np.zeros((n_train,21))
 
 extract_matrices(lines,train_data)
-#print(train_data[0].reshape((21,13)))
+print(train_data[0].reshape((13,21)))
 cota,cotb,x_position,y_position = convert_pav_to_cms()
-#print(x_position_pav[0],y_position_pav[0])
-#print(x_position[0],y_position[0])
+print(x_position_pav[0],y_position_pav[0])
+print(x_position[0],y_position[0])
 
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data
 print("multiplied all elements by 10")
-#print(train_data[0].reshape((21,13)))
+print(train_data[0].reshape((13,21)))
 
 apply_noise(train_data,fe_type)
-#print(train_data[0].reshape((21,13)))
+print(train_data[0].reshape((13,21)))
 apply_threshold(train_data,threshold)
-#print(train_data[0].reshape((21,13)))
+print(train_data[0].reshape((13,21)))
 
 center_clusters(train_data)
-#print(train_data[0].reshape((21,13)))
-#print(x_position[0],y_position[0])
+print(train_data[0].reshape((13,21)))
+print(x_position[0],y_position[0])
 
 project_matrices_xy(train_data)
-#print(x_flat[0],y_flat[0])
-#print(clustersize_x[0],clustersize_y[0])
+print(x_flat[0],y_flat[0])
+print(clustersize_x[0],clustersize_y[0])
 
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
 
 #====== test files ========
-
+'''
 print("making test h5 file.")
 
 test_out = open("templates/template_events_d99353.out", "r")
@@ -329,6 +329,6 @@ project_matrices_xy(test_data)
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
-
+'''
 
 
