@@ -6,6 +6,7 @@
 import numpy as np
 import h5py
 import numpy.random as rng
+from skimage.measure import label
 
 
 def extract_matrices(lines,cluster_matrices):
@@ -23,14 +24,10 @@ def extract_matrices(lines,cluster_matrices):
 		array2d = [[float(digit) for digit in line.split()] for line in lines[n+1:n+14]]
 		#reshape to (13,21,1) -> "image"
 		#convert from pixelav sensor coords to normal coords
-		cluster_matrices[j] = np.array(array2d).transpose()[:,:,np.newaxis]
-
-		x_flat = cluster_matrices[j].reshape((21,13)).sum(axis=0)
-		y_flat = cluster_matrices[j].reshape((21,13)).sum(axis=1)
-
-		#possible issue: clustersize calc before noise added
-		clustersize_x[j] = len(np.nonzero(x_flat)[0])
-		clustersize_y[j] = len(np.nonzero(y_flat)[0])
+		one_mat = np.array(array2d)
+		one_mat = np.flip(one_mat,0)
+		one_mat = np.flip(one_mat,1)
+		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 
 		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
 		#cota = cos y/cos z ; cotb = cos x/cos z
@@ -48,7 +45,7 @@ def extract_matrices(lines,cluster_matrices):
 
 		n+=14
 
-	print("read in matrices from txt file\ntransposed all matrices")
+	print("read in matrices from txt file\nflipped all matrices")
 
 def convert_pav_to_cms():
 	
@@ -76,15 +73,15 @@ def apply_noise(cluster_matrices,fe_type):
 
 	if(fe_type==1): #linear gain
 		for index in np.arange(len(cluster_matrices)):
-			noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
+			noise_1 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1))
 			cluster_matrices[index]+= gain_frac*noise_1*cluster_matrices[index] + readout_noise*noise_2
 		print("applied linear gain")
 
 	elif(fe_type==2): #tanh gain
 		for index in np.arange(len(cluster_matrices)):
-			noise_1 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=(21*13)).reshape((21,13,1))
+			noise_1 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1))
 			adc = (float)((int)(p3+p2*tanh(p0*(cluster_matrices[index] + vcaloffst)/(7.0*vcal) - p1)))
 			cluster_matrices[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
 		print("applied tanh gain")
@@ -93,53 +90,91 @@ def apply_threshold(cluster_matrices,threshold):
 	#if n_elec < 1000 -> 0
 	below_threshold_i = cluster_matrices < threshold
 	cluster_matrices[below_threshold_i] = 0
+	cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied threshold")
 
 
 def center_clusters(cluster_matrices):
-	#shifting wav of cluster to matrix centre
+	
 	for index in np.arange(len(cluster_matrices)):
 
 	#for index in np.arange(50):
-		nonzero_list = np.transpose(np.asarray(np.nonzero(cluster_matrices[index])))
-		nonzero_elements = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
-		#print(nonzero_elements.shape)
-		nonzero_i = nonzero_list[:,0]-10. #x indices
-		#print(nonzero_i.shape)
-		nonzero_j = nonzero_list[:,1]-6. #y indices
-		shift_i = -int(round(np.dot(nonzero_i,nonzero_elements)/np.sum(nonzero_elements)))
-		shift_j = -int(round(np.dot(nonzero_j,nonzero_elements)/np.sum(nonzero_elements)))
+		#find clusters
+		one_mat = cluster_matrices[index].reshape((13,21))
+		#find connected components 
+		labels = label(one_mat.clip(0,1))
+		#find no of clusters
+		n_clusters = np.amax(labels)
+		max_cluster_size=0
+		#if there is more than 1 cluster, the largest one is the main one
+		if(n_clusters>1):
+			for i in range(1,n_clusters+1):
+				cluster_idxs_x = np.argwhere(labels==i)[:,0]
+				cluster_idxs_y = np.argwhere(labels==i)[:,1]
+				cluster_size = len(cluster_idxs_x)
+				if cluster_size>max_cluster_size:
+					max_cluster_size = cluster_size
+					largest_idxs_x = cluster_idxs_x
+					largest_idxs_y = cluster_idxs_y
+				#if there are 2 clusters of the same size then the largest hit is the main one
+				if cluster_size==max_cluster_size: #eg. 2 clusters of size 2
+					if(np.amax(one_mat[largest_idxs_x,largest_idxs_y])<np.amax(one_mat[cluster_idxs_x,cluster_idxs_y])):
+						largest_idxs_x = cluster_idxs_x
+						largest_idxs_y = cluster_idxs_y
+		else:
+			largest_idxs_x = np.argwhere(labels==1)[:,0]
+			largest_idxs_y = np.argwhere(labels==1)[:,1]
 		
-		if(shift_i>0 and np.amax(nonzero_i)!=20):
-			#shift down iff there is no element at the last column
-			cluster_matrices[index] = np.roll(cluster_matrices[index],shift_i,axis=0)
-			#shift hit position too
-			y_position[index]-=pixelsize_y[index]*shift_i
-		if(shift_i<0 and np.amin(nonzero_i)!=0):
-			#shift up iff there is no element at the first column
-			cluster_matrices[index] = np.roll(cluster_matrices[index],shift_i,axis=0)
-			#shift hit position too
-			y_position[index]-=pixelsize_y[index]*shift_i
-		if(shift_j>0 and np.amax(nonzero_j)!=12):
-			#shift right iff there is no element in the last row
-			cluster_matrices[index] = np.roll(cluster_matrices[index],shift_j,axis=1)
-			#shift hit position too
-			x_position[index]+=pixelsize_x[index]*shift_j
-		if(shift_j<0 and np.amin(nonzero_j)!=0):
-			#shift left iff there is no element in the first row
-			cluster_matrices[index] = np.roll(cluster_matrices[index],shift_j,axis=1)
-			#shift hit position too
-			x_position[index]+=pixelsize_x[index]*shift_j
+		#find clustersize
+		clustersize_x[index] = int(len(np.unique(largest_idxs_x)))
+		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 
-	print("shifted wav of clusters to matrix centres")
+		#find geometric centre of the main cluster using avg
+		center_x = int(np.mean(largest_idxs_x))
+		center_y = int(np.mean(largest_idxs_y))
+		#if the geometric centre is not at (7,11) shift cluster
+		nonzero_list = np.asarray(np.nonzero(one_mat))
+		nonzero_x = nonzero_list[0,:]
+		nonzero_y = nonzero_list[1,:]
+		if(center_x<6):
+			#shift down
+			shift = 6-center_x
+			if(np.amax(nonzero_x)+shift<=12):
+				one_mat=np.roll(one_mat,shift,axis=0)
+				x_position[index]-=pixelsize_x[index]*shift
+
+		if(center_x>6):
+			#shift up
+			shift = center_x-6
+			if(np.amin(nonzero_x)-shift>=0):
+				one_mat=np.roll(one_mat,-shift,axis=0)
+				x_position[index]+=pixelsize_x[index]*shift
+
+		if(center_y<10):
+			#shift right
+			shift = 10-center_y
+			if(np.amax(nonzero_y)+shift<=20):
+				one_mat=np.roll(one_mat,shift,axis=1)
+				y_position[index]+=pixelsize_y[index]*shift
+
+		if(center_y>10):
+			#shift left
+			shift = center_y-10
+			if(np.amin(nonzero_y)-shift>=0):
+				one_mat=np.roll(one_mat,-shift,axis=1)
+				y_position[index]-=pixelsize_y[index]*shift
+
+		cluster_matrices[index]=one_mat[:,:,np.newaxis]
+
+	print("shifted centre of clusters to matrix centres")
 
 
 def project_matrices_xy(cluster_matrices):
 
 	#for dnn
 	for index in np.arange(len(cluster_matrices)):
-		x_flat[index] = cluster_matrices[index].reshape((21,13)).sum(axis=0)
-		y_flat[index] = cluster_matrices[index].reshape((21,13)).sum(axis=1)
+		x_flat[index] = cluster_matrices[index].reshape((13,21)).sum(axis=1)
+		y_flat[index] = cluster_matrices[index].reshape((13,21)).sum(axis=0)
 
 	print('took x and y projections of all matrices')	
 
@@ -181,7 +216,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "nov16"
+date = "nov30"
 filename = "full_angle_scan"
 
 #=====train files===== 
@@ -198,7 +233,7 @@ n_train = int((len(lines)-2)/14)
 print("n_train = ",n_train)
 
 #"image" size = 13x21x1
-train_data = np.zeros((n_train,21,13,1))
+train_data = np.zeros((n_train,13,21,1))
 x_position_pav = np.zeros((n_train,1))
 y_position_pav = np.zeros((n_train,1))
 cosx = np.zeros((n_train,1))
@@ -253,7 +288,7 @@ n_test = int((len(lines)-2)/14)
 print("n_test = ",n_test)
 
 #"image" size = 13x21x1
-test_data = np.zeros((n_test,21,13,1))
+test_data = np.zeros((n_test,13,21,1))
 x_position_pav = np.zeros((n_test,1))
 y_position_pav = np.zeros((n_test,1))
 cosx = np.zeros((n_test,1))
