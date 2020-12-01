@@ -90,7 +90,7 @@ def apply_threshold(cluster_matrices,threshold):
 	#if n_elec < 1000 -> 0
 	below_threshold_i = cluster_matrices < threshold
 	cluster_matrices[below_threshold_i] = 0
-	cluster_matrices=(cluster_matrices/10.).astype(int)
+	#cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied threshold")
 	return cluster_matrices
 
@@ -131,36 +131,36 @@ def center_clusters(cluster_matrices):
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 
 		#find geometric centre of the main cluster using avg
-		center_x = int(np.mean(largest_idxs_x))
-		center_y = int(np.mean(largest_idxs_y))
+		center_x = round(np.mean(largest_idxs_x))
+		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
 		nonzero_list = np.asarray(np.nonzero(one_mat))
 		nonzero_x = nonzero_list[0,:]
 		nonzero_y = nonzero_list[1,:]
 		if(center_x<6):
 			#shift down
-			shift = 6-center_x
+			shift = int(6-center_x)
 			if(np.amax(nonzero_x)+shift<=12):
 				one_mat=np.roll(one_mat,shift,axis=0)
 				x_position[index]-=pixelsize_x[index]*shift
 
 		if(center_x>6):
 			#shift up
-			shift = center_x-6
+			shift = int(center_x-6)
 			if(np.amin(nonzero_x)-shift>=0):
 				one_mat=np.roll(one_mat,-shift,axis=0)
 				x_position[index]+=pixelsize_x[index]*shift
 
 		if(center_y<10):
 			#shift right
-			shift = 10-center_y
+			shift = int(10-center_y)
 			if(np.amax(nonzero_y)+shift<=20):
 				one_mat=np.roll(one_mat,shift,axis=1)
 				y_position[index]+=pixelsize_y[index]*shift
 
 		if(center_y>10):
 			#shift left
-			shift = center_y-10
+			shift = int(center_y-10)
 			if(np.amin(nonzero_y)-shift>=0):
 				one_mat=np.roll(one_mat,-shift,axis=1)
 				y_position[index]-=pixelsize_y[index]*shift
@@ -218,7 +218,7 @@ p2    = 203.;
 p3    = 148.;	
 
 date = "dec1"
-filename = "subset"
+filename = ""
 
 #=====train files===== 
 
@@ -277,7 +277,7 @@ f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 create_datasets(f,train_data,x_flat,y_flat,"train")
 
 #====== test files ========
-'''
+
 #print("making test h5 file.")
 
 test_out = open("templates/template_events_d99353.out", "r")
@@ -330,6 +330,6 @@ project_matrices_xy(test_data)
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
-'''
+
 
 
