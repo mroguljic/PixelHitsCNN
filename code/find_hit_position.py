@@ -56,7 +56,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 5
+n_epochs = 3
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
