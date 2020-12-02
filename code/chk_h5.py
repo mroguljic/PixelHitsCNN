@@ -163,62 +163,64 @@ for index in np.arange(len(x_position)):
 	clustersize_x[index] = len(np.unique(largest_idxs_x))
 	clustersize_y[index] = len(np.unique(largest_idxs_y))
 
-	print(one_mat)
-	print(labels)
-	#print('max_cluster_size=',max_cluster_size)
-	#print('largest_idxs=',[largest_idxs_x,largest_idxs_y])
-	print('clustersize_x=',clustersize_x[index],'clustersize_y=',clustersize_y[index])
-	#find geometric centre of the main cluster using avg
-	center_x = round(np.mean(largest_idxs_x))
-	center_y = round(np.mean(largest_idxs_y))
-	print('centers',[center_x,center_y])
-	#if the geometric centre is not at (7,11) shift cluster
-	nonzero_list = np.asarray(np.nonzero(test_data[index]))
-	nonzero_x = nonzero_list[0,:]
-	nonzero_y = nonzero_list[1,:]
-	if(center_x<6):
-		#shift down
-		shift = int(6-center_x)
-		if(np.amax(nonzero_x)+shift<=12):
-			print(x_position[index],y_position[index])
-			one_mat=np.roll(one_mat,shift,axis=0)
-			x_position[index]-=pixelsize_x[index]*shift
-			print('shift down ',shift)
-			print(x_position[index],y_position[index])
-			print(one_mat)
+	if(clustersize_x[index]==1):
 
-	if(center_x>6):
-		#shift up
-		shift = int(center_x-6)
-		if(np.amin(nonzero_x)-shift>=0):
-			print(x_position[index],y_position[index])
-			one_mat=np.roll(one_mat,-shift,axis=0)
-			x_position[index]+=pixelsize_x[index]*shift
-			print('shift up ',shift)
-			print(x_position[index],y_position[index])
-			print(one_mat)
+		print(one_mat)
+		print(labels)
+		#print('max_cluster_size=',max_cluster_size)
+		#print('largest_idxs=',[largest_idxs_x,largest_idxs_y])
+		print('clustersize_x=',clustersize_x[index],'clustersize_y=',clustersize_y[index])
+		#find geometric centre of the main cluster using avg
+		center_x = round(np.mean(largest_idxs_x))
+		center_y = round(np.mean(largest_idxs_y))
+		print('centers',[center_x,center_y])
+		#if the geometric centre is not at (7,11) shift cluster
+		nonzero_list = np.asarray(np.nonzero(test_data[index]))
+		nonzero_x = nonzero_list[0,:]
+		nonzero_y = nonzero_list[1,:]
+		if(center_x<6):
+			#shift down
+			shift = int(6-center_x)
+			if(np.amax(nonzero_x)+shift<=12):
+				print(x_position[index],y_position[index])
+				one_mat=np.roll(one_mat,shift,axis=0)
+				x_position[index]-=pixelsize_x[index]*shift
+				print('shift down ',shift)
+				print(x_position[index],y_position[index])
+				print(one_mat)
 
-	if(center_y<10):
-		#shift right
-		shift = int(10-center_y)
-		if(np.amax(nonzero_y)+shift<=20):
-			print(x_position[index],y_position[index])
-			one_mat=np.roll(one_mat,shift,axis=1)
-			y_position[index]+=pixelsize_y[index]*shift
-			print('shift right ',shift)
-			print(x_position[index],y_position[index])
-			print(one_mat)
+		if(center_x>6):
+			#shift up
+			shift = int(center_x-6)
+			if(np.amin(nonzero_x)-shift>=0):
+				print(x_position[index],y_position[index])
+				one_mat=np.roll(one_mat,-shift,axis=0)
+				x_position[index]+=pixelsize_x[index]*shift
+				print('shift up ',shift)
+				print(x_position[index],y_position[index])
+				print(one_mat)
 
-	if(center_y>10):
-		#shift left
-		shift = int(center_y-10)
-		if(np.amin(nonzero_y)-shift>=0):
-			print(x_position[index],y_position[index])
-			one_mat=np.roll(one_mat,-shift,axis=1)
-			y_position[index]-=pixelsize_y[index]*shift
-			print('shift left ',shift)
-			print(x_position[index],y_position[index])
-			print(one_mat)
+		if(center_y<10):
+			#shift right
+			shift = int(10-center_y)
+			if(np.amax(nonzero_y)+shift<=20):
+				print(x_position[index],y_position[index])
+				one_mat=np.roll(one_mat,shift,axis=1)
+				y_position[index]+=pixelsize_y[index]*shift
+				print('shift right ',shift)
+				print(x_position[index],y_position[index])
+				print(one_mat)
+
+		if(center_y>10):
+			#shift left
+			shift = int(center_y-10)
+			if(np.amin(nonzero_y)-shift>=0):
+				print(x_position[index],y_position[index])
+				one_mat=np.roll(one_mat,-shift,axis=1)
+				y_position[index]-=pixelsize_y[index]*shift
+				print('shift left ',shift)
+				print(x_position[index],y_position[index])
+				print(one_mat)
 
 	test_data[index]=one_mat[:,:,np.newaxis]
 
