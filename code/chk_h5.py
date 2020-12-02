@@ -121,10 +121,10 @@ print("read in matrices from txt file\nflipped all matrices")
 #float yhit = y1 + (z_center - z1) * cosy/cosz; cosy/cosz = cota
 #z1 is always 0 
 
-cota = cosy/cosz
-cotb = cosx/cosz
-x_position = -(y_position_pav + (pixelsize_z/2.)*cota)
-y_position = -(x_position_pav + (pixelsize_z/2.)*cotb)
+cota = cosx/cosz
+cotb = cosy/cosz
+x_position = -(x_position_pav + (pixelsize_z/2.)*cota)
+y_position = -(y_position_pav + (pixelsize_z/2.)*cotb)
 
 print("transposed all test matrices\nconverted test_labels from pixelav coords to cms coords \ncomputed test cota cotb\n")
 

@@ -86,6 +86,8 @@ def apply_noise(cluster_matrices,fe_type):
 			cluster_matrices[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
 		print("applied tanh gain")
 
+	return cluster_matrices
+
 def apply_threshold(cluster_matrices,threshold):
 	#if n_elec < 1000 -> 0
 	below_threshold_i = cluster_matrices < threshold
@@ -129,7 +131,7 @@ def center_clusters(cluster_matrices):
 		#find clustersize
 		clustersize_x[index] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
-
+		'''
 		#find geometric centre of the main cluster using avg
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
@@ -168,6 +170,8 @@ def center_clusters(cluster_matrices):
 		cluster_matrices[index]=one_mat[:,:,np.newaxis]
 
 	print("shifted centre of clusters to matrix centres")
+	'''
+	return cluster_matrices
 
 
 def project_matrices_xy(cluster_matrices):
@@ -218,7 +222,7 @@ p2    = 203.;
 p3    = 148.;	
 
 date = "dec1"
-filename = ""
+filename = "nocenter"
 
 #=====train files===== 
 
@@ -259,12 +263,12 @@ train_data = 10*train_data
 #print("multiplied all elements by 10")
 #print(train_data[0].reshape((13,21)))
 
-apply_noise(train_data,fe_type)
+train_data = apply_noise(train_data,fe_type)
 #print(train_data[0].reshape((13,21)))
 train_data = apply_threshold(train_data,threshold)
 #print(train_data[0].reshape((13,21)))
 
-center_clusters(train_data)
+train_data = center_clusters(train_data)
 #print(train_data[0].reshape((13,21)))
 #print(x_position[0],y_position[0])
 
@@ -314,12 +318,12 @@ test_data = 10*test_data
 #print("multiplied all elements by 10")
 ##print(test_data[0].reshape((21,13)))
 
-apply_noise(test_data,fe_type)
+test_data = apply_noise(test_data,fe_type)
 ##print(test_data[0].reshape((21,13)))
 test_data = apply_threshold(test_data,threshold)
 ##print(test_data[0].reshape((21,13)))
 
-center_clusters(test_data)
+test_data = center_clusters(test_data)
 ##print(test_data[0].reshape((21,13)))
 ##print(x_position[0],y_position[0])
 
