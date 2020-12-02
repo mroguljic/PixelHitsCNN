@@ -32,8 +32,8 @@ def extract_matrices(lines,cluster_matrices):
 		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
 		#cota = cos y/cos z ; cotb = cos x/cos z
 		position_data = lines[n].split(' ')
-		x_position_pav[j] = float(position_data[0])
-		y_position_pav[j] = float(position_data[1])
+		x_position_pav[j] = float(position_data[1])
+		y_position_pav[j] = float(position_data[0])
 		cosx[j] = float(position_data[3])
 		cosy[j] = float(position_data[4])
 		cosz[j] = float(position_data[5])
@@ -131,7 +131,7 @@ def center_clusters(cluster_matrices):
 		#find clustersize
 		clustersize_x[index] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
-		'''
+		
 		#find geometric centre of the main cluster using avg
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
@@ -170,7 +170,7 @@ def center_clusters(cluster_matrices):
 		cluster_matrices[index]=one_mat[:,:,np.newaxis]
 
 	print("shifted centre of clusters to matrix centres")
-	'''
+	
 	return cluster_matrices
 
 
@@ -222,7 +222,7 @@ p2    = 203.;
 p3    = 148.;	
 
 date = "dec1"
-filename = "nocenter"
+filename = ""
 
 #=====train files===== 
 
