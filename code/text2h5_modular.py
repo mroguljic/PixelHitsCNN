@@ -30,12 +30,12 @@ def extract_matrices(lines,cluster_matrices):
 		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 
 		#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
-		#cota = cos y/cos z ; cotb = cos x/cos z
+		#cota = cos x/cos z ; cotb = cos y/cos z
 		position_data = lines[n].split(' ')
 		x_position_pav[j] = float(position_data[1])
 		y_position_pav[j] = float(position_data[0])
-		cosx[j] = float(position_data[3])
-		cosy[j] = float(position_data[4])
+		cosx[j] = float(position_data[4])
+		cosy[j] = float(position_data[3])
 		cosz[j] = float(position_data[5])
 
 		pixelsize_data = pixelsize.split('  ')
