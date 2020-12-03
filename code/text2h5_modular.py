@@ -50,7 +50,7 @@ def extract_matrices(lines,cluster_matrices):
 def convert_pav_to_cms():
 	
 	#switching out of pixelav coords to localx and localy
-	#remember that h5 files have already been made with transposed matrices
+	#remember that h5 files have already been made with transposed matrices 
 	'''
 	float z_center = zsize/2.0;
 	float xhit = x1 + (z_center - z1) * cosx/cosz; cosx/cosz = cotb
@@ -73,12 +73,15 @@ def apply_noise(cluster_matrices,fe_type):
 
 	if(fe_type==1): #linear gain
 		for index in np.arange(len(cluster_matrices)):
-			noise_1 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1))
-			cluster_matrices[index]+= gain_frac*noise_1*cluster_matrices[index] + readout_noise*noise_2
+			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
+			hits+= gain_frac*noise_1*hits + readout_noise*noise_2
+			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
 		print("applied linear gain")
 
 	elif(fe_type==2): #tanh gain
+	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
 			noise_1 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1))
@@ -89,6 +92,7 @@ def apply_noise(cluster_matrices,fe_type):
 	return cluster_matrices
 
 def apply_threshold(cluster_matrices,threshold):
+	#NEED TO CHANGE 2 LEVEL
 	#if n_elec < 1000 -> 0
 	below_threshold_i = cluster_matrices < threshold
 	cluster_matrices[below_threshold_i] = 0
@@ -221,7 +225,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "dec1"
+date = "dec3"
 filename = ""
 
 #=====train files===== 
