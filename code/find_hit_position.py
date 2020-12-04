@@ -25,9 +25,9 @@ import numpy as np
 import time
 from plotter import *
 
-h5_date = "dec1"
+h5_date = "dec3"
 h5_ext = ""
-img_ext = "cnn_dec1"
+img_ext = "cnn_dec3"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -56,7 +56,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 3
+n_epochs = 5
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
