@@ -27,7 +27,7 @@ import numpy as np
 import time
 from plotter import *
 
-h5_date = "dec1"
+h5_date = "dec3"
 h5_ext = ""
 img_ext = "dnn_dec1"
 
@@ -62,11 +62,11 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 128
+batch_size = 256
 loss_function = 'mse'
-n_epochs = 3
-optimizer = Adam(lr=0.002)
-validation_split = 0.3
+n_epochs = 5
+optimizer = Adam(lr=0.001)
+validation_split = 0.2
 
 train_time_x = time.clock()
 #train flat x
@@ -75,18 +75,18 @@ train_time_x = time.clock()
 inputs = Input(shape=(13,)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
 concat_inputs = concatenate([inputs,angles])
-x = Dense(64)(concat_inputs)
+x = Dense(80)(concat_inputs)
 x = Activation("relu")(x)
-x = Dense(128)(inputs)
+x = Dense(160)(inputs)
 x = Activation("relu")(x)
 #x = BatchNormalization()(x)
-x = Dense(256)(x)
+x = Dense(320)(x)
 x = Activation("relu")(x)
-x = Dense(256)(x)
+x = Dense(320)(x)
 x = Activation("relu")(x)
-x = Dense(128)(x)
+x = Dense(160)(x)
 x = Activation("relu")(x)
-x = Dense(64)(x)
+x = Dense(80)(x)
 x = Activation("relu")(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
@@ -135,18 +135,18 @@ train_time_y = time.clock()
 inputs = Input(shape=(21,)) #21 in y dimension + 2 angles
 angles = Input(shape=(2,))
 concat_inputs = concatenate([inputs,angles])
-y = Dense(64)(concat_inputs)
+y = Dense(80)(concat_inputs)
 y = Activation("relu")(y)
-y = Dense(128)(inputs)
+y = Dense(160)(inputs)
 y = Activation("relu")(y)
 #y = BatchNormalization()(y)
-y = Dense(256)(y)
+y = Dense(320)(y)
 y = Activation("relu")(y)
-y = Dense(256)(y)
+y = Dense(320)(y)
 y = Activation("relu")(y)
-y = Dense(128)(y)
+y = Dense(160)(y)
 y = Activation("relu")(y)
-y = Dense(64)(y)
+y = Dense(80)(y)
 y = Activation("relu")(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)

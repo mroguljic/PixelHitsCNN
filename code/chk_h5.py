@@ -31,7 +31,7 @@ date = "oct19"
 
 f = h5py.File("h5_files/test_d49350_%s.hdf5"%(date), "w")
 
-test_out = open("templates/template_events_d99456_chkonly.out", "r")
+test_out = open("templates/template_events_d99352_subset.out", "r")
 #print("writing to file %i \n",i)
 lines = test_out.readlines()
 test_out.close()
@@ -96,10 +96,10 @@ for j in range(0,n_per_file):
 	#preceding each matrix is: x, y, z, cos x, cos y, cos z, nelec
 	#cota = cos y/cos z ; cotb = cos x/cos z
 	position_data = lines[n].split(' ')
-	x_position_pav[j] = float(position_data[0])
-	y_position_pav[j] = float(position_data[1])
-	cosx[j] = float(position_data[3])
-	cosy[j] = float(position_data[4])
+	x_position_pav[j] = float(position_data[1])
+	y_position_pav[j] = float(position_data[0])
+	cosx[j] = float(position_data[4])
+	cosy[j] = float(position_data[3])
 	cosz[j] = float(position_data[5])
 
 	pixelsize_data = pixelsize.split('  ')
