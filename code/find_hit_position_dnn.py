@@ -29,7 +29,7 @@ from plotter import *
 
 h5_date = "dec3"
 h5_ext = ""
-img_ext = "dnn_dec1"
+img_ext = "dnn_dec3"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
