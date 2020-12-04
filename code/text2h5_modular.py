@@ -148,14 +148,14 @@ def center_clusters(cluster_matrices):
 			shift = int(6-center_x)
 			if(np.amax(nonzero_x)+shift<=12):
 				one_mat=np.roll(one_mat,shift,axis=0)
-				x_position[index]-=pixelsize_x[index]*shift
+				x_position[index]+=pixelsize_x[index]*shift
 
 		if(center_x>6):
 			#shift up
 			shift = int(center_x-6)
 			if(np.amin(nonzero_x)-shift>=0):
 				one_mat=np.roll(one_mat,-shift,axis=0)
-				x_position[index]+=pixelsize_x[index]*shift
+				x_position[index]-=pixelsize_x[index]*shift
 
 		if(center_y<10):
 			#shift right
