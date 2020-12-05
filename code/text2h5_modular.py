@@ -137,9 +137,13 @@ def center_clusters(cluster_matrices):
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 		
 		#find geometric centre of the main cluster using avg
+
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
+		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
+			print(index)
+			print(one_mat)
 		nonzero_list = np.asarray(np.nonzero(one_mat))
 		nonzero_x = nonzero_list[0,:]
 		nonzero_y = nonzero_list[1,:]
