@@ -27,9 +27,9 @@ import numpy as np
 import time
 from plotter import *
 
-h5_date = "dec3"
-h5_ext = ""
-img_ext = "dnn_dec3"
+h5_date = "dec4"
+h5_ext = "irrad"
+img_ext = "dnn_dec4"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -191,10 +191,14 @@ inference_time_y = time.clock() - start
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 
 residuals_x = x_pred - x_test
+residuals_x = residuals_x[residuals_x<300.]
+residuals_x = residuals_x[residuals_x>-300.]
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
 print(np.amin(residuals_x),np.amax(residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
+residuals_y = residuals_y[residuals_y<300.]
+residuals_y = residuals_y[residuals_y>-300.]
 RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
@@ -212,3 +216,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
+

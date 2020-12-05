@@ -137,6 +137,9 @@ def center_clusters(cluster_matrices):
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 		
 		#find geometric centre of the main cluster using avg
+		if(len(largest_idxs_x)==0 or len(largest_idxs_y)==0):
+ 			print(index)
+			print(one_mat)
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
@@ -225,15 +228,15 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "dec3"
-filename = ""
+date = "dec4"
+filename = "irrad"
 
 #=====train files===== 
 
 #print("making train h5 file")
 
 
-train_out = open("templates/template_events_d99352.out", "r")
+train_out = open("templates/template_events_d01362.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
@@ -283,12 +286,12 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")
 
-test_out = open("templates/template_events_d99353.out", "r")
+test_out = open("templates/template_events_d01361.out", "r")
 ##print("writing to file %i \n",i)
 lines = test_out.readlines()
 test_out.close()
@@ -338,6 +341,6 @@ project_matrices_xy(test_data)
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
-
+'''
 
 
