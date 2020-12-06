@@ -7,7 +7,7 @@ import numpy as np
 import h5py
 import numpy.random as rng
 from skimage.measure import label
-
+np.seterr(all='raise')
 
 def extract_matrices(lines,cluster_matrices):
 	#delete first 2 lines
@@ -74,8 +74,6 @@ def apply_noise(cluster_matrices,fe_type):
 	if(fe_type==1): #linear gain
 		for index in np.arange(len(cluster_matrices)):
 			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
-			if(len(hits)==0):
-				print(index)
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
 			hits+= gain_frac*noise_1*hits + readout_noise*noise_2
@@ -105,11 +103,12 @@ def apply_threshold(cluster_matrices,threshold):
 
 def center_clusters(cluster_matrices):
 	
-	for index in np.arange(len(cluster_matrices)):
+	for index in np.arange(3000):
 
 	#for index in np.arange(50):
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
+		print(one_mat)
 		#find connected components 
 		labels = label(one_mat.clip(0,1))
 		#find no of clusters
@@ -126,26 +125,28 @@ def center_clusters(cluster_matrices):
 					largest_idxs_x = cluster_idxs_x
 					largest_idxs_y = cluster_idxs_y
 				#if there are 2 clusters of the same size then the largest hit is the main one
-				if cluster_size==max_cluster_size: #eg. 2 clusters of size 2
+				elif cluster_size==max_cluster_size: #eg. 2 clusters of size 2
 					if(np.amax(one_mat[largest_idxs_x,largest_idxs_y])<np.amax(one_mat[cluster_idxs_x,cluster_idxs_y])):
 						largest_idxs_x = cluster_idxs_x
 						largest_idxs_y = cluster_idxs_y
-		else:
+		elif(n_clusters==1):
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
-		
+		elif(n_clusters==0):
+			print(index)
 		#find clustersize
 		clustersize_x[index] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 		
 		#find geometric centre of the main cluster using avg
-
+		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
+                         print(index)
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
 #		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
 #			print(index)
-#			print(one_mat)
+		#	print(one_mat)
 		nonzero_list = np.asarray(np.nonzero(one_mat))
 		nonzero_x = nonzero_list[0,:]
 		nonzero_y = nonzero_list[1,:]
@@ -231,7 +232,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "dec4"
+date = "dec5"
 filename = "irrad"
 
 #=====train files===== 
@@ -267,7 +268,6 @@ extract_matrices(lines,train_data)
 cota,cotb,x_position,y_position = convert_pav_to_cms()
 #print(x_position_pav[0],y_position_pav[0])
 #print(x_position[0],y_position[0])
-
 #n_elec were scaled down by 10 so multiply
 train_data = 10*train_data
 #print("multiplied all elements by 10")
@@ -289,7 +289,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-'''
+
 #====== test files ========
 
 #print("making test h5 file.")
@@ -344,6 +344,6 @@ project_matrices_xy(test_data)
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
-'''
+
 
 
