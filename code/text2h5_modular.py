@@ -74,6 +74,8 @@ def apply_noise(cluster_matrices,fe_type):
 	if(fe_type==1): #linear gain
 		for index in np.arange(len(cluster_matrices)):
 			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+			if(len(hits)==0):
+				print(index)
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
 			hits+= gain_frac*noise_1*hits + readout_noise*noise_2
@@ -137,12 +139,13 @@ def center_clusters(cluster_matrices):
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 		
 		#find geometric centre of the main cluster using avg
-		if(len(largest_idxs_x)==0 or len(largest_idxs_y)==0):
- 			print(index)
-			print(one_mat)
+
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
+#		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
+#			print(index)
+#			print(one_mat)
 		nonzero_list = np.asarray(np.nonzero(one_mat))
 		nonzero_x = nonzero_list[0,:]
 		nonzero_y = nonzero_list[1,:]
