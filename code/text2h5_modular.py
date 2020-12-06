@@ -73,11 +73,15 @@ def apply_noise(cluster_matrices,fe_type):
 
 	if(fe_type==1): #linear gain
 		for index in np.arange(len(cluster_matrices)):
+			if(index==2805):
+				print(cluster_matrices[index])
 			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
 			hits+= gain_frac*noise_1*hits + readout_noise*noise_2
 			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
+			if(index==2805):
+				print(cluster_matrices[index])
 		print("applied linear gain")
 
 	elif(fe_type==2): #tanh gain
@@ -98,6 +102,8 @@ def apply_threshold(cluster_matrices,threshold):
 	cluster_matrices[below_threshold_i] = 0
 	#cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied threshold")
+	if(index==2805):
+		print(cluster_matrices[index])
 	return cluster_matrices
 
 
@@ -110,6 +116,9 @@ def center_clusters(cluster_matrices):
 		one_mat = cluster_matrices[index].reshape((13,21))
 		#find connected components 
 		labels = label(one_mat.clip(0,1))
+		if(index==2805):
+			print(labels)
+			break
 		#find no of clusters
 		n_clusters = np.amax(labels)
 		max_cluster_size=0
@@ -141,9 +150,9 @@ def center_clusters(cluster_matrices):
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
-		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
-			print(index)
-			print(one_mat)
+		#if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
+		#	print(index)
+		#	print(one_mat)
 		nonzero_list = np.asarray(np.nonzero(one_mat))
 		nonzero_x = nonzero_list[0,:]
 		nonzero_y = nonzero_list[1,:]
