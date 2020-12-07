@@ -141,7 +141,8 @@ def center_clusters(cluster_matrices):
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
-		
+		cota[j]=cota[index]
+		cotb[j]=cotb[index]
 		#find geometric centre of the main cluster using avg
 		
 		center_x = round(np.mean(largest_idxs_x))
@@ -185,7 +186,7 @@ def center_clusters(cluster_matrices):
 	print("no of empty matrices: ",n_empty)
 	print("shifted centre of clusters to matrix centres")
 	
-	return cluster_matrices[:-n_empty],clustersize_x[:-n_empty],clustersize_y[:-n_empty],x_position[:-n_empty],y_position[:-n_empty]
+	return cluster_matrices[:-n_empty],clustersize_x[:-n_empty],clustersize_y[:-n_empty],x_position[:-n_empty],y_position[:-n_empty],cota[:-n_empty],cotb[:-n_empty]
 
 
 def project_matrices_xy(cluster_matrices):
@@ -280,7 +281,7 @@ train_data = apply_noise(train_data,fe_type)
 train_data = apply_threshold(train_data,threshold)
 #print(train_data[0].reshape((13,21)))
 
-train_data,clustersize_x,clustersize_y,x_position,y_position = center_clusters(train_data)
+train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= center_clusters(train_data)
 #print(train_data[0].reshape((13,21)))
 #print(x_position[0],y_position[0])
 x_flat = np.zeros((len(train_data),13))
@@ -335,7 +336,7 @@ test_data = apply_noise(test_data,fe_type)
 test_data = apply_threshold(test_data,threshold)
 ##print(test_data[0].reshape((21,13)))
 
-test_data,clustersize_x,clustersize_y,x_position,y_position = center_clusters(test_data)
+test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
 ##print(test_data[0].reshape((21,13)))
 ##print(x_position[0],y_position[0])
 x_flat = np.zeros((len(test_data),13))
