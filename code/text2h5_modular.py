@@ -104,13 +104,14 @@ def apply_threshold(cluster_matrices,threshold):
 def center_clusters(cluster_matrices):
 	
 	n_train=len(cluster_matrices)
-	for index in n_train:
+	j, n_empty = 0,0
+	#cluster_matrices_new=np.zeros((n_train,13,21,1))
+	#for index in range(0,n_train):
 
-	#for index in np.arange(50):
+	for index in np.arange(3000):
 		#many matrices are zero cus below thresholf
 		if(np.all(cluster_matrices[index]==0)):
-			cluster_matrices = np.delete(cluster_matrices,cluster_matrices[index]).reshape((len(cluster_matrices)-1,13,21,1))
-			n_train=len(cluster_matrices)
+			n_empty+=1
 			continue
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
@@ -147,9 +148,7 @@ def center_clusters(cluster_matrices):
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
-#		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
-#			print(index)
-		#	print(one_mat)
+
 		nonzero_list = np.asarray(np.nonzero(one_mat))
 		nonzero_x = nonzero_list[0,:]
 		nonzero_y = nonzero_list[1,:]
@@ -181,11 +180,13 @@ def center_clusters(cluster_matrices):
 				one_mat=np.roll(one_mat,-shift,axis=1)
 				y_position[index]-=pixelsize_y[index]*shift
 
-		cluster_matrices[index]=one_mat[:,:,np.newaxis]
+		cluster_matrices[j]=one_mat[:,:,np.newaxis]
+		j+=1
 
+	print("no of empty matrices: ",n_empty)
 	print("shifted centre of clusters to matrix centres")
 	
-	return cluster_matrices
+	return cluster_matrices[:-n_empty]
 
 
 def project_matrices_xy(cluster_matrices):
