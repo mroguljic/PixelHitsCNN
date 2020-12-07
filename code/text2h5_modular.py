@@ -106,9 +106,9 @@ def center_clusters(cluster_matrices):
 	n_train=len(cluster_matrices)
 	j, n_empty = 0,0
 	#cluster_matrices_new=np.zeros((n_train,13,21,1))
-	#for index in range(0,n_train):
+	for index in range(0,n_train):
 
-	for index in np.arange(3000):
+	#for index in np.arange(3000):
 		#many matrices are zero cus below thresholf
 		if(np.all(cluster_matrices[index]==0)):
 			n_empty+=1

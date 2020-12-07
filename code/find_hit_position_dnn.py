@@ -27,7 +27,7 @@ import numpy as np
 import time
 from plotter import *
 
-h5_date = "dec4"
+h5_date = "dec6"
 h5_ext = "irrad"
 img_ext = "dnn_dec4"
 
@@ -64,7 +64,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 8
+n_epochs = 3
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
@@ -98,14 +98,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -120,7 +120,7 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
                 validation_split=validation_split)
 
 plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -165,7 +165,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 callbacks = [
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
@@ -181,7 +181,7 @@ history = model.fit([ypix_flat_train,angles_train], [y_train],
 
 
 plot_dnn_loss(history.history,'y',img_ext)
-
+'''
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
@@ -191,14 +191,10 @@ inference_time_y = time.clock() - start
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 
 residuals_x = x_pred - x_test
-residuals_x = residuals_x[residuals_x<300.]
-residuals_x = residuals_x[residuals_x>-300.]
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
 print(np.amin(residuals_x),np.amax(residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
-residuals_y = residuals_y[residuals_y<300.]
-residuals_y = residuals_y[residuals_y>-300.]
 RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))

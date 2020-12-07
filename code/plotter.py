@@ -49,7 +49,7 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	clustersize = np.asarray(clustersize)
 	max_size = int(np.amax(clustersize))
 	sigma_per_size = np.zeros((max_size,1))
-
+	print(residuals.shape)
 	pp = PdfPages('plots/res_%s_csize_%s.pdf'%(label,img_ext))
 
 	for i in range(1,max_size):
