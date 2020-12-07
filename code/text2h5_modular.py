@@ -139,12 +139,11 @@ def center_clusters(cluster_matrices):
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
 		#find clustersize
-		clustersize_x[index] = int(len(np.unique(largest_idxs_x)))
-		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
+		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
+		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
 		
 		#find geometric centre of the main cluster using avg
-		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
-			print(index)
+		
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
@@ -157,28 +156,28 @@ def center_clusters(cluster_matrices):
 			shift = int(6-center_x)
 			if(np.amax(nonzero_x)+shift<=12):
 				one_mat=np.roll(one_mat,shift,axis=0)
-				x_position[index]+=pixelsize_x[index]*shift
+				x_position[j]+=pixelsize_x[index]*shift
 
 		if(center_x>6):
 			#shift up
 			shift = int(center_x-6)
 			if(np.amin(nonzero_x)-shift>=0):
 				one_mat=np.roll(one_mat,-shift,axis=0)
-				x_position[index]-=pixelsize_x[index]*shift
+				x_position[j]-=pixelsize_x[index]*shift
 
 		if(center_y<10):
 			#shift right
 			shift = int(10-center_y)
 			if(np.amax(nonzero_y)+shift<=20):
 				one_mat=np.roll(one_mat,shift,axis=1)
-				y_position[index]+=pixelsize_y[index]*shift
+				y_position[j]+=pixelsize_y[index]*shift
 
 		if(center_y>10):
 			#shift left
 			shift = int(center_y-10)
 			if(np.amin(nonzero_y)-shift>=0):
 				one_mat=np.roll(one_mat,-shift,axis=1)
-				y_position[index]-=pixelsize_y[index]*shift
+				y_position[j]-=pixelsize_y[index]*shift
 
 		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 		j+=1
@@ -186,7 +185,7 @@ def center_clusters(cluster_matrices):
 	print("no of empty matrices: ",n_empty)
 	print("shifted centre of clusters to matrix centres")
 	
-	return cluster_matrices[:-n_empty]
+	return cluster_matrices[:-n_empty],clustersize_x[:-n_empty],clustersize_y[:-n_empty],x_position[:-n_empty],y_position[:-n_empty]
 
 
 def project_matrices_xy(cluster_matrices):
@@ -264,8 +263,7 @@ pixelsize_y = np.zeros((n_train,1))
 pixelsize_z = np.zeros((n_train,1))
 clustersize_x = np.zeros((n_train,1))
 clustersize_y = np.zeros((n_train,1))
-x_flat = np.zeros((n_train,13))
-y_flat = np.zeros((n_train,21))
+
 
 extract_matrices(lines,train_data)
 #print(train_data[0].reshape((13,21)))
@@ -282,10 +280,11 @@ train_data = apply_noise(train_data,fe_type)
 train_data = apply_threshold(train_data,threshold)
 #print(train_data[0].reshape((13,21)))
 
-train_data = center_clusters(train_data)
+train_data,clustersize_x,clustersize_y,x_position,y_position = center_clusters(train_data)
 #print(train_data[0].reshape((13,21)))
 #print(x_position[0],y_position[0])
-
+x_flat = np.zeros((len(train_data),13))
+y_flat = np.zeros((len(train_data),21))
 project_matrices_xy(train_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
@@ -337,7 +336,7 @@ test_data = apply_noise(test_data,fe_type)
 test_data = apply_threshold(test_data,threshold)
 ##print(test_data[0].reshape((21,13)))
 
-test_data = center_clusters(test_data)
+test_data,clustersize_x,clustersize_y,x_position,y_position = center_clusters(test_data)
 ##print(test_data[0].reshape((21,13)))
 ##print(x_position[0],y_position[0])
 
