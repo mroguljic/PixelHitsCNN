@@ -26,6 +26,7 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 from plotter import *
+from keras.callbacks import EarlyStopping
 
 h5_date = "dec6"
 h5_ext = "irrad"
@@ -64,9 +65,9 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 3
+n_epochs = 8
 optimizer = Adam(lr=0.001)
-validation_split = 0.2
+validation_split = 0.3
 
 train_time_x = time.clock()
 #train flat x
@@ -95,18 +96,18 @@ model = Model(inputs=[inputs,angles],
               outputs=[x_position]
               )
 
- # Display a model summary
+# Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
 callbacks = [
+EarlyStopping(patience=1),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -120,7 +121,7 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
                 validation_split=validation_split)
 
 plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -155,7 +156,7 @@ model = Model(inputs=[inputs,angles],
               outputs=[y_position]
               )
 
- # Display a model summary
+# Display a model summary
 model.summary()
 
 #history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
@@ -165,8 +166,8 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
 callbacks = [
+EarlyStopping(patience=1),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -176,12 +177,12 @@ ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
 history = model.fit([ypix_flat_train,angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
-                callbacks=callbacks,
-                validation_split=validation_split)
+                validation_split=validation_split,
+		callbacks=callbacks)
 
 
 plot_dnn_loss(history.history,'y',img_ext)
-'''
+
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
