@@ -24,10 +24,11 @@ from scipy.stats import norm
 import numpy as np
 import time
 from plotter import *
+from keras.callbacks import EarlyStopping
 
-h5_date = "dec3"
-h5_ext = ""
-img_ext = "cnn_dec3"
+h5_date = "dec6"
+h5_ext = "irrad"
+img_ext = "cnn_dec6"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -56,7 +57,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 5
+n_epochs = 8
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
@@ -137,6 +138,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
+EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
