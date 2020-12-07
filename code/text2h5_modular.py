@@ -103,12 +103,17 @@ def apply_threshold(cluster_matrices,threshold):
 
 def center_clusters(cluster_matrices):
 	
-	for index in np.arange(3000):
+	n_train=len(cluster_matrices)
+	for index in n_train:
 
 	#for index in np.arange(50):
+		#many matrices are zero cus below thresholf
+		if(np.all(cluster_matrices[index]==0)):
+			cluster_matrices = np.delete(cluster_matrices,cluster_matrices[index]).reshape((len(cluster_matrices)-1,13,21,1))
+			n_train=len(cluster_matrices)
+			continue
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
-		print(one_mat)
 		#find connected components 
 		labels = label(one_mat.clip(0,1))
 		#find no of clusters
@@ -132,15 +137,13 @@ def center_clusters(cluster_matrices):
 		elif(n_clusters==1):
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
-		elif(n_clusters==0):
-			print(index)
 		#find clustersize
 		clustersize_x[index] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[index] = int(len(np.unique(largest_idxs_y)))
 		
 		#find geometric centre of the main cluster using avg
 		if(len(largest_idxs_y)==0 or len(largest_idxs_x)==0):
-                         print(index)
+			print(index)
 		center_x = round(np.mean(largest_idxs_x))
 		center_y = round(np.mean(largest_idxs_y))
 		#if the geometric centre is not at (7,11) shift cluster
@@ -232,7 +235,7 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "dec5"
+date = "dec6"
 filename = "irrad"
 
 #=====train files===== 
