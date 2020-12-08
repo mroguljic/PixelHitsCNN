@@ -57,7 +57,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 8
+n_epochs = 15
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
@@ -81,6 +81,11 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2))(x)
 x = Dropout(0.25)(x)
+x = Conv2D(128, (3, 3), padding="same")(x)
+x = Activation("relu")(x)
+x = BatchNormalization(axis=-1)(x)
+x = MaxPooling2D(pool_size=(2, 2))(x)
+x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
@@ -89,6 +94,10 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 x = Dense(128)(x)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.25)(x)
+x = Dense(256)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -108,6 +117,10 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 y = Dense(128)(y)
+y = Activation("relu")(y)
+y = BatchNormalization()(y)
+y = Dropout(0.25)(y)
+y = Dense(256)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
