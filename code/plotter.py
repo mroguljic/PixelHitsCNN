@@ -48,11 +48,11 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	residuals = np.asarray(residuals)
 	clustersize = np.asarray(clustersize)
 	max_size = int(np.amax(clustersize))
-	sigma_per_size = np.zeros((max_size,1))
+	sigma_per_size = np.zeros((max_size+1,1))
 	print(residuals.shape)
 	pp = PdfPages('plots/res_%s_csize_%s.pdf'%(label,img_ext))
 
-	for i in range(1,max_size):
+	for i in range(1,max_size+1):
 		indices = np.argwhere(clustersize==i)[:,0]
 		print(i,':',indices.shape)
 		if(len(indices)==0):
@@ -69,6 +69,8 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	pp.close()
 
 	x = np.linspace(1, max_size, max_size)
+	print(np.amin(clustersize),max_size)
+	print(x.shape,sigma_per_size[1:].shape)
 	plt.scatter(x,sigma_per_size[1:])
 	plt.xlabel('clustersize in %s'%(label))
 	plt.ylabel('resolution in %s'%(label))
