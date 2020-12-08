@@ -28,7 +28,7 @@ from keras.callbacks import EarlyStopping
 
 h5_date = "dec6"
 h5_ext = "irrad"
-img_ext = "cnn_dec6"
+img_ext = "cnn_dec8"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -69,22 +69,22 @@ angles = Input(shape=(2,))
 x = Conv2D(64, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
-x = MaxPooling2D(pool_size=(3, 3))(x)
+x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
 x = Conv2D(128, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
-x = MaxPooling2D(pool_size=(2, 2))(x)
+x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
 x = Conv2D(128, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
-x = MaxPooling2D(pool_size=(2, 2))(x)
+x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
 x = Conv2D(128, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
-x = MaxPooling2D(pool_size=(2, 2))(x)
+x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
