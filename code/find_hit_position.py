@@ -28,7 +28,7 @@ from keras.callbacks import EarlyStopping
 
 h5_date = "dec6"
 h5_ext = "irrad"
-img_ext = "cnn_dec8"
+img_ext = "cnn_dec8_2"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -57,7 +57,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 15
+n_epochs = 30
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
@@ -76,7 +76,7 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv2D(128, (3, 3), padding="same")(x)
+x = Conv2D(256, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
