@@ -11,12 +11,12 @@ import numpy.random as rng
 import matplotlib
 import matplotlib.pyplot as plt
 
-@jit(nopython=True)
+@jit
 def monte_carlo_ising(Q,N,kT,lattice):
 
 	ising = np.zeros((Q,N,N))
 	mag = np.zeros((Q,1))
-	accept = 0
+	E_i,E_f,accept = 0,0,0
 
 	for index in range(0,Q):
 		#generate a random no i and j for index of spin to be flipped
@@ -65,11 +65,12 @@ kT = 1.5
 
 #Start off with a random config
 lattice = rng.choice([1, -1], size=(N, N))
+print(lattice)
 ising_config, mag = monte_carlo_ising(Q,N,kT,lattice)
 
 plt.hist(mag, bins=np.arange(-2,2,0.1), histtype='step', density=True,linewidth=2)
 plt.title('Probability of magnetization for T = %0.1f'%(kT))
 plt.xlabel('magnetization')
-plt.show()
+#plt.show()
 
 
