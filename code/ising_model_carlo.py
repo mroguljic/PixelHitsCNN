@@ -10,6 +10,7 @@ from numba import jit
 import numpy.random as rng
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 @jit
 def monte_carlo_ising(Q,N,kT,lattice):
@@ -70,19 +71,28 @@ def monte_carlo_ising(Q,N,kT,lattice):
 	print('accept = ',accept)
 	return ising[:accept+1],mag[:accept+1]
 
+
 N = 10
-Q = 10000
+Q = 100000
 J = 1
-kT = 1.5
+#sample from 40 temperatures 
+kT_list = np.linspace(1,3.5,40)
 
-#Start off with a random config
-lattice = rng.choice([1, -1], size=(N, N))
-#print(lattice)
-ising_config, mag = monte_carlo_ising(Q,N,kT,lattice)
+pp = PdfPages('plots/magnetization_per_T.pdf'%(label,img_ext))
 
-plt.hist(mag, bins=np.arange(-2,2,0.1), histtype='step', density=True,linewidth=2)
-plt.title('Probability of magnetization for T = %0.1f'%(kT))
-plt.xlabel('magnetization')
-#plt.show()
+for T in kT_list:
+
+	#Start off with a random config
+	lattice = rng.choice([1, -1], size=(N, N))
+	#print(lattice)
+	ising_config, mag = monte_carlo_ising(Q,N,T,lattice)
+
+	plt.hist(mag, bins=np.arange(-1,1,0.01), histtype='step', density=True,linewidth=2)
+	plt.title('Probability of magnetization for T = %0.1f'%(kT))
+	plt.xlabel('magnetization')
+	pp.savefig()
+	plt.close()
+
+pp.close()
 
 
