@@ -86,8 +86,8 @@ def apply_noise(cluster_matrices,fe_type):
 			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
-			adc = (float)((int)(p3+p2*tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)))
-			hits = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
+			adc = ((p3+p2*np.tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)).astype(int)).astype(float)
+			hits = (((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))).astype(float) - vcaloffst + noise_2*readout_noise)
 			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
 		print("applied tanh gain")
 
@@ -111,7 +111,8 @@ def center_clusters(cluster_matrices):
 	for index in range(0,n_train):
 		if(index%100000==0):
 			print(index)
-	#for index in np.arange(3000):
+#	for index in np.arange(10):
+#		print(cluster_matrices[index].reshape((13,21)).astype(int))
 		#many matrices are zero cus below thresholf
 		if(np.all(cluster_matrices[index]==0)):
 			n_empty+=1
@@ -188,8 +189,10 @@ def center_clusters(cluster_matrices):
 
 	print("no of empty matrices: ",n_empty)
 	print("shifted centre of clusters to matrix centres")
-	
-	return cluster_matrices[:-n_empty],clustersize_x[:-n_empty],clustersize_y[:-n_empty],x_position[:-n_empty],y_position[:-n_empty],cota[:-n_empty],cotb[:-n_empty]
+	if(n_empty!=0):	
+		return cluster_matrices[:-n_empty],clustersize_x[:-n_empty],clustersize_y[:-n_empty],x_position[:-n_empty],y_position[:-n_empty],cota[:-n_empty],cotb[:-n_empty]
+	else:
+		return cluster_matrices,clustersize_x,clustersize_y,x_position,y_position,cota,cotb
 
 
 def project_matrices_xy(cluster_matrices):
@@ -251,7 +254,6 @@ if(phase1):
 
 #print("making train h5 file")
 
-
 train_out = open("templates/template_events_d93008.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
@@ -301,7 +303,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")
@@ -357,5 +359,5 @@ f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
 
-
+'''
 
