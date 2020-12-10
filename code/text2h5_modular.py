@@ -83,10 +83,12 @@ def apply_noise(cluster_matrices,fe_type):
 	elif(fe_type==2): #tanh gain
 	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
-			noise_1 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=(13*21)).reshape((13,21,1))
-			adc = (float)((int)(p3+p2*tanh(p0*(cluster_matrices[index] + vcaloffst)/(7.0*vcal) - p1)))
-			cluster_matrices[index] = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
+			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
+			adc = (float)((int)(p3+p2*tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)))
+			hits = ((float)((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))) - vcaloffst + noise_2*readout_noise)
+			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
 		print("applied tanh gain")
 
 	return cluster_matrices
@@ -107,7 +109,8 @@ def center_clusters(cluster_matrices):
 	j, n_empty = 0,0
 	#cluster_matrices_new=np.zeros((n_train,13,21,1))
 	for index in range(0,n_train):
-
+		if(index%100000==0):
+			print(index)
 	#for index in np.arange(3000):
 		#many matrices are zero cus below thresholf
 		if(np.all(cluster_matrices[index]==0)):
@@ -236,15 +239,20 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "dec6"
-filename = "irrad"
+date = "dec9"
+filename = "phase1_irrad"
+phase1 = True
+
+if(phase1):
+	threshold = 2000; # threshold in e-
+	fe_type = 2
 
 #=====train files===== 
 
 #print("making train h5 file")
 
 
-train_out = open("templates/template_events_d01362.out", "r")
+train_out = open("templates/template_events_d93008.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
@@ -298,7 +306,7 @@ create_datasets(f,train_data,x_flat,y_flat,"train")
 
 #print("making test h5 file.")
 
-test_out = open("templates/template_events_d01361.out", "r")
+test_out = open("templates/template_events_d93006.out", "r")
 ##print("writing to file %i \n",i)
 lines = test_out.readlines()
 test_out.close()
