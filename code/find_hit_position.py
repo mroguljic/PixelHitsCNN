@@ -26,9 +26,9 @@ import time
 from plotter import *
 from keras.callbacks import EarlyStopping
 
-h5_date = "dec6"
-h5_ext = "irrad"
-img_ext = "cnn_dec8_2"
+h5_date = "dec9"
+h5_ext = "phase1_irrad"
+img_ext = "cnn_phase1_dec10"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -76,11 +76,13 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
+'''
 x = Conv2D(256, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
+'''
 x = Conv2D(128, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
@@ -97,10 +99,12 @@ x = Dense(128)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
+'''
 x = Dense(256)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
+'''
 x = Dense(128)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
@@ -120,10 +124,12 @@ y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
+'''
 y = Dense(256)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
+'''
 y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)

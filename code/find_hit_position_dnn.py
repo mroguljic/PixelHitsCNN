@@ -28,9 +28,9 @@ import time
 from plotter import *
 from keras.callbacks import EarlyStopping
 
-h5_date = "dec6"
-h5_ext = "irrad"
-img_ext = "dnn_dec6"
+h5_date = "dec9"
+h5_ext = "phase1_irrad"
+img_ext = "dnn_phase1_dec10"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -65,7 +65,7 @@ f.close()
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 8
+n_epochs = 20
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
