@@ -28,9 +28,9 @@ import time
 from plotter import *
 from keras.callbacks import EarlyStopping
 
-h5_date = "dec9"
-h5_ext = "phase1_irrad"
-img_ext = "dnn_phase1_dec10"
+h5_date = "dec12"
+h5_ext = "phase1"
+img_ext = "dnn_phase1_dec12"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
