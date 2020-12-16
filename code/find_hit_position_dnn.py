@@ -30,7 +30,7 @@ from keras.callbacks import EarlyStopping
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "dnn_phase1_dec12"
+img_ext = "dnn_phase1_dec15"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -109,7 +109,7 @@ model.compile(loss=loss_function,
               metrics=['mse','mse']
               )
 callbacks = [
-EarlyStopping(patience=1),
+EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -171,7 +171,7 @@ model.compile(loss=loss_function,
               metrics=['mse','mse']
               )
 callbacks = [
-EarlyStopping(patience=1),
+EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
