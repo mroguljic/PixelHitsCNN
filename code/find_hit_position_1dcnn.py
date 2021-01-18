@@ -74,9 +74,11 @@ train_time_x = time.clock()
 
 
 inputs = Input(shape=(15,1)) #13 in x dimension + 2 angles
-x = Conv1D(64, kernel_size=3, padding="same")(inputs)
+x = Conv1D(64, kernel_size=2, padding="same")(inputs)
 x = Activation("relu")(x)
-x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Conv1D(64, kernel_size=2, padding="same")(x)
+x = Activation("relu")(x)
+x = Conv1D(64, kernel_size=2, padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
@@ -127,8 +129,14 @@ plot_dnn_loss(history.history,'x',img_ext)
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
-x_pred = model.predict([xpix_flat_test,angles_test], batch_size=9000)
+x_pred = model.predict(inputs_x_test, batch_size=9000)
 inference_time_x = time.clock() - start
+
+residuals_x = x_pred - x_test
+RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
+print(np.amin(residuals_x),np.amax(residuals_x))
+print("RMS_x = %f\n"%(RMS_x))
+
 '''
 train_time_y = time.clock()
 
