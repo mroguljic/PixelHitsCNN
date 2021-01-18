@@ -28,9 +28,9 @@ import time
 from plotter import *
 from keras.callbacks import EarlyStopping
 
-h5_date = "dec12"
-h5_ext = "phase1"
-img_ext = "1dcnn_phase1_jan17"
+h5_date = "dec9"
+h5_ext = "phase1_irrad"
+img_ext = "1dcnn_phase1_irrad_jan17"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -115,6 +115,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
+
 callbacks = [
 EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -148,20 +149,20 @@ train_time_y = time.clock()
 #train flat y
 
 
-inputs = Input(shape=(23,)) #21 in y dimension + 2 angles
+inputs = Input(shape=(23,1)) #21 in y dimension + 2 angles
 y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
 y = Conv1D(128, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
-y = BatchNormalization(ayis=-1)(y)
-y = MayPooling1D(pool_size=2,padding='same')(y)
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
 y = Conv1D(128, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
-y = BatchNormalization(ayis=-1)(y)
-y = MayPooling1D(pool_size=2,padding='same')(y)
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
 y = Flatten()(y)
 y = Dense(128)(y)
