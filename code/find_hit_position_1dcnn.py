@@ -27,13 +27,14 @@ import numpy as np
 import time
 from plotter import *
 from keras.callbacks import EarlyStopping
+import cmsml
 
-h5_date = "dec6"
-h5_ext = "irrad"
-img_ext = "1dcnn_irradp2_jan25"
+h5_date = "dec12"
+h5_ext = "phase1"
+img_ext = "1dcnn_p1_jan28"
 
 # Load data
-f = h5py.File('h5_files/dec/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -48,7 +49,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 
-f = h5py.File('h5_files/dec/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
@@ -130,6 +131,8 @@ history = model.fit([inputs_x_train], [x_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
+cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+
 plot_dnn_loss(history.history,'x',img_ext)
 
 print("x training time for dnn",time.clock()-train_time_x)
@@ -145,7 +148,7 @@ print("RMS_x = %f\n"%(RMS_x))
 
 
 train_time_y = time.clock()
-
+'''
 #train flat y
 
 
@@ -238,3 +241,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
+'''

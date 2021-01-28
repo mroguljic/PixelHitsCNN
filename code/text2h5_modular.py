@@ -53,8 +53,8 @@ def convert_pav_to_cms():
 	#remember that h5 files have already been made with transposed matrices 
 	'''
 	float z_center = zsize/2.0;
-	float xhit = x1 + (z_center - z1) * cosx/cosz; cosx/cosz = cotb
-	float yhit = y1 + (z_center - z1) * cosy/cosz; cosy/cosz = cota
+	float xhit = x1 + (z_center - z1) * cosx/cosz; cosx/cosz = cota
+	float yhit = y1 + (z_center - z1) * cosy/cosz; cosy/cosz = cotb
 	x -> -y
 	y -> -x
 	z1 is always 0 
