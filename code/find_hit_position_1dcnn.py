@@ -28,12 +28,12 @@ import time
 from plotter import *
 from keras.callbacks import EarlyStopping
 
-h5_date = "dec9"
-h5_ext = "phase1_irrad"
-img_ext = "1dcnn_phase1_irrad_jan17"
+h5_date = "dec6"
+h5_ext = "irrad"
+img_ext = "1dcnn_irradp2_jan25"
 
 # Load data
-f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/dec/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -48,7 +48,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 
-f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/dec/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
@@ -117,7 +117,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-EarlyStopping(patience=4),
+EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
