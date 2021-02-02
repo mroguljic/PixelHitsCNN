@@ -85,7 +85,7 @@ void MyPlugin::endJob() {
 
 void MyPlugin::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // define a tensor and fill it with range(10)
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, {15, 1});
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
   for (size_t i = 0; i < 10; i++) {
     input.matrix<float>()(0, i) = float(i);
   }

@@ -5,7 +5,7 @@ import os
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-graph_ext = "1dcnn_p1_jan28"
+graph_ext = "1dcnn_p1_jan31"
 
 # get the data/ directory
 thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -33,7 +33,7 @@ process.options = cms.untracked.PSet(
 )
 
 # setup MyPlugin by loading the auto-generated cfi (see MyPlugin.fillDescriptions)
-process.load("PixelHitsCNN.inference.myPlugin_cfi")
+process.load("TrackerStudies.PixelHitsCNN.myPlugin_cfi")
 process.myPlugin.graphPath = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext)))
 process.myPlugin.inputTensorName = cms.string("input")
 process.myPlugin.outputTensorName = cms.string("output")
