@@ -1,0 +1,2 @@
+model_checkpoint_path: "cp_x1dcnn_p1_jan31.ckpt"
+all_model_checkpoint_paths: "cp_x1dcnn_p1_jan31.ckpt"

@@ -4,34 +4,35 @@
 #============================
 
 import h5py
-from keras.models import Model
-from keras.optimizers import Adam
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv1D
-from keras.layers.convolutional import MaxPooling1D
-from keras.layers.core import Activation
-from keras.layers.core import Dropout
-from keras.layers.core import Dense
-from keras.layers import Flatten
-from keras.layers import Input
-from keras.layers import concatenate
+#from keras.models import Model
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import MaxPooling1D
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import concatenate
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import AnchoredText
+#from matplotlib.offsetbox import AnchoredText
 from scipy.stats import norm
 from sklearn.metrics import r2_score
 import numpy as np
 import time
 from plotter import *
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_jan28"
+img_ext = "1dcnn_p1_jan31"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -47,7 +48,7 @@ inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newax
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
-
+#print(inputs_x_train[0])
 
 f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
@@ -62,11 +63,11 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-
+print(inputs_x_test[0])
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
-n_epochs = 20
+n_epochs = 3
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -116,7 +117,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-
+cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
 callbacks = [
 EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -130,8 +131,8 @@ history = model.fit([inputs_x_train], [x_train],
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
-
-cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+#https://cmsml.readthedocs.io/en/latest/_modules/cmsml/tensorflow/tools.html
+#cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=False)
 
 plot_dnn_loss(history.history,'x',img_ext)
 
