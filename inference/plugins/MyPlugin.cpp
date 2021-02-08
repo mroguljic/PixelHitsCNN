@@ -65,9 +65,9 @@ void MyPlugin::globalEndJob(const CacheData* cacheData) {
 void MyPlugin::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // defining this function will lead to a *_cfi file being generated when compiling
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("graphPath");
-  desc.add<std::string>("inputTensorName");
-  desc.add<std::string>("outputTensorName");
+  desc.add<std::string>("graphPath",graphPath);
+  desc.add<std::string>("inputTensorName",inputTensorName_);
+  desc.add<std::string>("outputTensorName",outputTensorName_);
   descriptions.addDefault(desc);
 }
 
