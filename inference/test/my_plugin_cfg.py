@@ -33,8 +33,8 @@ process.options = cms.untracked.PSet(
 )
 
 # setup MyPlugin by loading the auto-generated cfi (see MyPlugin.fillDescriptions)
-process.load("TrackerStudies.PixelHitsCNN.myPlugin_cfi")
-process.myPlugin.graphPath = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext)))
+process.load("PixelHitsCNN.inference.myPlugin_cfi")
+process.myPlugin.graphPath = cms.string(os.path.join(datadir, "graph_x_1dcnn_p1_jan31.pb"))
 process.myPlugin.inputTensorName = cms.string("input")
 process.myPlugin.outputTensorName = cms.string("output")
 
