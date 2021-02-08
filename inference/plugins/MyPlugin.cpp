@@ -84,12 +84,13 @@ void MyPlugin::endJob() {
 }
 
 void MyPlugin::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  // define a tensor and fill it with range(10)
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
-  for (size_t i = 0; i < 10; i++) {
-    input.matrix<float>()(0, i) = float(i);
+ // define a tensor and fill it with range(10)
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, {15, 1});
+  for (size_t i = 0; i < 15; i++) {
+    if(i == 5) input.matrix<float>()(i, 0) = 4168.27 ;
+    else if (i==6) input.matrix<float>()(i, 0) = 152646.17;
+    else input.matrix<float>()(i, 0) = 0.;
   }
-
   // define the output and run
   std::vector<tensorflow::Tensor> outputs;
   tensorflow::run(session_, {{inputTensorName_, input}}, {outputTensorName_}, &outputs);
