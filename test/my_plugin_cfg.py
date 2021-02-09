@@ -1,19 +1,27 @@
 # coding: utf-8
 
 import os
-
+import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 graph_ext = "1dcnn_p1_jan31"
 
 # get the data/ directory
-thisdir = os.path.dirname(os.path.abspath(__file__))
-datadir = os.path.join(os.path.dirname(thisdir), "data")
+#thisdir = os.path.dirname(os.path.realpath(__file__))
+#thisdir = os.getcwd()
+#if getattr(sys, 'frozen', False):
+#	thisdir = os.path.dirname(sys.executable)
+#else:
+#        # The application is not frozen
+#        # Change this bit to match where you store your data files:
+#        thisdir = os.path.dirname(__file__)
+#datadir = os.path.join(thisdir,"data")
+datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
 
 # setup minimal options
 options = VarParsing("python")
-options.setDefault("inputFiles", "root://xrootd-cms.infn.it//store/mc/RunIIFall17MiniAOD/DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v2/00000/9A439935-1FFF-E711-AE07-D4AE5269F5FF.root")  # noqa
+options.setDefault("inputFiles", 'root://cms-xrd-global.cern.ch//store/data/Run2018D/SingleMuon/ALCARECO/SiPixelCalSingleMuon-ForPixelALCARECO_UL2018-v1/20000/A28530AF-8EB6-814B-9645-642058515DA2.root')  # noqa
 options.parseArguments()
 
 # define the process to run
@@ -33,10 +41,10 @@ process.options = cms.untracked.PSet(
 )
 
 # setup MyPlugin by loading the auto-generated cfi (see MyPlugin.fillDescriptions)
-process.load("PixelHitsCNN.inference.myPlugin_cfi")
+process.load("TrackerStuff.PixelHitsCNN.myPlugin_cfi")
 process.myPlugin.graphPath = cms.string(os.path.join(datadir, "graph_x_1dcnn_p1_jan31.pb"))
-process.myPlugin.inputTensorName = cms.string("input")
-process.myPlugin.outputTensorName = cms.string("output")
+process.myPlugin.inputTensorName = cms.string("input_1")
+process.myPlugin.outputTensorName = cms.string("Identity")
 
 # define what to run in the path
 process.p = cms.Path(process.myPlugin)

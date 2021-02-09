@@ -67,7 +67,7 @@ print(inputs_x_test[0])
 # Model configuration
 batch_size = 512
 loss_function = 'mse'
-n_epochs = 3
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -117,7 +117,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 callbacks = [
 EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),

@@ -65,10 +65,10 @@ void MyPlugin::globalEndJob(const CacheData* cacheData) {
 void MyPlugin::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // defining this function will lead to a *_cfi file being generated when compiling
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("graphPath",graphPath);
-  desc.add<std::string>("inputTensorName",inputTensorName_);
-  desc.add<std::string>("outputTensorName",outputTensorName_);
-  descriptions.addDefault(desc);
+  desc.add<std::string>("graphPath");
+  desc.add<std::string>("inputTensorName");
+  desc.add<std::string>("outputTensorName");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 MyPlugin::MyPlugin(const edm::ParameterSet& config, const CacheData* cacheData)
@@ -85,18 +85,18 @@ void MyPlugin::endJob() {
 
 void MyPlugin::analyze(const edm::Event& event, const edm::EventSetup& setup) {
  // define a tensor and fill it with range(10)
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, {15, 1});
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, {1,15,1});
   for (size_t i = 0; i < 15; i++) {
-    if(i == 5) input.matrix<float>()(i, 0) = 4168.27 ;
-    else if (i==6) input.matrix<float>()(i, 0) = 152646.17;
-    else input.matrix<float>()(i, 0) = 0.;
+    if(i == 5) input.tensor<float,3>()(0, i, 0) = 4168.27 ;
+    else if (i==6) input.tensor<float,3>()(0, i, 0) = 152646.17;
+    else input.tensor<float,3>()(0, i, 0) = 0.;
   }
   // define the output and run
   std::vector<tensorflow::Tensor> outputs;
   tensorflow::run(session_, {{inputTensorName_, input}}, {outputTensorName_}, &outputs);
 
   // print the output
-  std::cout << " -> " << outputs[0].matrix<float>()(0, 0) << std::endl << std::endl;
+  std::cout << " -> " << outputs[0].matrix<float>()(0,0) << std::endl << std::endl;
 }
 
 DEFINE_FWK_MODULE(MyPlugin);
