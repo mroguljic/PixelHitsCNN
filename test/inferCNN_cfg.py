@@ -5,7 +5,7 @@ import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-graph_ext = "1dcnn_p1_jan31"
+graph_ext = "cnn_p1_jan31"
 
 # get the data/ directory
 #thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -40,11 +40,13 @@ process.options = cms.untracked.PSet(
     wantSummary=cms.untracked.bool(True),
 )
 
-# setup MyPlugin by loading the auto-generated cfi (see MyPlugin.fillDescriptions)
-process.load("TrackerStuff.PixelHitsCNN.myPlugin_cfi")
-process.myPlugin.graphPath = cms.string(os.path.join(datadir, "graph_x_1dcnn_p1_jan31.pb"))
-process.myPlugin.inputTensorName = cms.string("input_1")
-process.myPlugin.outputTensorName = cms.string("Identity")
+# setup InferCNN by loading the auto-generated cfi (see InferCNN.fillDescriptions)
+process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi")
+process.inferCNN.graphPath = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext)))
+#CNN has 2 inputs
+process.inferCNN.inputTensorName_1 = cms.string("input_1")
+process.inferCNN.inputTensorName_2 = cms.string("input_1") #what is the name?
+process.inferCNN.outputTensorName = cms.string("Identity")
 
 # define what to run in the path
-process.p = cms.Path(process.myPlugin)
+process.p = cms.Path(process.inferCNN)

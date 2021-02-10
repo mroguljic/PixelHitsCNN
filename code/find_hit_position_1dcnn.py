@@ -74,7 +74,7 @@ validation_split = 0.3
 train_time_x = time.clock()
 #train flat x
 
-
+#NEED TO CHANGE THIS TO 2 INPUTS
 inputs = Input(shape=(15,1)) #13 in x dimension + 2 angles
 x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)

@@ -1,5 +1,5 @@
 /*
- * Example plugin to demonstrate the direct multi-threaded inference with TensorFlow 2.
+ * Example plugin to demonstrate the direct multi-threaded inference on CNN with TensorFlow 2.
  */
 
 #include <memory>
@@ -19,10 +19,10 @@ struct CacheData {
   std::atomic<tensorflow::GraphDef*> graphDef;
 };
 
-class MyPlugin : public edm::stream::EDAnalyzer<edm::GlobalCache<CacheData>> {
+class InferCNN : public edm::stream::EDAnalyzer<edm::GlobalCache<CacheData>> {
 public:
-  explicit MyPlugin(const edm::ParameterSet&, const CacheData*);
-  ~MyPlugin(){};
+  explicit InferCNN(const edm::ParameterSet&, const CacheData*);
+  ~InferCNN(){};
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -41,7 +41,7 @@ private:
   tensorflow::Session* session_;
 };
 
-std::unique_ptr<CacheData> MyPlugin::initializeGlobalCache(const edm::ParameterSet& config) {
+std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) {
   // this method is supposed to create, initialize and return a CacheData instance
   CacheData* cacheData = new CacheData();
 
@@ -55,14 +55,14 @@ std::unique_ptr<CacheData> MyPlugin::initializeGlobalCache(const edm::ParameterS
   return std::unique_ptr<CacheData>(cacheData);
 }
 
-void MyPlugin::globalEndJob(const CacheData* cacheData) {
+void InferCNN::globalEndJob(const CacheData* cacheData) {
   // reset the graphDef
   if (cacheData->graphDef != nullptr) {
     delete cacheData->graphDef;
   }
 }
 
-void MyPlugin::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void InferCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // defining this function will lead to a *_cfi file being generated when compiling
   edm::ParameterSetDescription desc;
   desc.add<std::string>("graphPath");
@@ -71,19 +71,19 @@ void MyPlugin::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.addWithDefaultLabel(desc);
 }
 
-MyPlugin::MyPlugin(const edm::ParameterSet& config, const CacheData* cacheData)
+InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cacheData)
     : inputTensorName_(config.getParameter<std::string>("inputTensorName")),
       outputTensorName_(config.getParameter<std::string>("outputTensorName")),
       session_(tensorflow::createSession(cacheData->graphDef)) {}
 
-void MyPlugin::beginJob() {}
+void InferCNN::beginJob() {}
 
-void MyPlugin::endJob() {
+void InferCNN::endJob() {
   // close the session
   tensorflow::closeSession(session_);
 }
 
-void MyPlugin::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
  // define a tensor and fill it with range(10)
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1,15,1});
   for (size_t i = 0; i < 15; i++) {
@@ -99,4 +99,4 @@ void MyPlugin::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   std::cout << " -> " << outputs[0].matrix<float>()(0,0) << std::endl << std::endl;
 }
 
-DEFINE_FWK_MODULE(MyPlugin);
+DEFINE_FWK_MODULE(InferCNN);
