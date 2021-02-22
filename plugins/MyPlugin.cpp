@@ -96,7 +96,7 @@ void MyPlugin::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   tensorflow::run(session_, {{inputTensorName_, input}}, {outputTensorName_}, &outputs);
 
   // print the output
-  std::cout << " -> " << outputs[0].matrix<float>()(0,0) << std::endl << std::endl;
+  std::cout << "THIS IS THE FROM THE CNN -> " << outputs[0].matrix<float>()(0,0) << std::endl << std::endl;
 }
 
 DEFINE_FWK_MODULE(MyPlugin);

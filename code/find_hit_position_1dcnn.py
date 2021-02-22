@@ -32,7 +32,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_jan31"
+img_ext = "1dcnn_p1_feb9"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -67,7 +67,7 @@ print(inputs_x_test[0])
 # Model configuration
 batch_size = 512
 loss_function = 'mse'
-n_epochs = 1
+n_epochs = 10
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
