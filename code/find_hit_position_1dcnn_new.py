@@ -4,7 +4,8 @@
 #============================
 
 import h5py
-#from keras.models import Model
+from keras.models import Model
+'''
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import BatchNormalization
@@ -18,6 +19,20 @@ from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import concatenate
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint
+'''
+from keras.optimizers import Adam
+from keras.layers.normalization import BatchNormalization
+from keras.layers.convolutional import Conv1D
+from keras.layers.convolutional import MaxPooling1D
+from keras.layers.core import Activation
+from keras.layers.core import Dropout
+from keras.layers.core import Dense
+from keras.layers import Flatten
+from keras.layers import Input
+from keras.layers import concatenate
+import tensorflow as tf
+from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -27,8 +42,7 @@ from sklearn.metrics import r2_score
 import numpy as np
 import time
 from plotter import *
-from tensorflow.keras.callbacks import EarlyStopping
-import cmsml
+#import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
@@ -63,7 +77,8 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-print(inputs_x_test[0])
+#print(inputs_x_test[0])
+
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
@@ -114,13 +129,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
+'''
 #cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 callbacks = [
 EarlyStopping(patience=3),
@@ -130,7 +146,7 @@ ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([xpix_flat_train,angles_train], [x_train],
+history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
@@ -139,11 +155,11 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
 #cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=False)
 
 plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
-x_pred = model.predict(inputs_x_test, batch_size=9000)
+x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
 
 residuals_x = x_pred - x_test
