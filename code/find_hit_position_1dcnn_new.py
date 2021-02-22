@@ -1,6 +1,6 @@
 #============================
 # Author: Sanjana Sekhar
-# Date: 17 Jan 21
+# Date: 22 Feb 21
 #============================
 
 import h5py
@@ -32,7 +32,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_feb9"
+img_ext = "1dcnn_p1_22feb"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -65,7 +65,7 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 print(inputs_x_test[0])
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
 n_epochs = 10
 optimizer = Adam(lr=0.001)
@@ -74,8 +74,8 @@ validation_split = 0.3
 train_time_x = time.clock()
 #train flat x
 
-#NEED TO CHANGE THIS TO 2 INPUTS
-inputs = Input(shape=(15,1)) #13 in x dimension + 2 angles
+inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
+angles = Input(shape=(2,))
 x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
 x = Conv1D(128, kernel_size=3, padding="same")(x)
@@ -83,15 +83,19 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv1D(128, kernel_size=3, padding="same")(x)
-x = Activation("relu")(x)
-x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
-x = Flatten()(x)
-x = Dense(128)(x)
+
+x_cnn = Flatten()(x)
+concat_inputs = concatenate([x_cnn,angles])
+x = Dense(128)(concat_inputs)
+x = Activation("relu")(x)
+x = BatchNormalization()(x)
+x = Dropout(0.25)(x)
+x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -103,7 +107,7 @@ x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
 
-model = Model(inputs=[inputs],
+model = Model(inputs=[inputs,angles],
               outputs=[x_position]
               )
 
@@ -117,16 +121,16 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+#cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 callbacks = [
-EarlyStopping(patience=2),
+EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
 ]
 
 # Fit data to model
-history = model.fit([inputs_x_train], [x_train],
+history = model.fit([xpix_flat_train,angles_train], [x_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
