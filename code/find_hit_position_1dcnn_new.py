@@ -93,7 +93,7 @@ inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
 x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
-x = Conv1D(128, kernel_size=3, padding="same")(x)
+x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
@@ -108,7 +108,7 @@ x = Dropout(0.25)(x)
 
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
-x = Dense(128)(concat_inputs)
+x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -164,45 +164,46 @@ start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
 
-residuals_x = x_pred - x_test
-RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
-print(np.amin(residuals_x),np.amax(residuals_x))
-print("RMS_x = %f\n"%(RMS_x))
-
 
 train_time_y = time.clock()
-'''
+
 #train flat y
 
-
-inputs = Input(shape=(23,1)) #21 in y dimension + 2 angles
+inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
+angles = Input(shape=(2,))
 y = Conv1D(64, kernel_size=3, padding="same")(inputs)
-y = Activation("relu")(y)
-y = Conv1D(128, kernel_size=3, padding="same")(y)
-y = Activation("relu")(y)
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling1D(pool_size=2,padding='same')(y)
-y = Dropout(0.25)(y)
-y = Conv1D(128, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-y = Flatten()(y)
-y = Dense(128)(y)
+y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
-y = BatchNormalization()(y)
+y = Conv1D(64, kernel_size=3, padding="same")(y)
+y = Activation("relu")(y) 
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling1D(pool_size=2,padding='same')(y)
+y = Dropout(0.25)(y)
+
+y_cnn = Flatten()(y)
+concat_inputs = concatenate([y_cnn,angles])
+y = Dense(64)(concat_inputs)
+y = Activation("relu")(y)
+#y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 y = Dense(64)(y)
 y = Activation("relu")(y)
-y = BatchNormalization()(y)
+#y = BatchNormalization()(y)
+y = Dropout(0.25)(y)
+y = Dense(64)(y)
+y = Activation("relu")(y)
+#y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
 
-model = Model(inputs=[inputs],
+model = Model(inputs=[inputs,angles],
               outputs=[y_position]
               )
 
@@ -217,14 +218,14 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 callbacks = [
-EarlyStopping(patience=2),
+EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
 ]
 
 # Fit data to model
-history = model.fit([inputs_y_train], [y_train],
+history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 validation_split=validation_split,
@@ -236,7 +237,7 @@ plot_dnn_loss(history.history,'y',img_ext)
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-y_pred = model.predict(inputs_y_test, batch_size=9000)
+y_pred = model.predict([ypix_flat_test[:,:,np.newaxis,angles_test]], batch_size=9000)
 inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
@@ -264,4 +265,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
-'''
+
