@@ -44,9 +44,9 @@ import time
 from plotter import *
 #import cmsml
 
-h5_date = "dec12"
-h5_ext = "phase1"
-img_ext = "1dcnn_p1_22feb"
+h5_date = "dec9"
+h5_ext = "phase1_irrad"
+img_ext = "1dcnn_p1irrad_22feb"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -190,15 +190,15 @@ y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
-#y = BatchNormalization()(y)
+y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 y = Dense(64)(y)
 y = Activation("relu")(y)
-#y = BatchNormalization()(y)
+y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 y = Dense(64)(y)
 y = Activation("relu")(y)
-#y = BatchNormalization()(y)
+y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
@@ -217,6 +217,7 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
+
 callbacks = [
 EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
@@ -237,7 +238,7 @@ plot_dnn_loss(history.history,'y',img_ext)
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-y_pred = model.predict([ypix_flat_test[:,:,np.newaxis,angles_test]], batch_size=9000)
+y_pred = model.predict([ypix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
