@@ -98,8 +98,10 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv1D(64, kernel_size=3, padding="same")(inputs)
+x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
+x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Activation("relu")(x) 
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
@@ -129,14 +131,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 #cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 callbacks = [
 EarlyStopping(patience=3),
@@ -155,7 +157,7 @@ history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
 #cmsml.tensorflow.save_graph("inference/data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=False)
 
 plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
