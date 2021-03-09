@@ -17,6 +17,7 @@ from keras.layers import Input
 from keras.layers import concatenate
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -24,7 +25,7 @@ from scipy.stats import norm
 import numpy as np
 import time
 from plotter import *
-from keras.callbacks import EarlyStopping
+
 
 h5_date = "dec12"
 h5_ext = "phase1"

@@ -149,7 +149,7 @@ print("RMS_x = %f\n"%(RMS_x))
 
 
 train_time_y = time.clock()
-'''
+
 #train flat y
 
 
@@ -194,6 +194,8 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
+
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 callbacks = [
 EarlyStopping(patience=2),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
@@ -242,4 +244,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
-'''
+
