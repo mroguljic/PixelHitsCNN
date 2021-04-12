@@ -2,13 +2,11 @@
 # Author: Sanjana Sekhar
 # Date: 19 Oct 20
 #============================
-
-import h5py
-from keras.models import Model
+'''
 from keras.optimizers import Adam
 from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv2D
-from keras.layers.convolutional import MaxPooling2D
+from keras.layers.convolutional import Conv1D
+from keras.layers.convolutional import MaxPooling1D
 from keras.layers.core import Activation
 from keras.layers.core import Dropout
 from keras.layers.core import Dense
@@ -17,20 +15,36 @@ from keras.layers import Input
 from keras.layers import concatenate
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
+'''
+import h5py
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import MaxPooling1D
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import concatenate
+import tensorflow as tf
+from tensorflow.keras.callbacks import ModelCheckpoint
 import matplotlib
-#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import AnchoredText
 from scipy.stats import norm
 from sklearn.metrics import r2_score
 import numpy as np
 import time
 from plotter import *
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
+import cmsml
+
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "dnn_phase1_dec15"
+img_ext = "dnn_p1_apr12"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -108,8 +122,12 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
+
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
 callbacks = [
-EarlyStopping(patience=4),
+EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -170,8 +188,12 @@ model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
+
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
 callbacks = [
-EarlyStopping(patience=4),
+EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
