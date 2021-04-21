@@ -67,12 +67,29 @@ process.inferCNN.outputTensorName = cms.string("Identity")
 
 
 # define what to run in the path
-process.raw2digi_step = cms.Path(process.RawToDigi)     
+process.raw2digi_step = cms.Path(process.RawToDigi)   
+process.L1Reco_step = cms.Path(process.L1Reco)
+process.reconstruction_step = cms.Path(process.reconstruction)
 process.siPixelClusters_step = process.siPixelClusters
+process.TrackRefitter_step = cms.Path(
+  process.offlineBeamSpot*
+  process.MeasurementTrackerEvent*
+  process.TrackRefitter
+)
 process.pixelCPECNN_step = cms.Path(process.inferCNN)
-                            
+
+# potentially for the det angle approach
+#process.schedule = cms.Schedule(
+#  process.raw2digi_step,
+#  process.siPixelClusters_step,
+#  process.pixelCPECNN_step
+#)
+
+# for the track angle approach
 process.schedule = cms.Schedule(
   process.raw2digi_step,
-  process.siPixelClusters_step,
+  process.L1Reco_step,
+  process.reconstruction_step,
+  process.TrackRefitter_step,
   process.pixelCPECNN_step
 )
