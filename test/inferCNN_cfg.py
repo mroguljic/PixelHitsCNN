@@ -5,6 +5,17 @@ import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+
+# -- Conditions
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+
 graph_ext = "cnn_p1_jan31"
 
 # get the data/ directory
@@ -20,9 +31,9 @@ graph_ext = "cnn_p1_jan31"
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
 
 # setup minimal options
-options = VarParsing("python")
-options.setDefault("inputFiles", 'root://cms-xrd-global.cern.ch//store/data/Run2018D/SingleMuon/ALCARECO/SiPixelCalSingleMuon-ForPixelALCARECO_UL2018-v1/20000/A28530AF-8EB6-814B-9645-642058515DA2.root')  # noqa
-options.parseArguments()
+# options = VarParsing("python")
+# options.setDefault("inputFiles", 'root://cms-xrd-global.cern.ch//store/data/Run2018D/SingleMuon/ALCARECO/SiPixelCalSingleMuon-ForPixelALCARECO_UL2018-v1/20000/A28530AF-8EB6-814B-9645-642058515DA2.root')  # noqa
+# options.parseArguments()
 
 # define the process to run
 process = cms.Process("TEST")
@@ -30,15 +41,20 @@ process = cms.Process("TEST")
 # minimal configuration
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
-    fileNames=cms.untracked.vstring(options.inputFiles))
+    fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/065/00000/8C070B38-338E-E811-A4D1-FA163E781D28.root")
 
 # process options
 process.options = cms.untracked.PSet(
     allowUnscheduled=cms.untracked.bool(True),
     wantSummary=cms.untracked.bool(True),
 )
+
+# to get the conditions you need a GT
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 
 # setup InferCNN by loading the auto-generated cfi (see InferCNN.fillDescriptions)
 process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi")
@@ -48,5 +64,32 @@ process.inferCNN.inputTensorName_1 = cms.string("input_1")
 process.inferCNN.inputTensorName_2 = cms.string("input_1") #what is the name?
 process.inferCNN.outputTensorName = cms.string("Identity")
 
+
+
 # define what to run in the path
-process.p = cms.Path(process.inferCNN)
+process.raw2digi_step = cms.Path(process.RawToDigi)   
+process.L1Reco_step = cms.Path(process.L1Reco)
+process.reconstruction_step = cms.Path(process.reconstruction)
+process.siPixelClusters_step = process.siPixelClusters
+process.TrackRefitter_step = cms.Path(
+  process.offlineBeamSpot*
+  process.MeasurementTrackerEvent*
+  process.TrackRefitter
+)
+process.pixelCPECNN_step = cms.Path(process.inferCNN)
+
+# potentially for the det angle approach
+#process.schedule = cms.Schedule(
+#  process.raw2digi_step,
+#  process.siPixelClusters_step,
+#  process.pixelCPECNN_step
+#)
+
+# for the track angle approach
+process.schedule = cms.Schedule(
+  process.raw2digi_step,
+  process.L1Reco_step,
+  process.reconstruction_step,
+  process.TrackRefitter_step,
+  process.pixelCPECNN_step
+)
