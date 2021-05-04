@@ -40,6 +40,7 @@ process = cms.Process("TEST")
 
 # minimal configuration
 process.load("FWCore.MessageService.MessageLogger_cfi")
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
@@ -55,9 +56,20 @@ process.options = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
+                            
+process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
+process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 
 # setup InferCNN by loading the auto-generated cfi (see InferCNN.fillDescriptions)
-process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi")
+#process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi
+# CLEANUP 
+process.inferCNN = cms.EDAnalyzer('InferCNN',
+     graphPath = cms.required.string,
+     inputTensorName = cms.required.string,
+     outputTensorName = cms.required.string,
+     mightGet = cms.optional.untracked.vstring,
+     trackCollectionLabel = cms.untracked.InputTag('generalTracks')
+   )
 process.inferCNN.graphPath = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext)))
 #CNN has 2 inputs
 process.inferCNN.inputTensorName_1 = cms.string("input_1")
@@ -65,17 +77,16 @@ process.inferCNN.inputTensorName_2 = cms.string("input_1") #what is the name?
 process.inferCNN.outputTensorName = cms.string("Identity")
 
 
-
 # define what to run in the path
 process.raw2digi_step = cms.Path(process.RawToDigi)   
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.siPixelClusters_step = process.siPixelClusters
-process.TrackRefitter_step = cms.Path(
-  process.offlineBeamSpot*
-  process.MeasurementTrackerEvent*
-  process.TrackRefitter
-)
+#process.siPixelClusters_step = process.siPixelClusters
+#process.TrackRefitter_step = cms.Path(
+ # process.offlineBeamSpot*
+ # process.MeasurementTrackerEvent*
+ # process.TrackRefitter
+#)
 process.pixelCPECNN_step = cms.Path(process.inferCNN)
 
 # potentially for the det angle approach
@@ -90,6 +101,6 @@ process.schedule = cms.Schedule(
   process.raw2digi_step,
   process.L1Reco_step,
   process.reconstruction_step,
-  process.TrackRefitter_step,
+  #process.TrackRefitter_step,
   process.pixelCPECNN_step
 )
