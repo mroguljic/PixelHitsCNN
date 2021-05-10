@@ -75,16 +75,9 @@ private:
 
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
 //: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
-: fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
-	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
-	fInit(0)
+
 	{
 
-	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
-	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
-	
-	//trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
-	//trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 	// this method is supposed to create, initialize and return a CacheData instance
 	CacheData* cacheData = new CacheData();
 
@@ -94,10 +87,18 @@ std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterS
 
 	// set tensorflow log leven to warning
 	tensorflow::setLogging("2");
-	init();
+	//init();
 
 	return std::unique_ptr<CacheData>(cacheData);
 }
+
+InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cache):
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
+	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))){
+
+		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
+	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+	}
 
 void InferCNN::globalEndJob(const CacheData* cacheData) {
 	// reset the graphDef
