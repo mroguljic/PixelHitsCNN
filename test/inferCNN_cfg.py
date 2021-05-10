@@ -37,10 +37,10 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
 
 
 # minimal configuration
@@ -49,7 +49,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
-  fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/065/00000/8C070B38-338E-E811-A4D1-FA163E781D28.root")
+  #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
+  fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root"))
 
 # process options
 process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),wantSummary=cms.untracked.bool(True))
@@ -66,11 +67,11 @@ process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 # CLEANUP 
 process.inferCNN = cms.EDAnalyzer('InferCNN',
  graphPath_x = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext))),
- graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
+ #graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
  inputTensorName_x = cms.string("input_1"),
  anglesTensorName_x = cms.string("input_2"),
- inputTensorName_y = cms.string("input_3"),
- anglesTensorName_y = cms.string("input_4"),
+ #inputTensorName_y = cms.string("input_3"),
+ #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),
      #mightGet = cms.optional.untracked.vstring,
     # trackCollectionLabel = cms.untracked.InputTag('generalTracks'),

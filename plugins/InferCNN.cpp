@@ -17,7 +17,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "RecoLocalTracker/SiPixelRecHits/src/SiPixelTemplateReco.cc"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -164,12 +165,12 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		//	(track.pt() < 0.75 || std::abs(track.dxy((*vertices)[0].position())) > 5 * track.dxyError()))
 		//	continue;
 
-		bool isBpixtrack = false, isFpixtrack = false, crossesPixVol = false;
+//		bool isBpixtrack = false, isFpixtrack = false, crossesPixVol = false;
 
 			// find out whether track crosses pixel fiducial volume (for cosmic tracks)
 		auto d0 = track.d0(), dz = track.dz();
-		if (std::abs(d0) < 16 && std::abs(dz) < 50)
-			crossesPixVol = true;
+//		if (std::abs(d0) < 16 && std::abs(dz) < 50)
+//			crossesPixVol = true;
 
 		auto etatk = track.eta();
 
@@ -185,10 +186,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 				// check that we are in the pixel
 			auto subdetid = (id.subdetId());
-			if (subdetid == PixelSubdetector::PixelBarrel)
-				isBpixtrack = true;
-			if (subdetid == PixelSubdetector::PixelEndcap)
-				isFpixtrack = true;
+//			if (subdetid == PixelSubdetector::PixelBarrel)
+//				isBpixtrack = true;
+//			if (subdetid == PixelSubdetector::PixelEndcap)
+//				isFpixtrack = true;
 			if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
 				continue;
 			bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
