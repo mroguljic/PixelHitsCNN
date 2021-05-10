@@ -148,12 +148,28 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	*/
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
-	event.getByToken(TrackToken, tracks);
+	//event.getByToken(TrackToken, tracks);
 
-	if (!tracks.isValid()) {
-		edm::LogWarning("SiPixelPhase1TrackClusters") << "track collection is not valid";
+	
+	  try {
+    event.getByToken(TrackToken, tracks);
+  }catch (cms::Exception &ex) {
+    if (fVerbose > 1) cout << "No Track collection with label " << fTrackCollectionLabel << endl;
+  }
+  if (tracks.isValid()) {
+    const std::vector<reco::Track> trackColl = *(tracks.product());
+    nTk = trackColl.size();
+    if (fVerbose > 1) cout << "--> Track collection size: " << nTk << endl;
+  } else {
+    if (fVerbose > 1) cout << "--> No valid track collection" << endl;
+  }
+  if (!tracks.isValid()) {
+		cout << "track collection is not valid" <<endl;
 		return;
 	}
+
+	printf("Track is valid\n");
+	printf("Track collection size: \n",tracks->size());
 		//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
 	int mrow=TXSIZE,mcol=TYSIZE;

@@ -37,11 +37,18 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.Geometry_cff")
 
+# to get the conditions you need a GT
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
+# force Generic reco
+process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
+process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 
 # minimal configuration
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -52,15 +59,11 @@ process.source = cms.Source("PoolSource",
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
   fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root"))
 
+
 # process options
 process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),wantSummary=cms.untracked.bool(True))
 
-# to get the conditions you need a GT
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 
-process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
-process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 
 # setup InferCNN by loading the auto-generated cfi (see InferCNN.fillDescriptions)
 #process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi
