@@ -71,9 +71,9 @@ private:
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
 : applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
 
-	tracksToken_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>(trackCollectionLabel));
+	tracksToken_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trackCollectionLabel"));
 	offlinePrimaryVerticesToken_ =
-	applyVertexCut_ ? consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>(PrimaryVertexCollectionLabel))
+	applyVertexCut_ ? consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("PrimaryVertexCollectionLabel"))
 	: edm::EDGetTokenT<reco::VertexCollection>();
 	trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
 	trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
@@ -270,7 +270,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
           }				
 	// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
-				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &outputs);
+				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				xrec = output_x[0].matrix<float>()(0,0);
           printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
 			}
