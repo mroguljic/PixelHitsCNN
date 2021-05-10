@@ -60,6 +60,8 @@ private:
 
 	tensorflow::Session* session_x;
 
+	const bool applyVertexCut_;
+
 	edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 	edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 	edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
@@ -69,9 +71,9 @@ private:
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
 : applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
 
-	tracksToken_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("tracks"));
+	tracksToken_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>(trackCollectionLabel));
 	offlinePrimaryVerticesToken_ =
-	applyVertexCut_ ? consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("vertices"))
+	applyVertexCut_ ? consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>(PrimaryVertexCollectionLabel))
 	: edm::EDGetTokenT<reco::VertexCollection>();
 	trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
 	trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
@@ -121,10 +123,10 @@ void InferCNN::endJob() {
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 		// get geometry
-	edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
+	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
 	assert(tracker.isValid());
 
-	edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
+	edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(trackerTopoToken_);
 	auto const& tkTpl = *tTopoHandle;
 
 	edm::Handle<reco::VertexCollection> vertices;
