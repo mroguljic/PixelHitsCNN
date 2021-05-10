@@ -30,7 +30,9 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-
+using namespace std;
+using namespace edm;
+using namespace reco;
 // define the cache object
 // it could handle graph loading and destruction on its own,
 // but in this example, we define it as a logicless container
