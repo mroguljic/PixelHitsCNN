@@ -52,10 +52,7 @@ process.source = cms.Source("PoolSource",
   fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/065/00000/8C070B38-338E-E811-A4D1-FA163E781D28.root")
 
 # process options
-process.options = cms.untracked.PSet(
-  allowUnscheduled=cms.untracked.bool(True),
-  wantSummary=cms.untracked.bool(True),
-  )
+process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),wantSummary=cms.untracked.bool(True))
 
 # to get the conditions you need a GT
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
