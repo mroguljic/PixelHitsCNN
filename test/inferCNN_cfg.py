@@ -75,8 +75,8 @@ process.inferCNN = cms.EDAnalyzer('InferCNN',
      anglesTensorName_y = cms.string("input_4"),
      outputTensorName = cms.string("Identity"),
      #mightGet = cms.optional.untracked.vstring,
-     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
-     PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+    # trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
+    # PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
      #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
    )
 
