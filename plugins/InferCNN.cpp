@@ -63,7 +63,8 @@ private:
 	tensorflow::Session* session_x;
 
 	edm::InputTag  fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
-
+	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
+	edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 	//const bool applyVertexCut_;
 
 	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
