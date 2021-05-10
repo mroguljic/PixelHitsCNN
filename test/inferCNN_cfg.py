@@ -15,6 +15,10 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 graph_ext = "1dcnn_p1_apr12"
 
