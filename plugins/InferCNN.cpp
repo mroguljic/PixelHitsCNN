@@ -115,6 +115,7 @@ InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cacheData)
 inputTensorName_y(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
+fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
 fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))) {
 
@@ -149,7 +150,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
 	//event.getByToken(TrackToken, tracks);
-
+	int nTk(0);
 	
 	  try {
     event.getByToken(TrackToken, tracks);
@@ -169,7 +170,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	}
 
 	printf("Track is valid\n");
-	printf("Track collection size: \n",tracks->size());
+	printf("Track collection size: %f\n",tracks->size());
 		//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
 	int mrow=TXSIZE,mcol=TYSIZE;
