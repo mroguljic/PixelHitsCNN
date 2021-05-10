@@ -4,7 +4,7 @@ import os
 import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
-
+from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
 # -- Conditions
@@ -16,7 +16,7 @@ process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 
-graph_ext = "cnn_p1_jan31"
+graph_ext = "1dcnn_p1_apr12"
 
 # get the data/ directory
 #thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -54,7 +54,6 @@ process.options = cms.untracked.PSet(
 
 # to get the conditions you need a GT
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
                             
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
@@ -64,17 +63,18 @@ process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 #process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi
 # CLEANUP 
 process.inferCNN = cms.EDAnalyzer('InferCNN',
-     graphPath = cms.required.string,
-     inputTensorName = cms.required.string,
-     outputTensorName = cms.required.string,
-     mightGet = cms.optional.untracked.vstring,
-     trackCollectionLabel = cms.untracked.InputTag('generalTracks')
+     graphPath_x = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext))),
+     graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
+     inputTensorName_x = cms.string("input_1"),
+     anglesTensorName_x = cms.string("input_2"),
+     inputTensorName_y = cms.string("input_3"),
+     anglesTensorName_y = cms.string("input_4"),
+     outputTensorName = cms.string("Identity"),
+     #mightGet = cms.optional.untracked.vstring,
+     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
+     PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+     #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
    )
-process.inferCNN.graphPath = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext)))
-#CNN has 2 inputs
-process.inferCNN.inputTensorName_1 = cms.string("input_1")
-process.inferCNN.inputTensorName_2 = cms.string("input_1") #what is the name?
-process.inferCNN.outputTensorName = cms.string("Identity")
 
 
 # define what to run in the path
