@@ -63,7 +63,7 @@ private:
 
 	tensorflow::Session* session_x;
 
-	edm::InputTag  fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
+	edm::InputTag fVerbose, fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 	edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 	//const bool applyVertexCut_;
@@ -115,7 +115,7 @@ InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cacheData)
 inputTensorName_y(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
-fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
+//fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))) {
 
@@ -155,14 +155,17 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	  try {
     event.getByToken(TrackToken, tracks);
   }catch (cms::Exception &ex) {
-    if (fVerbose > 1) cout << "No Track collection with label " << fTrackCollectionLabel << endl;
+//    if (fVerbose > 1) 
+cout << "No Track collection with label " << fTrackCollectionLabel << endl;
   }
   if (tracks.isValid()) {
     const std::vector<reco::Track> trackColl = *(tracks.product());
     nTk = trackColl.size();
-    if (fVerbose > 1) cout << "--> Track collection size: " << nTk << endl;
+//    if (fVerbose > 1) 
+cout << "--> Track collection size: " << nTk << endl;
   } else {
-    if (fVerbose > 1) cout << "--> No valid track collection" << endl;
+  //  if (fVerbose > 1)
+  cout << "--> No valid track collection" << endl;
   }
   if (!tracks.isValid()) {
 		cout << "track collection is not valid" <<endl;
@@ -170,7 +173,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	}
 
 	printf("Track is valid\n");
-	printf("Track collection size: %f\n",tracks->size());
+//	printf("Track collection size: %d\n",tracks->size());
 		//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
 	int mrow=TXSIZE,mcol=TYSIZE;
