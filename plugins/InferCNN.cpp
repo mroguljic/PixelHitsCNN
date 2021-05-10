@@ -58,7 +58,7 @@ private:
 	std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y;
 	std::string outputTensorName_;
 
-	tensorflow::Session* session_x, session_y;
+	tensorflow::Session* session_x;
 
 	edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 	edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
@@ -67,11 +67,11 @@ private:
 };
 
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
-: applyVertexCut_(iConfig.getUntrackedParameter<bool>("VertexCut", true)){
+: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
 
-	tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+	tracksToken_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("tracks"));
 	offlinePrimaryVerticesToken_ =
-	applyVertexCut_ ? consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))
+	applyVertexCut_ ? consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("vertices"))
 	: edm::EDGetTokenT<reco::VertexCollection>();
 	trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
 	trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
@@ -80,7 +80,7 @@ std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterS
 
 	// load the graph def and save it
 	std::string graphPath_x = config.getParameter<std::string>("graphPath_x");
-	cacheData->graphDef = tensorflow::loadGraphDef(graphPath);
+	cacheData->graphDef = tensorflow::loadGraphDef(graphPath_x);
 
 	// set tensorflow log leven to warning
 	tensorflow::setLogging("2");
@@ -109,13 +109,13 @@ InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cacheData)
 : inputTensorName_x(config.getParameter<std::string>("inputTensorName_x")),
 inputTensorName_y(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
-session_(tensorflow::createSession(cacheData->graphDef)) {}
+session_x(tensorflow::createSession(cacheData->graphDef)) {}
 
 void InferCNN::beginJob() {}
 
 void InferCNN::endJob() {
 	// close the session
-	tensorflow::closeSession(session_);
+	tensorflow::closeSession(session_x);
 }
 
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -129,13 +129,13 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 	edm::Handle<reco::VertexCollection> vertices;
 	if (applyVertexCut_) {
-		iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+		event.getByToken(offlinePrimaryVerticesToken_, vertices);
 		if (!vertices.isValid() || vertices->empty())
 			return;
 	}
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
-	iEvent.getByToken(tracksToken_, tracks);
+	event.getByToken(tracksToken_, tracks);
 
 	if (!tracks.isValid()) {
 		edm::LogWarning("SiPixelPhase1TrackClusters") << "track collection is not valid";
@@ -268,7 +268,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
           }				
 	// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
-				tensorflow::run(session_, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &outputs);
+				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &outputs);
 				xrec = output_x[0].matrix<float>()(0,0);
           printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
 			}
