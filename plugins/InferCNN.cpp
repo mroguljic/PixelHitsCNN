@@ -60,23 +60,25 @@ private:
 
 	tensorflow::Session* session_x;
 
-	const bool applyVertexCut_;
+	//const bool applyVertexCut_;
 
-	edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-	edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
-	edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
-	edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+	//edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+	//edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+	//edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 };
 
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
-: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
+//: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
+: fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
+	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices")))
+	{
 
-	tracksToken_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trackCollectionLabel"));
-	offlinePrimaryVerticesToken_ =
-	applyVertexCut_ ? consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("PrimaryVertexCollectionLabel"))
-	: edm::EDGetTokenT<reco::VertexCollection>();
-	trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
-	trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
+	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+	
+	//trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+	//trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 	// this method is supposed to create, initialize and return a CacheData instance
 	CacheData* cacheData = new CacheData();
 
@@ -123,6 +125,7 @@ void InferCNN::endJob() {
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 		// get geometry
+	/*
 	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
 	assert(tracker.isValid());
 
@@ -135,9 +138,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		if (!vertices.isValid() || vertices->empty())
 			return;
 	}
+	*/
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
-	event.getByToken(tracksToken_, tracks);
+	event.getByToken(TrackToken, tracks);
 
 	if (!tracks.isValid()) {
 		edm::LogWarning("SiPixelPhase1TrackClusters") << "track collection is not valid";
@@ -150,9 +154,9 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	static int ix,iy, speed;
 
 	for (auto const& track : *tracks) {
-		if (applyVertexCut_ &&
-			(track.pt() < 0.75 || std::abs(track.dxy((*vertices)[0].position())) > 5 * track.dxyError()))
-			continue;
+		//if (applyVertexCut_ &&
+		//	(track.pt() < 0.75 || std::abs(track.dxy((*vertices)[0].position())) > 5 * track.dxyError()))
+		//	continue;
 
 		bool isBpixtrack = false, isFpixtrack = false, crossesPixVol = false;
 
