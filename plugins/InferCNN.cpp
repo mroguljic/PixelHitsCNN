@@ -71,7 +71,8 @@ private:
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
 //: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
 : fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
-	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices")))
+	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
+	fInit(0)
 	{
 
 	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
@@ -88,6 +89,7 @@ std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterS
 
 	// set tensorflow log leven to warning
 	tensorflow::setLogging("2");
+	init();
 
 	return std::unique_ptr<CacheData>(cacheData);
 }
@@ -150,8 +152,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
 	int mrow=TXSIZE,mcol=TYSIZE;
-	static float xrec, yrec, sigmax, sigmay, probx, proby,probQ;
-	static int ix,iy, speed;
+	static float xrec, yrec;
+	static int ix,iy;
 
 	for (auto const& track : *tracks) {
 		//if (applyVertexCut_ &&
@@ -189,8 +191,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 				// PXB_L4 IS IN THE OTHER WAY
 				// CAN BE XORed BUT LETS KEEP THINGS SIMPLE
-			bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
-			((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
+		//	bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
+			//((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
 
 			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
 			if (!pixhit)
