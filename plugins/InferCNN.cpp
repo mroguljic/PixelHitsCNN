@@ -30,6 +30,7 @@
 #include "TCanvas.h"
 #include "TPostScript.h"
 #include "Math/DistFunc.h"
+#include "TTree.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -57,7 +58,10 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
+class TObject;
+class TTree;
+class TH1D;
+class TFile;
 
 using namespace std;
 using namespace edm;
@@ -88,10 +92,12 @@ private:
 
 	std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y;
 	std::string outputTensorName_;
-
+	//std::string     fRootFileName;
 	tensorflow::Session* session_x;
-
-	edm::InputTag fVerbose, fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
+	TFile *fFile; TTree *fTree;
+	float x_gen[100000], x_1dcnn[100000], dx[100000]; int count;
+	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
+	 std::string     fRootFileName;
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 	edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 	//const bool applyVertexCut_;
@@ -146,18 +152,21 @@ session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
-fRootFileName(iConfig.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
+fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+	count = 0;
 }
 
 void InferCNN::beginJob() {
-
+printf("IN BEGINJOB");
 	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
   fFile->cd();
+fTree = new TTree("x_rec", "x_rec");
   fTree->Branch("x_gen",        x_gen,       "x_gen");
-  fTree->Branch("x_1dcnn",       x_rec,       "x_1dcnn");
+  fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn");
+fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn");
 }
 
 void InferCNN::endJob() {
@@ -168,6 +177,7 @@ void InferCNN::endJob() {
 	    fFile->Write();
   fFile->Close();
   delete fFile;
+printf("IN ENDJOB");
 }
 
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -220,7 +230,7 @@ cout << "--> Track collection size: " << nTk << endl;
 		//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
 	int mrow=TXSIZE,mcol=TYSIZE;
-	static float xrec, yrec;
+//	static float xrec, yrec;
 	static int ix,iy;
 
 	for (auto const& track : *tracks) {
@@ -334,7 +344,7 @@ cout << "--> Track collection size: " << nTk << endl;
   tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
            angles.tensor<float,2>()(0, 0) = cotAlpha;
            angles.tensor<float,2>()(0, 1) = cotBeta;
-           printf("%s\n","starting x reco");
+        //   printf("%s\n","starting x reco");
 			for (size_t i = 0; i < TXSIZE; i++) {
             cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
             for (size_t j = 0; j < TYSIZE; j++){
@@ -347,15 +357,15 @@ cout << "--> Track collection size: " << nTk << endl;
 	// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
-				xrec = output_x[0].matrix<float>()(0,0);
+				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
       //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
 
-				float x_gen = hit->localPosition().x()
-				float dx = x_gen - xrec;
-
+				 x_gen[count] = hit->localPosition().x();
+				 dx[count] = x_gen[count] - x_1dcnn[count];
+				count++;
 
 			}
 		}
-
+printf("count = %i\n",count);
 	}
 	DEFINE_FWK_MODULE(InferCNN);

@@ -1,6 +1,6 @@
 # coding: utf-8
-import ROOT
-from ROOT import *
+#import ROOT
+#from ROOT import *
 import os
 import sys
 import FWCore.ParameterSet.Config as cms
@@ -54,12 +54,14 @@ process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 
 # minimal configuration
 process.load("FWCore.MessageService.MessageLogger_cfi")
+#process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(30))
 process.source = cms.Source("PoolSource",
-  #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
-  fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root"))
+  fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
+#  fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
+)
 
 
 # process options
@@ -79,8 +81,9 @@ process.inferCNN = cms.EDAnalyzer('InferCNN',
  #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),
      #mightGet = cms.optional.untracked.vstring,
-    # trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
-    # PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+#     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
+ #    PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+ #    rootFileName                 = cms.untracked.string("PixelTree.root"),
      #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
      )
 
@@ -89,6 +92,7 @@ process.inferCNN = cms.EDAnalyzer('InferCNN',
 process.raw2digi_step = cms.Path(process.RawToDigi)   
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction_trackingOnly)
+#process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.siPixelClusters_step = process.siPixelClusters
 #process.TrackRefitter_step = cms.Path(
  # process.offlineBeamSpot*
@@ -112,6 +116,7 @@ process.schedule = cms.Schedule(
   #process.TrackRefitter_step,
   process.pixelCPECNN_step
   )
+"""
 # customisation of the process.
 # Automatic addition of the customisation function from Configuration.DataProcessing.RecoTLR
 from Configuration.DataProcessing.RecoTLR import customisePostEra_Run2_2018
@@ -125,3 +130,4 @@ process=convertToUnscheduled(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+"""
