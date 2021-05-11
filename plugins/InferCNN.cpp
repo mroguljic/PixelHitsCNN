@@ -13,23 +13,23 @@
 #include <algorithm>
 #include <vector>
 
+#include <TF1.h>
+#include "Math/MinimizerOptions.h"
+#include <TCanvas.h>
+#include <TGraphErrors.h>
+#include <TMath.h>
 #include "TROOT.h"
+#include "TSystem.h"
 #include "TFile.h"
 #include "TObject.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TProfile.h"
 #include "TStyle.h"
+#include "TF1.h"
 #include "TCanvas.h"
 #include "TPostScript.h"
-#include "TLorentzVector.h"
-#include "TVector3.h"
-#include "TH2.h"
-#include "TH3.h"
-#include "TTree.h"
-#include "TFitter.h"
-#include "TSystem.h"
-#include "Math/Functor.h"
-
+#include "Math/DistFunc.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -336,13 +336,15 @@ cout << "--> Track collection size: " << nTk << endl;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				xrec = output_x[0].matrix<float>()(0,0);
       //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
-				dx = hit->localPosition().x() - xrec;
+				float dx = hit->localPosition().x() - xrec;
 				res_x->Fill(dx);
 
 			}
 		}
-		TCanvas *c_res_x = new TCanvas("c_res_x", "Histograms", 200, 10, 900, 700);
-		res_x->Draw();
+	//	TCanvas *c_res_x = new TCanvas("c_res_x", "Histograms", 200, 10, 900, 700);
+TCanvas* c_res_x = new TCanvas("c1", "hists", 1600, 1000);
+    c_res_x->SetFillStyle(4000);	
+	res_x->Draw();
 		c_res_x->Print("dx_gen_1dcnn.png");
 		delete c_res_x;
 	}

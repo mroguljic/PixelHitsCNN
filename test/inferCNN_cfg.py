@@ -1,5 +1,6 @@
 # coding: utf-8
-
+import ROOT
+from ROOT import *
 import os
 import sys
 import FWCore.ParameterSet.Config as cms
