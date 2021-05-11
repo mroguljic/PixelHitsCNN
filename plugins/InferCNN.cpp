@@ -237,7 +237,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		return;
 	}
 
-	printf("Track is valid\n");
+	//printf("Track is valid\n");
 //	printf("Track collection size: %d\n",tracks->size());
 		//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
@@ -374,12 +374,12 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				
 				 x_gen[count] = hit->localPosition().x();
 				 dx[count] = x_gen[count] - x_1dcnn[count];
-				printf("%f ",dx[count]);
+				printf("%f\n ",dx[count]);
 				count++;
 				
 			}
 		}
-		printf("count = %i\n",count);
+	//	printf("count = %i\n",count);
 		//fTree->Fill();
 	}
 	DEFINE_FWK_MODULE(InferCNN);
