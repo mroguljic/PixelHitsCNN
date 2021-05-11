@@ -99,7 +99,7 @@ private:
 	float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
 	int count;
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
-	 std::string     fRootFileName;
+	std::string     fRootFileName;
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 	edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 	//const bool applyVertexCut_;
@@ -113,7 +113,7 @@ private:
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
 //: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
 
-	{
+{
 
 	// this method is supposed to create, initialize and return a CacheData instance
 	CacheData* cacheData = new CacheData();
@@ -156,7 +156,7 @@ fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLab
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
-		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
+	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
 	count = 0;
 
@@ -170,14 +170,14 @@ fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dc
 }
 
 void InferCNN::beginJob() {
-printf("IN BEGINJOB");
+	printf("IN BEGINJOB");
 	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
-  fFile->cd();
-fTree = new TTree("x_rec", "x_rec");
+	fFile->cd();
+	fTree = new TTree("x_rec", "x_rec");
  // fTree->Branch("x_gen",        x_gen,       "x_gen");
-  fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn/F");
-fTree->Branch("x_gen",        x_gen,       "x_gen/F");
-fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn/F");
+	fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn/F");
+	fTree->Branch("x_gen",        x_gen,       "x_gen/F");
+	fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn/F");
 }
 
 void InferCNN::endJob() {
@@ -185,11 +185,11 @@ void InferCNN::endJob() {
 	tensorflow::closeSession(session_x);
 //	fTree->Fill();
 	fFile->cd();
-	  fTree->Write();
-	    fFile->Write();
-  fFile->Close();
+	fTree->Write();
+	fFile->Write();
+	fFile->Close();
 //  delete fFile;
-printf("IN ENDJOB");
+	printf("IN ENDJOB");
 }
 
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -217,22 +217,22 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	//event.getByToken(TrackToken, tracks);
 	int nTk(0);
 	
-	  try {
-    event.getByToken(TrackToken, tracks);
-  }catch (cms::Exception &ex) {
+	try {
+		event.getByToken(TrackToken, tracks);
+	}catch (cms::Exception &ex) {
 //    if (fVerbose > 1) 
-cout << "No Track collection with label " << fTrackCollectionLabel << endl;
-  }
-  if (tracks.isValid()) {
-    const std::vector<reco::Track> trackColl = *(tracks.product());
-    nTk = trackColl.size();
+		cout << "No Track collection with label " << fTrackCollectionLabel << endl;
+	}
+	if (tracks.isValid()) {
+		const std::vector<reco::Track> trackColl = *(tracks.product());
+		nTk = trackColl.size();
 //    if (fVerbose > 1) 
-cout << "--> Track collection size: " << nTk << endl;
-  } else {
+		cout << "--> Track collection size: " << nTk << endl;
+	} else {
   //  if (fVerbose > 1)
-  cout << "--> No valid track collection" << endl;
-  }
-  if (!tracks.isValid()) {
+		cout << "--> No valid track collection" << endl;
+	}
+	if (!tracks.isValid()) {
 		cout << "track collection is not valid" <<endl;
 		return;
 	}
@@ -351,21 +351,21 @@ cout << "--> Track collection size: " << nTk << endl;
 
 	//===============================
 	// define a tensor and fill it with cluster projection
-  tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
+				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
     // angles
-  tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
-           angles.tensor<float,2>()(0, 0) = cotAlpha;
-           angles.tensor<float,2>()(0, 1) = cotBeta;
+				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
+				angles.tensor<float,2>()(0, 0) = cotAlpha;
+				angles.tensor<float,2>()(0, 1) = cotBeta;
         //   printf("%s\n","starting x reco");
-			for (size_t i = 0; i < TXSIZE; i++) {
-            cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-            for (size_t j = 0; j < TYSIZE; j++){
+				for (size_t i = 0; i < TXSIZE; i++) {
+					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
+					for (size_t j = 0; j < TYSIZE; j++){
                 //1D projection in x
-                cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-	
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+						
 		//printf("%f\n",clusbuf[i][j]);	
-            }
-          }				
+					}
+				}				
 	// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
@@ -379,7 +379,7 @@ cout << "--> Track collection size: " << nTk << endl;
 				
 			}
 		}
-printf("count = %i\n",count);
-//fTree->Fill();
+		printf("count = %i\n",count);
+		//fTree->Fill();
 	}
 	DEFINE_FWK_MODULE(InferCNN);
