@@ -112,7 +112,7 @@ void InferCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cacheData)
 : inputTensorName_x(config.getParameter<std::string>("inputTensorName_x")),
-inputTensorName_y(config.getParameter<std::string>("anglesTensorName_x")),
+anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
@@ -297,6 +297,8 @@ cout << "--> Track collection size: " << nTk << endl;
             for (size_t j = 0; j < TYSIZE; j++){
                 //1D projection in x
                 cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+	
+		printf("%f\n",clusbuf[i][j]);	
             }
           }				
 	// define the output and run

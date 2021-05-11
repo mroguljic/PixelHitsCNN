@@ -67,7 +67,7 @@ process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),w
 
 
 # setup InferCNN by loading the auto-generated cfi (see InferCNN.fillDescriptions)
-#process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi
+process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi")
 # CLEANUP 
 process.inferCNN = cms.EDAnalyzer('InferCNN',
  graphPath_x = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext))),
