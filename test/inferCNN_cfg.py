@@ -28,7 +28,7 @@ datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/dat
 # options.parseArguments()
 
 # define the process to run
-process = cms.Process("TEST")
+process = cms.Process('RECO',Run2_2018,pf_badHcalMitigation)
 # -- Conditions
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -110,3 +110,16 @@ process.schedule = cms.Schedule(
   #process.TrackRefitter_step,
   process.pixelCPECNN_step
   )
+# customisation of the process.
+# Automatic addition of the customisation function from Configuration.DataProcessing.RecoTLR
+from Configuration.DataProcessing.RecoTLR import customisePostEra_Run2_2018
+#call to customisation function customisePostEra_Run2_2018 imported from Configuration.DataProcessing.RecoTLR
+process = customisePostEra_Run2_2018(process)
+# End of customisation functions
+#do not add changes to your config after this point (unless you know what you are doing)
+from FWCore.ParameterSet.Utilities import convertToUnscheduled
+process=convertToUnscheduled(process)
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
