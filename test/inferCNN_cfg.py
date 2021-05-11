@@ -73,10 +73,10 @@ process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),w
 process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi")
 # CLEANUP 
 process.inferCNN = cms.EDAnalyzer('InferCNN',
- graphPath_x = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext))),
+ graphPath_x = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
  #graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
- inputTensorName_x = cms.string("input_1"),
- anglesTensorName_x = cms.string("input_2"),
+ inputTensorName_x = cms.string("input_3"),
+ anglesTensorName_x = cms.string("input_4"),
  #inputTensorName_y = cms.string("input_3"),
  #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),

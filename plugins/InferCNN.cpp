@@ -351,17 +351,17 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 	//===============================
 	// define a tensor and fill it with cluster projection
-				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
+				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TYSIZE,1});
     // angles
 				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
 				angles.tensor<float,2>()(0, 0) = cotAlpha;
 				angles.tensor<float,2>()(0, 1) = cotBeta;
         //   printf("%s\n","starting x reco");
-				for (size_t i = 0; i < TXSIZE; i++) {
+				for (size_t i = 0; i < TYSIZE; i++) {
 					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-					for (size_t j = 0; j < TYSIZE; j++){
+					for (size_t j = 0; j < TXSIZE; j++){
                 //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[j][i];
 						
 		//printf("%f\n",clusbuf[i][j]);	
 					}
@@ -372,7 +372,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
       //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
 				
-				 x_gen[count] = hit->localPosition().x();
+				 x_gen[count] = hit->localPosition().y();
 				 dx[count] = x_gen[count] - x_1dcnn[count];
 				printf("%f\n ",dx[count]);
 				count++;
