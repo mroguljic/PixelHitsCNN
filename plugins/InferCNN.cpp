@@ -3,6 +3,32 @@
  */
 
 #include <memory>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <cmath>
+#include <cfloat>
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+
+#include "TROOT.h"
+#include "TFile.h"
+#include "TObject.h"
+#include "TH1F.h"
+#include "TProfile.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+#include "TPostScript.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TH2.h"
+#include "TH3.h"
+#include "TTree.h"
+#include "TFitter.h"
+#include "TSystem.h"
+#include "Math/Functor.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,6 +56,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 
 using namespace std;
 using namespace edm;
