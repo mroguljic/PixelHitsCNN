@@ -5,8 +5,9 @@ import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.AlCa.GlobalTag import GlobalTag
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
 graph_ext = "1dcnn_p1_apr12"
 
