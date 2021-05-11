@@ -54,13 +54,13 @@ process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 
 # minimal configuration
 process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(30))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(25))
 process.source = cms.Source("PoolSource",
-  fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
-#  fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
+  #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
+  fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
 )
 
 
@@ -83,7 +83,7 @@ process.inferCNN = cms.EDAnalyzer('InferCNN',
      #mightGet = cms.optional.untracked.vstring,
 #     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
  #    PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
- #    rootFileName                 = cms.untracked.string("PixelTree.root"),
+    # rootFileName                 = cms.untracked.string("x_1dcnn.root"),
      #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
      )
 
@@ -92,7 +92,7 @@ process.inferCNN = cms.EDAnalyzer('InferCNN',
 process.raw2digi_step = cms.Path(process.RawToDigi)   
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction_trackingOnly)
-#process.endjob_step = cms.EndPath(process.endOfProcess)
+process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.siPixelClusters_step = process.siPixelClusters
 #process.TrackRefitter_step = cms.Path(
  # process.offlineBeamSpot*
@@ -114,7 +114,8 @@ process.schedule = cms.Schedule(
   process.L1Reco_step,
   process.reconstruction_step,
   #process.TrackRefitter_step,
-  process.pixelCPECNN_step
+  process.pixelCPECNN_step,
+  process.endjob_step
   )
 """
 # customisation of the process.

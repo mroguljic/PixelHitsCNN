@@ -95,7 +95,8 @@ private:
 	//std::string     fRootFileName;
 	tensorflow::Session* session_x;
 	TFile *fFile; TTree *fTree;
-	float x_gen[100000], x_1dcnn[100000], dx[100000]; int count;
+	float x_gen[100000], x_1dcnn[100000], dx[100000]; 
+	int count;
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	 std::string     fRootFileName;
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -164,19 +165,21 @@ printf("IN BEGINJOB");
 	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
   fFile->cd();
 fTree = new TTree("x_rec", "x_rec");
-  fTree->Branch("x_gen",        x_gen,       "x_gen");
-  fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn");
-fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn");
+ // fTree->Branch("x_gen",        x_gen,       "x_gen");
+  fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn/F");
+fTree->Branch("x_gen",        x_gen,       "x_gen/F");
+fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn/F");
 }
 
 void InferCNN::endJob() {
 	// close the session
 	tensorflow::closeSession(session_x);
+//	fTree->Fill();
 	fFile->cd();
 	  fTree->Write();
 	    fFile->Write();
   fFile->Close();
-  delete fFile;
+//  delete fFile;
 printf("IN ENDJOB");
 }
 
@@ -199,7 +202,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	*/
 
 //TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
-
+	
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
 	//event.getByToken(TrackToken, tracks);
@@ -359,13 +362,14 @@ cout << "--> Track collection size: " << nTk << endl;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
       //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
-
+				
 				 x_gen[count] = hit->localPosition().x();
 				 dx[count] = x_gen[count] - x_1dcnn[count];
 				count++;
-
+				
 			}
 		}
 printf("count = %i\n",count);
+fTree->Fill();
 	}
 	DEFINE_FWK_MODULE(InferCNN);
