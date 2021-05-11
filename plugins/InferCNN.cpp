@@ -147,6 +147,9 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			return;
 	}
 	*/
+
+TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
+
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
 	//event.getByToken(TrackToken, tracks);
@@ -298,15 +301,22 @@ cout << "--> Track collection size: " << nTk << endl;
                 //1D projection in x
                 cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 	
-		printf("%f\n",clusbuf[i][j]);	
+		//printf("%f\n",clusbuf[i][j]);	
             }
           }				
 	// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				xrec = output_x[0].matrix<float>()(0,0);
-          printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
+      //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
+				dx = hit->localPosition().x() - xrec;
+				res_x->Fill(dx);
+
 			}
 		}
+		TCanvas *c_res_x = new TCanvas("c_res_x", "Histograms", 200, 10, 900, 700);
+		res_x->Draw();
+		c_res_x->Print("dx_gen_1dcnn.png");
+		delete c_res_x;
 	}
 	DEFINE_FWK_MODULE(InferCNN);
