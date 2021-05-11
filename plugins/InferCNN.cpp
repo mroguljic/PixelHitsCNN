@@ -30,6 +30,7 @@
 #include "TCanvas.h"
 #include "TPostScript.h"
 #include "Math/DistFunc.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -144,17 +145,29 @@ outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
-fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))) {
+fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
+fRootFileName(iConfig.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
 }
 
-void InferCNN::beginJob() {}
+void InferCNN::beginJob() {
+
+	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
+  fFile->cd();
+  fTree->Branch("x_gen",        x_gen,       "x_gen");
+  fTree->Branch("x_1dcnn",       x_rec,       "x_1dcnn");
+}
 
 void InferCNN::endJob() {
 	// close the session
 	tensorflow::closeSession(session_x);
+	fFile->cd();
+	  fTree->Write();
+	    fFile->Write();
+  fFile->Close();
+  delete fFile;
 }
 
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -175,7 +188,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	}
 	*/
 
-TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
+//TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
 
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
@@ -336,16 +349,13 @@ cout << "--> Track collection size: " << nTk << endl;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				xrec = output_x[0].matrix<float>()(0,0);
       //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
-				float dx = hit->localPosition().x() - xrec;
-				res_x->Fill(dx);
+
+				float x_gen = hit->localPosition().x()
+				float dx = x_gen - xrec;
+
 
 			}
 		}
-	//	TCanvas *c_res_x = new TCanvas("c_res_x", "Histograms", 200, 10, 900, 700);
-TCanvas* c_res_x = new TCanvas("c1", "hists", 1600, 1000);
-    c_res_x->SetFillStyle(4000);	
-	res_x->Draw();
-		c_res_x->Print("dx_gen_1dcnn.png");
-		delete c_res_x;
+
 	}
 	DEFINE_FWK_MODULE(InferCNN);
