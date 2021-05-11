@@ -95,7 +95,8 @@ private:
 	//std::string     fRootFileName;
 	tensorflow::Session* session_x;
 	TFile *fFile; TTree *fTree;
-	float x_gen[100000], x_1dcnn[100000], dx[100000]; 
+	int MAXCLUSTER = 100000;
+	float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
 	int count;
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	 std::string     fRootFileName;
@@ -158,6 +159,14 @@ fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dc
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
 	count = 0;
+
+	//initializations
+	for(int i=0;i<MAXCLUSTER;i++){
+		x_1dcnn[i]=-999.0;
+		x_gen[i]=-999.0;
+		dx[i]=-999.0;
+
+	}
 }
 
 void InferCNN::beginJob() {
