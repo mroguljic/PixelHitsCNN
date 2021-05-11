@@ -95,7 +95,7 @@ private:
 	//std::string     fRootFileName;
 	tensorflow::Session* session_x;
 	TFile *fFile; TTree *fTree;
-	int MAXCLUSTER = 100000;
+	static const int MAXCLUSTER = 100000;
 	float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
 	int count;
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
@@ -374,11 +374,12 @@ cout << "--> Track collection size: " << nTk << endl;
 				
 				 x_gen[count] = hit->localPosition().x();
 				 dx[count] = x_gen[count] - x_1dcnn[count];
+				printf("%f ",dx[count]);
 				count++;
 				
 			}
 		}
 printf("count = %i\n",count);
-fTree->Fill();
+//fTree->Fill();
 	}
 	DEFINE_FWK_MODULE(InferCNN);
