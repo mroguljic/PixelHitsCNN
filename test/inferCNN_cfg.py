@@ -86,7 +86,7 @@ process.inferCNN = cms.EDAnalyzer('InferCNN',
 # define what to run in the path
 process.raw2digi_step = cms.Path(process.RawToDigi)   
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.reconstruction)
+process.reconstruction_step = cms.Path(process.reconstruction_trackingOnly)
 #process.siPixelClusters_step = process.siPixelClusters
 #process.TrackRefitter_step = cms.Path(
  # process.offlineBeamSpot*
