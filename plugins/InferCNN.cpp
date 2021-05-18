@@ -58,6 +58,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
 class TObject;
 class TTree;
 class TH1D;
@@ -168,6 +169,7 @@ fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dc
 }
 
 void InferCNN::beginJob() {
+	/*
 	printf("IN BEGINJOB");
 	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
 	fFile->cd();
@@ -176,18 +178,21 @@ void InferCNN::beginJob() {
 	fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn/F");
 	fTree->Branch("x_gen",        x_gen,       "x_gen/F");
 	fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn/F");
+	*/
 }
 
 void InferCNN::endJob() {
 	// close the session
 	tensorflow::closeSession(session_x);
-//	fTree->Fill();
+	/*
+	//fTree->Fill();
 	fFile->cd();
 	fTree->Write();
 	fFile->Write();
 	fFile->Close();
-//  delete fFile;
+	//delete fFile;
 	printf("IN ENDJOB");
+	*/
 }
 
 void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -298,9 +303,30 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			auto const& cluster = *clustp;
 			const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
 
+			auto const& ltp = trajParams[h];
+
+			float cotAlpha=ltp.dxdz();
+			float cotBeta=ltp.dydz();
+//=======================================================================================
+
 			int minPixelRow = 161;
 			int minPixelCol = 417;
 
+			float tmp_x = float(minPixelRow) + 0.5f;
+ 			float tmp_y = float(minPixelCol) + 0.5f;
+
+ 			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
+ 			LocalPoint trk_lp = ltp.position();
+  		float trk_lp_x = trk_lp.x();
+  		float trk_lp_y = trk_lp.y();
+			const PixelTopology* theTopol; 
+			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta) ;
+			LocalPoint lp; const GeomDetUnit* det; //det should come from somewhere??
+			DetParam const& theDetParam = detParam(det);
+
+			lp = theDetParam.theTopol->localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+
+			// fix issues with the coordinate system: extract the centre pixel and its coords
 			for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
 					float pixx = pixelsVec[i].x;  // index as float=iteger, row index
 					float pixy = pixelsVec[i].y;  // same, col index
@@ -323,7 +349,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					float pixx = pixelsVec[i].x;  // index as float=iteger, row index
 					float pixy = pixelsVec[i].y;  // same, col index
 					float pixel_charge = pixelsVec[i].adc;
-
+//========================================================================================
 					ix = (int)pixx - minPixelRow;
 					if(ix >= TXSIZE) continue;
 					iy = (int)pixy - minPixelCol;
@@ -340,12 +366,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					clusbuf[ix][iy] = pixel_charge;
 				}
 
-
-				auto const& ltp = trajParams[h];
-
-				//Correct charge with Template1D
-				float cotAlpha=ltp.dxdz();
-				float cotBeta=ltp.dydz();
+				
 
 				//===============================
 				// define a tensor and fill it with cluster projection
@@ -360,19 +381,26 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-						printf("%f\n",clusbuf[i][j]);
+						printf("%f ",clusbuf[i][j]);
 						
 					}
 					printf("\n");
-				}				
+				}
+
+				// TODO: CENTER THE CLUSTER
+
+
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
-				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; // convert microns to cms
-
+				// convert microns to cms
+				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
+				// go back to module coordinate system
+				x_1dcnn[count]+=lp.x(); 
+				// get the generic position
 				x_gen[count] = hit->localPosition().x();
 
-				//printf("%f\n", x_1dcnn[count]);
+				// compute the residual
 				dx[count] = x_gen[count] - x_1dcnn[count];
 				//printf("%f\n ",dx[count]);
 				count++;
