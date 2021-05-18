@@ -111,8 +111,6 @@ private:
 };
 
 std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
-//: applyVertexCut_(config.getUntrackedParameter<bool>("VertexCut", true)){
-
 {
 
 	// this method is supposed to create, initialize and return a CacheData instance
@@ -210,7 +208,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	}
 	*/
 
-//TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
+	//TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
 	
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
@@ -226,10 +224,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	if (tracks.isValid()) {
 		const std::vector<reco::Track> trackColl = *(tracks.product());
 		nTk = trackColl.size();
-//    if (fVerbose > 1) 
+		//if (fVerbose > 1) 
 		cout << "--> Track collection size: " << nTk << endl;
 	} else {
-  //  if (fVerbose > 1)
+  	//if (fVerbose > 1)
 		cout << "--> No valid track collection" << endl;
 	}
 	if (!tracks.isValid()) {
@@ -238,11 +236,11 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	}
 
 	//printf("Track is valid\n");
-//	printf("Track collection size: %d\n",tracks->size());
-		//stuff needed for template
+	//printf("Track collection size: %d\n",tracks->size());
+	//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
 	int mrow=TXSIZE,mcol=TYSIZE;
-//	static float xrec, yrec;
+	//static float xrec, yrec;
 	static int ix,iy;
 
 	for (auto const& track : *tracks) {
@@ -250,12 +248,12 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		//	(track.pt() < 0.75 || std::abs(track.dxy((*vertices)[0].position())) > 5 * track.dxyError()))
 		//	continue;
 
-//		bool isBpixtrack = false, isFpixtrack = false, crossesPixVol = false;
+		//bool isBpixtrack = false, isFpixtrack = false, crossesPixVol = false;
 
-			// find out whether track crosses pixel fiducial volume (for cosmic tracks)
-		auto d0 = track.d0(), dz = track.dz();
-//		if (std::abs(d0) < 16 && std::abs(dz) < 50)
-//			crossesPixVol = true;
+		// find out whether track crosses pixel fiducial volume (for cosmic tracks)
+		//auto d0 = track.d0(), dz = track.dz();
+		//if (std::abs(d0) < 16 && std::abs(dz) < 50)
+		//crossesPixVol = true;
 
 		auto etatk = track.eta();
 
@@ -269,19 +267,19 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				continue;
 			auto id = hit->geographicalId();
 
-				// check that we are in the pixel
+			// check that we are in the pixel detector
 			auto subdetid = (id.subdetId());
-//			if (subdetid == PixelSubdetector::PixelBarrel)
-//				isBpixtrack = true;
-//			if (subdetid == PixelSubdetector::PixelEndcap)
-//				isFpixtrack = true;
+			//if (subdetid == PixelSubdetector::PixelBarrel)
+			//isBpixtrack = true;
+			//if (subdetid == PixelSubdetector::PixelEndcap)
+			//isFpixtrack = true;
 			if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
 				continue;
 			bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
 
-				// PXB_L4 IS IN THE OTHER WAY
-				// CAN BE XORed BUT LETS KEEP THINGS SIMPLE
-		//	bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
+			// PXB_L4 IS IN THE OTHER WAY
+			// CAN BE XORed BUT LETS KEEP THINGS SIMPLE
+			//	bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
 			//((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
 
 			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
@@ -289,11 +287,11 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				continue;
 
 
-	//some initialization
+			//some initialization
 			for(int j=0; j<TXSIZE; ++j) {for(int i=0; i<TYSIZE; ++i) {clusbuf[j][i] = 0.;} } 
 
 
-				// get the cluster
+			// get the cluster
 				auto clustp = pixhit->cluster();
 			if (clustp.isNull())
 				continue;
@@ -309,7 +307,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 
 					
-		//  Find lower left corner pixel and its coordinates
+					//  Find lower left corner pixel and its coordinates
 					if((int)pixx < minPixelRow) {
 						minPixelRow = (int)pixx; 
 					}
@@ -319,7 +317,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				}  // End loop over pixels
 
 
-	// Now fill the cluster buffer with charges
+				// Now fill the cluster buffer with charges
 				for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
 
 					float pixx = pixelsVec[i].x;  // index as float=iteger, row index
@@ -331,7 +329,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					iy = (int)pixy - minPixelCol;
 					if(iy >= TYSIZE) continue;
 
-		//skip over double pixels: CHECK THIS
+					//skip over double pixels: CHECK THIS
 
 					if ((int)pixx == 79){
 						i+=2; continue;
@@ -345,41 +343,41 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 				auto const& ltp = trajParams[h];
 
-	//Correct charge with Template1D
+				//Correct charge with Template1D
 				float cotAlpha=ltp.dxdz();
 				float cotBeta=ltp.dydz();
 
-	//===============================
-	// define a tensor and fill it with cluster projection
-				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TYSIZE,1});
-    // angles
+				//===============================
+				// define a tensor and fill it with cluster projection
+				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
+    		// angles
 				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
 				angles.tensor<float,2>()(0, 0) = cotAlpha;
 				angles.tensor<float,2>()(0, 1) = cotBeta;
-        //   printf("%s\n","starting x reco");
-				for (size_t i = 0; i < TYSIZE; i++) {
+
+				for (size_t i = 0; i < TXSIZE; i++) {
 					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-					for (size_t j = 0; j < TXSIZE; j++){
-                //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[j][i];
+					for (size_t j = 0; j < TYSIZE; j++){
+            //1D projection in x
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 						
-		//printf("%f\n",clusbuf[i][j]);	
 					}
 				}				
-	// define the output and run
+				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
-				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
-      //    printf("THIS IS THE FROM THE CNN ->%f\n", xrec);
-				
-				 x_gen[count] = hit->localPosition().y();
-				 dx[count] = x_gen[count] - x_1dcnn[count];
-				printf("%f\n ",dx[count]);
+				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; // convert microns to cms
+
+				x_gen[count] = hit->localPosition().x();
+				//printf("Output of generic reco:\n");
+				printf("%f\n", x_gen[count]);
+				dx[count] = x_gen[count] - x_1dcnn[count];
+				//printf("%f\n ",dx[count]);
 				count++;
 				
 			}
 		}
-	//	printf("count = %i\n",count);
+		//printf("count = %i\n",count);
 		//fTree->Fill();
 	}
 	DEFINE_FWK_MODULE(InferCNN);
