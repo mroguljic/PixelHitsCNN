@@ -213,19 +213,19 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	//get the map
 	edm::Handle<reco::TrackCollection> tracks;
 	//event.getByToken(TrackToken, tracks);
-	int nTk(0);
+	//int nTk(0);
 	
 	try {
 		event.getByToken(TrackToken, tracks);
 	}catch (cms::Exception &ex) {
-//    if (fVerbose > 1) 
+	//if (fVerbose > 1) 
 		cout << "No Track collection with label " << fTrackCollectionLabel << endl;
 	}
 	if (tracks.isValid()) {
 		const std::vector<reco::Track> trackColl = *(tracks.product());
-		nTk = trackColl.size();
+		//nTk = trackColl.size();
 		//if (fVerbose > 1) 
-		cout << "--> Track collection size: " << nTk << endl;
+		//cout << "--> Track collection size: " << nTk << endl;
 	} else {
   	//if (fVerbose > 1)
 		cout << "--> No valid track collection" << endl;
@@ -239,7 +239,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	//printf("Track collection size: %d\n",tracks->size());
 	//stuff needed for template
 	float clusbuf[TXSIZE][TYSIZE];
-	int mrow=TXSIZE,mcol=TYSIZE;
+	//int mrow=TXSIZE,mcol=TYSIZE;
 	//static float xrec, yrec;
 	static int ix,iy;
 
