@@ -370,7 +370,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 				x_gen[count] = hit->localPosition().x();
 				//printf("Output of generic reco:\n");
-				printf("%f\n", x_gen[count]);
+				printf("%f\n", x_1dcnn[count]);
 				dx[count] = x_gen[count] - x_1dcnn[count];
 				//printf("%f\n ",dx[count]);
 				count++;
