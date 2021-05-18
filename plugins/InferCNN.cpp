@@ -360,8 +360,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+						printf("%f\n",clusbuf[i][j]);
 						
 					}
+					printf("\n");
 				}				
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
