@@ -150,7 +150,7 @@ anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
-fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
@@ -369,8 +369,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; // convert microns to cms
 
 				x_gen[count] = hit->localPosition().x();
-				//printf("Output of generic reco:\n");
-				printf("%f\n", x_1dcnn[count]);
+
+				//printf("%f\n", x_1dcnn[count]);
 				dx[count] = x_gen[count] - x_1dcnn[count];
 				//printf("%f\n ",dx[count]);
 				count++;
@@ -379,5 +379,17 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		}
 		//printf("count = %i\n",count);
 		//fTree->Fill();
+		printf("Output from generic:\n");
+		for(int i=0;i<count;i++){
+			printf("%f\n", x_gen[i]);
+		}
+		printf("Output from 1dcnn:\n");
+		for(int i=0;i<count;i++){
+			printf("%f\n", x_1dcnn[i]);
+		}
+		printf("dx residual:\n");
+		for(int i=0;i<count;i++){
+			printf("%f\n", dx[i]);
+		}
 	}
 	DEFINE_FWK_MODULE(InferCNN);
