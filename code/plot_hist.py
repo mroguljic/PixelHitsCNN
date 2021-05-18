@@ -1,10 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-dx = np.genfromtxt("dy_1dcnn_new.txt")
-x_axis = np.linspace(0,1000,100)
+dx = np.genfromtxt("txt_files/cnn_test.txt")
 
-plt.hist(dx,bins=x_axis)
-plt.title("dy = y_generic - y_1dcnn")
+x_axis = np.linspace(0,3000,100)
+
+plt.hist(dx)
+plt.title("generic output")
 plt.xlabel("microns")
-plt.savefig('dy_1dcnn.png')
+plt.savefig('plots/cnn_test.png')
+
+print("Max position: %f microns; Min position: %f microns"%(np.amax(dx)*1e4,np.amin(dx)*1e4))
