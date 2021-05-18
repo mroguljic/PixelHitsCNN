@@ -150,7 +150,7 @@ anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
-fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
