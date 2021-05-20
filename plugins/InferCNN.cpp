@@ -290,7 +290,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
 			if (!pixhit)
 				continue;
-
+			
 
 			//some initialization
 			for(int j=0; j<TXSIZE; ++j) {for(int i=0; i<TYSIZE; ++i) {clusbuf[j][i] = 0.;} } 
@@ -308,6 +308,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			float cotAlpha=ltp.dxdz();
 			float cotBeta=ltp.dydz();
 //=======================================================================================
+			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
 
 			int minPixelRow = 161;
 			int minPixelCol = 417;
@@ -315,22 +317,25 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			float tmp_x = float(minPixelRow) + 0.5f;
  			float tmp_y = float(minPixelCol) + 0.5f;
 
+ 			printf("tmp_x = %i, tmp_y = %i\n", tmp_x,tmp_y);
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
  			LocalPoint trk_lp = ltp.position();
   		float trk_lp_x = trk_lp.x();
   		float trk_lp_y = trk_lp.y();
-			const PixelTopology* theTopol; 
-			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta) ;
-			LocalPoint lp; const GeomDetUnit* det; //det should come from somewhere??
-			DetParam const& theDetParam = detParam(det);
+			
+			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
+			LocalPoint lp; 
+			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+      auto const& topol = geomdetunit->specificTopology();
+			lp = topol->localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 
-			lp = theDetParam.theTopol->localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
-
+			printf("pixelsVec.size() = %i\n",pixelsVec.size());
 			// fix issues with the coordinate system: extract the centre pixel and its coords
 			for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
 					float pixx = pixelsVec[i].x;  // index as float=iteger, row index
 					float pixy = pixelsVec[i].y;  // same, col index
 
+					printf("pixelsVec[%i] = %f, pixx = %i, pixy = %i\n",i,pixelsVec[i],pixx,pixy);
 
 					
 					//  Find lower left corner pixel and its coordinates
@@ -409,6 +414,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		}
 		//printf("count = %i\n",count);
 		//fTree->Fill();
+		/*
 		printf("Output from generic:\n");
 		for(int i=0;i<count;i++){
 			printf("%f\n", x_gen[i]);
@@ -421,5 +427,6 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		for(int i=0;i<count;i++){
 			printf("%f\n", dx[i]);
 		}
+		*/
 	}
 	DEFINE_FWK_MODULE(InferCNN);
