@@ -151,8 +151,7 @@ anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
-fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
-//"ALCARECOTkAlMuonIsolated"))),
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
 //generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
@@ -423,9 +422,9 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 						i+=2; continue; 
 					}
     if ((irow < mrow) & (icol < mcol))
-      clusbuf[irow][icol] = float(pix.adc);
-  //  printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i\n",i,pix.adc,pix.x,pix.y);
-
+    {  clusbuf[irow][icol] = float(pix.adc);
+    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+}
   }
 
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
@@ -451,10 +450,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-						printf("%f ",clusbuf[i][j]);
+			//			printf("%f ",clusbuf[i][j]);
 						
 					}
-					printf("\n");
+			//		printf("\n");
 				}
 
 				// TODO: CENTER THE CLUSTER
@@ -474,7 +473,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				dx[count] = x_gen[count] - x_1dcnn[count];
 				printf("Generic position: %f\n ",x_gen[count]*1e4);
 				printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
-
+				printf("%i\n",count);
 				count++;
 				
 			}
