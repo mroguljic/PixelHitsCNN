@@ -310,6 +310,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			float cotAlpha=ltp.dxdz();
 			float cotBeta=ltp.dydz();
 //=======================================================================================
+			/*
 			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
 			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
 
@@ -319,18 +320,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			float tmp_x = float(minPixelRow) + 0.5f;
  			float tmp_y = float(minPixelCol) + 0.5f;
 
- 			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
- 			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
- 			LocalPoint trk_lp = ltp.position();
-  			float trk_lp_x = trk_lp.x();
-  			float trk_lp_y = trk_lp.y();
-			
-			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
-			LocalPoint lp; 
-			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-      			auto const& topol = geomdetunit->specificTopology();
-			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
-
+ 			
 			printf("pixelsVec.size() = %lu\n",pixelsVec.size());
 			// fix issues with the coordinate system: extract the centre pixel and its coords
 			for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
@@ -356,7 +346,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					float pixx = pixelsVec[i].x;  // index as float=iteger, row index
 					float pixy = pixelsVec[i].y;  // same, col index
 					float pixel_charge = pixelsVec[i].adc;
-//========================================================================================
+
 					ix = (int)pixx - minPixelRow;
 					if(ix >= TXSIZE) continue;
 					iy = (int)pixy - minPixelCol;
@@ -373,9 +363,81 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					clusbuf[ix][iy] = pixel_charge;
 					printf("ix = %i, iy = %i\n",ix,iy);
 				}
+				*/
+//========================================================================================
+				  // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
+  // we have the following:
+  //   int minPixelRow(); // Minimum pixel index in the x direction (low edge).
+  //   int maxPixelRow(); // Maximum pixel index in the x direction (top edge).
+  //   int minPixelCol(); // Minimum pixel index in the y direction (left edge).
+  //   int maxPixelCol(); // Maximum pixel index in the y direction (right edge).
+  // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
+  // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
-				
+  int row_offset = cluster.minPixelRow();
+  int col_offset = cluster.minPixelCol();
+	printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
+  // Store the coordinates of the center of the (0,0) pixel of the array that
+  // gets passed to PixelTempReco1D
+  // Will add these values to the output of  PixelTempReco1D
+  float tmp_x = float(row_offset) + 0.5f;
+  float tmp_y = float(col_offset) + 0.5f;
+  printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
+			printf("cluster.size() = %lu\n",cluster.size());
+
+				  // first compute matrix size
+  int mrow = 0, mcol = 0;
+  for (int i = 0; i != cluster.size(); ++i) {
+    auto pix = cluster.pixel(i);
+    int irow = int(pix.x);
+    int icol = int(pix.y);
+    mrow = std::max(mrow, irow);
+    mcol = std::max(mcol, icol);
+  }
+  mrow -= row_offset;
+  mrow += 1;
+  mrow = std::min(mrow, TXSIZE);
+  mcol -= col_offset;
+  mcol += 1;
+  mcol = std::min(mcol, TYSIZE);
+  assert(mrow > 0);
+  assert(mcol > 0);
+
+  float clusbuf[mrow][mcol];
+  memset(clusbuf, 0, sizeof(float) * mrow * mcol);
+
+  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
+  for (int i = 0; i != cluster.size(); ++i) {
+    auto pix = cluster.pixel(i);
+    int irow = int(pix.x) - row_offset;
+    int icol = int(pix.y) - col_offset;
+
+    // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
+    // Ignore them for the moment...
+    if ((int)pix.x == 79){
+						i+=2; continue;
+					}
+		if ((int)pix.y % 52 == 51 ){
+						i+=2; continue; 
+					}
+    if ((irow < mrow) & (icol < mcol))
+      clusbuf[irow][icol] = float(pix.adc);
+    printf("pix[%i].adc = %i, pix.x = %f, pix.y = %f\n",i,pix.adc,pix.x,pix.y);
+
+  }
+
+ 			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
+ 			LocalPoint trk_lp = ltp.position();
+  			float trk_lp_x = trk_lp.x();
+  			float trk_lp_y = trk_lp.y();
+			
+			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
+			LocalPoint lp; 
+			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+      			auto const& topol = geomdetunit->specificTopology();
+			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 				//===============================
 				// define a tensor and fill it with cluster projection
 				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
