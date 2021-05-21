@@ -411,6 +411,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				// compute the residual
 				dx[count] = x_gen[count] - x_1dcnn[count];
 				printf("Generic position: %f\n ",x_gen[count]*1e4);
+				printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
+
 				count++;
 				
 			}
