@@ -385,7 +385,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   float tmp_y = float(col_offset) + 0.5f;
   printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
-			printf("cluster.size() = %lu\n",cluster.size());
+  printf("cluster.size() = %i\n",cluster.size());
 
 				  // first compute matrix size
   int mrow = 0, mcol = 0;
@@ -405,8 +405,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   assert(mrow > 0);
   assert(mcol > 0);
 
-  float clusbuf[mrow][mcol];
-  memset(clusbuf, 0, sizeof(float) * mrow * mcol);
+  //float clusbuf[mrow][mcol];
+  //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
   for (int i = 0; i != cluster.size(); ++i) {
@@ -424,7 +424,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 					}
     if ((irow < mrow) & (icol < mcol))
       clusbuf[irow][icol] = float(pix.adc);
-    printf("pix[%i].adc = %i, pix.x = %f, pix.y = %f\n",i,pix.adc,pix.x,pix.y);
+  //  printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i\n",i,pix.adc,pix.x,pix.y);
 
   }
 
