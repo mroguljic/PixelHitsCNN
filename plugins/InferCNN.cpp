@@ -403,7 +403,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   mcol = std::min(mcol, TYSIZE);
   assert(mrow > 0);
   assert(mcol > 0);
-
+  printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 
@@ -421,10 +421,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		if ((int)pix.y % 52 == 51 ){
 						i+=2; continue; 
 					}
-    if ((irow < mrow) & (icol < mcol))
-    {  clusbuf[irow][icol] = float(pix.adc);
+    if ((irow > mrow) || (icol > mcol)) continue;
+     clusbuf[irow][icol] = float(pix.adc);
     printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
-}
+
   }
 
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272

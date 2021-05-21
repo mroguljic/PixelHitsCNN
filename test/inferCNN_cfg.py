@@ -31,7 +31,7 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 
 # to get the conditions you need a GT
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '105X_upgrade2018_design_v3', '')
 # force Generic reco
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
 process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
