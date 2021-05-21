@@ -152,6 +152,8 @@ outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
+//"ALCARECOTkAlMuonIsolated"))),
+//generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
@@ -317,25 +319,25 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			float tmp_x = float(minPixelRow) + 0.5f;
  			float tmp_y = float(minPixelCol) + 0.5f;
 
- 			printf("tmp_x = %i, tmp_y = %i\n", tmp_x,tmp_y);
+ 			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
  			LocalPoint trk_lp = ltp.position();
-  		float trk_lp_x = trk_lp.x();
-  		float trk_lp_y = trk_lp.y();
+  			float trk_lp_x = trk_lp.x();
+  			float trk_lp_y = trk_lp.y();
 			
 			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
 			LocalPoint lp; 
 			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-      auto const& topol = geomdetunit->specificTopology();
-			lp = topol->localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+      			auto const& topol = geomdetunit->specificTopology();
+			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 
-			printf("pixelsVec.size() = %i\n",pixelsVec.size());
+			printf("pixelsVec.size() = %lu\n",pixelsVec.size());
 			// fix issues with the coordinate system: extract the centre pixel and its coords
 			for (unsigned int i = 0; i < pixelsVec.size(); ++i) {
 					float pixx = pixelsVec[i].x;  // index as float=iteger, row index
 					float pixy = pixelsVec[i].y;  // same, col index
 
-					printf("pixelsVec[%i] = %f, pixx = %i, pixy = %i\n",i,pixelsVec[i],pixx,pixy);
+					printf("pixelsVec[%i].adc = %i, pixx = %f, pixy = %f\n",i,pixelsVec[i].adc,pixx,pixy);
 
 					
 					//  Find lower left corner pixel and its coordinates
@@ -369,6 +371,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 						i+=2; continue; 
 					}
 					clusbuf[ix][iy] = pixel_charge;
+					printf("ix = %i, iy = %i\n",ix,iy);
 				}
 
 				
@@ -407,7 +410,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 				// compute the residual
 				dx[count] = x_gen[count] - x_1dcnn[count];
-				//printf("%f\n ",dx[count]);
+				printf("Generic position: %f\n ",x_gen[count]*1e4);
 				count++;
 				
 			}
