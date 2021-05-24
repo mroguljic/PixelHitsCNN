@@ -151,8 +151,8 @@ anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 session_x(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
-fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
-//generalTracks"))),
+//fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
 
@@ -422,8 +422,8 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 						i+=2; continue; 
 					}
     if ((irow > mrow) || (icol > mcol)) continue;
-     clusbuf[irow][icol] = float(pix.adc);
-    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+  //   clusbuf[irow][icol] = float(pix.adc);
+//    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
   }
 
@@ -478,7 +478,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				
 			}
 		}
-		//printf("count = %i\n",count);
+		printf("count = %i\n",count);
 		//fTree->Fill();
 		/*
 		printf("Output from generic:\n");
