@@ -103,7 +103,7 @@ process.pixelCPECNN_step = cms.Path(process.inferCNN)
 # for the track angle approach
 process.schedule = cms.Schedule(
   process.raw2digi_step,
- # process.L1Reco_step,
+  process.L1Reco_step,
   process.reconstruction_step,
   #process.TrackRefitter_step,
   process.pixelCPECNN_step,

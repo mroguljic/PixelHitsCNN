@@ -373,112 +373,112 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
   // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
-  int row_offset = cluster.minPixelRow();
-  int col_offset = cluster.minPixelCol();
-	printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+			int row_offset = cluster.minPixelRow();
+			int col_offset = cluster.minPixelCol();
+			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
 			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
   // Store the coordinates of the center of the (0,0) pixel of the array that
   // gets passed to PixelTempReco1D
   // Will add these values to the output of  PixelTempReco1D
-  float tmp_x = float(row_offset) + 0.5f;
-  float tmp_y = float(col_offset) + 0.5f;
-  printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
+			float tmp_x = float(row_offset) + 0.5f;
+			float tmp_y = float(col_offset) + 0.5f;
+			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
-  printf("cluster.size() = %i\n",cluster.size());
+			printf("cluster.size() = %i\n",cluster.size());
 
 				  // first compute matrix size
-  int mrow = 0, mcol = 0;
-  for (int i = 0; i != cluster.size(); ++i) {
-    auto pix = cluster.pixel(i);
-    int irow = int(pix.x);
-    int icol = int(pix.y);
-    mrow = std::max(mrow, irow);
-    mcol = std::max(mcol, icol);
-  }
-  mrow -= row_offset;
-  mrow += 1;
-  mrow = std::min(mrow, TXSIZE);
-  mcol -= col_offset;
-  mcol += 1;
-  mcol = std::min(mcol, TYSIZE);
-  assert(mrow > 0);
-  assert(mcol > 0);
-  printf("mrow = %i, mcol = %i\n",mrow,mcol);
+			int mrow = 0, mcol = 0;
+			for (int i = 0; i != cluster.size(); ++i) {
+				auto pix = cluster.pixel(i);
+				int irow = int(pix.x);
+				int icol = int(pix.y);
+				mrow = std::max(mrow, irow);
+				mcol = std::max(mcol, icol);
+			}
+			mrow -= row_offset;
+			mrow += 1;
+			mrow = std::min(mrow, TXSIZE);
+			mcol -= col_offset;
+			mcol += 1;
+			mcol = std::min(mcol, TYSIZE);
+			assert(mrow > 0);
+			assert(mcol > 0);
+			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
-  for (int i = 0; i != cluster.size(); ++i) {
-    auto pix = cluster.pixel(i);
-    int irow = int(pix.x) - row_offset;
-    int icol = int(pix.y) - col_offset;
+			for (int i = 0; i != cluster.size(); ++i) {
+				auto pix = cluster.pixel(i);
+				int irow = int(pix.x) - row_offset;
+				int icol = int(pix.y) - col_offset;
 
     // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
     // Ignore them for the moment...
-    if ((int)pix.x == 79){
-						i+=2; continue;
-					}
-		if ((int)pix.y % 52 == 51 ){
-						i+=2; continue; 
-					}
-    if ((irow > mrow) || (icol > mcol)) continue;
-     clusbuf[irow][icol] = float(pix.adc);
+				if ((int)pix.x == 79){
+					i+=2; continue;
+				}
+				if ((int)pix.y % 52 == 51 ){
+					i+=2; continue; 
+				}
+				if ((irow > mrow) || (icol > mcol)) continue;
+				clusbuf[irow][icol] = float(pix.adc);
 //    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
-  }
+			}
 
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
- 			LocalPoint trk_lp = ltp.position();
-  			float trk_lp_x = trk_lp.x();
-  			float trk_lp_y = trk_lp.y();
+			LocalPoint trk_lp = ltp.position();
+			float trk_lp_x = trk_lp.x();
+			float trk_lp_y = trk_lp.y();
 			
 			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
 			LocalPoint lp; 
 			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-      			auto const& topol = geomdetunit->specificTopology();
+			auto const& topol = geomdetunit->specificTopology();
 			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 				//===============================
 				// define a tensor and fill it with cluster projection
-				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
+			tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
     		// angles
-				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
-				angles.tensor<float,2>()(0, 0) = cotAlpha;
-				angles.tensor<float,2>()(0, 1) = cotBeta;
+			tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
+			angles.tensor<float,2>()(0, 0) = cotAlpha;
+			angles.tensor<float,2>()(0, 1) = cotBeta;
 
-				for (size_t i = 0; i < TXSIZE; i++) {
-					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-					for (size_t j = 0; j < TYSIZE; j++){
+			for (size_t i = 0; i < TXSIZE; i++) {
+				cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
+				for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+					cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 			//			printf("%f ",clusbuf[i][j]);
-						
-					}
-			//		printf("\n");
+					
 				}
+			//		printf("\n");
+			}
 
 				// TODO: CENTER THE CLUSTER
 
 
 				// define the output and run
-				std::vector<tensorflow::Tensor> output_x;
-				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
+			std::vector<tensorflow::Tensor> output_x;
+			tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
-				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
+			x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
 				// go back to module coordinate system
-				x_1dcnn[count]+=lp.x(); 
+			x_1dcnn[count]+=lp.x(); 
 				// get the generic position
-				x_gen[count] = hit->localPosition().x();
+			x_gen[count] = hit->localPosition().x();
 
 				// compute the residual
-				dx[count] = x_gen[count] - x_1dcnn[count];
-				printf("Generic position: %f\n ",x_gen[count]*1e4);
-				printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
-				printf("%i\n",count);
-				count++;
-				
-			}
+			dx[count] = x_gen[count] - x_1dcnn[count];
+			printf("Generic position: %f\n ",x_gen[count]*1e4);
+			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
+			printf("%i\n",count);
+			count++;
+			
 		}
-		printf("count = %i\n",count);
+	}
+	printf("count = %i\n",count);
 		//fTree->Fill();
 		/*
 		printf("Output from generic:\n");
@@ -494,5 +494,5 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			printf("%f\n", dx[i]);
 		}
 		*/
-	}
-	DEFINE_FWK_MODULE(InferCNN);
+}
+DEFINE_FWK_MODULE(InferCNN);
