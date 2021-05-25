@@ -422,7 +422,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 						i+=2; continue; 
 					}
     if ((irow > mrow) || (icol > mcol)) continue;
-  //   clusbuf[irow][icol] = float(pix.adc);
+     clusbuf[irow][icol] = float(pix.adc);
 //    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
   }
