@@ -12,6 +12,9 @@
 #include <cstring>
 #include <algorithm>
 #include <vector>
+#include <iomanip>
+#include <sstream>
+#include <fstream>
 
 #include <TF1.h>
 #include "Math/MinimizerOptions.h"
@@ -133,6 +136,21 @@ void InferCNN::globalEndJob(const CacheData* cacheData) {
 	if (cacheData->graphDef != nullptr) {
 		delete cacheData->graphDef;
 	}
+		//printf("Output from generic:\n");
+		for(int i=0;i<count;i++){
+			fprintf(gen_file,"%f\n", x_gen[i]);
+		}
+		//printf("Output from 1dcnn:\n");
+		for(int i=0;i<count;i++){
+			fprintf(cnn_file,"%f\n", x_1dcnn[i]);
+		}
+		//printf("dx residual:\n");
+		for(int i=0;i<count;i++){
+			fprintf(res_gen_1cnn_file,"%f\n", dx[i]);
+		}
+		fclose(gen_file);
+		fclose(cnn_file);
+		fclose(res_gen_1cnn_file);
 }
 
 void InferCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -165,6 +183,29 @@ fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dc
 		x_1dcnn[i]=-999.0;
 		x_gen[i]=-999.0;
 		dx[i]=-999.0;
+
+	FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
+	char *path = "/uscms/home/ssekhar/nobackup/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN"
+	sprintf(infile,"%s/generic_MC_x.txt",path);
+    gen_file = fopen(infile, "w");
+    if (gen_file==NULL) {
+        printf("couldn't open generic output file/n");
+        return 0;
+    }
+    sprintf(infile,"%s/1dcnn_MC_x.txt",path);
+    cnn_file = fopen(infile, "w");
+    if (cnn_file==NULL) {
+        printf("couldn't open cnn output file/n");
+        return 0;
+    }
+
+sprintf(infile,"%s/res_gen_1dcnn_MC_x.txt",path);
+    res_gen_1cnn_file = fopen(infile, "w");
+    if (res_gen_1cnn_file==NULL) {
+        printf("couldn't open residual output file/n");
+        return 0;
+    }
+
 
 	}
 }
@@ -482,18 +523,6 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 //	printf("count = %i\n",count);
 		//fTree->Fill();
 		
-		printf("Output from generic:\n");
-		for(int i=0;i<count;i++){
-			printf("%f\n", x_gen[i]);
-		}
-		printf("Output from 1dcnn:\n");
-		for(int i=0;i<count;i++){
-			printf("%f\n", x_1dcnn[i]);
-		}
-		printf("dx residual:\n");
-		for(int i=0;i<count;i++){
-			printf("%f\n", dx[i]);
-		}
-		
+	
 }
 DEFINE_FWK_MODULE(InferCNN);
