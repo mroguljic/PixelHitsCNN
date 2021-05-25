@@ -87,7 +87,7 @@ public:
 
 	// two additional static methods for handling the global cache
 	static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
-	 void globalEndJob(const CacheData*); // does it have to be static
+	static void globalEndJob(const CacheData*); // does it have to be static
 
 	private:
 		void beginJob();
@@ -101,7 +101,7 @@ public:
 		TFile *fFile; TTree *fTree;
 		static const int MAXCLUSTER = 100000;
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
-		int count; char *path[100], *infile[100];
+		int count; char path[100], infile[100];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -230,15 +230,15 @@ public:
 
 		if (gen_file==NULL) {
 			printf("couldn't open generic output file/n");
-			return 0;
+			return ;
 		}
 		if (cnn_file==NULL) {
 			printf("couldn't open cnn output file/n");
-			return 0;
+			return ;
 		}
 		if (res_gen_1cnn_file==NULL) {
 			printf("couldn't open residual output file/n");
-			return 0;
+			return ;
 		}
 		// get geometry
 	/*
