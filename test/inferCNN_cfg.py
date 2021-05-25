@@ -33,7 +33,9 @@ process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 
 # to get the conditions you need a GT
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+# MC
 process.GlobalTag = GlobalTag(process.GlobalTag, '105X_upgrade2018_design_v3', '')
+# data
 #process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 # force Generic reco
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
@@ -44,7 +46,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(30))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
@@ -103,7 +105,7 @@ process.pixelCPECNN_step = cms.Path(process.inferCNN)
 # for the track angle approach
 process.schedule = cms.Schedule(
   process.raw2digi_step,
-  process.L1Reco_step,
+#  process.L1Reco_step,
   process.reconstruction_step,
   #process.TrackRefitter_step,
   process.pixelCPECNN_step,

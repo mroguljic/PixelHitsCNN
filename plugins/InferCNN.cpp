@@ -375,16 +375,16 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 			int row_offset = cluster.minPixelRow();
 			int col_offset = cluster.minPixelCol();
-			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
-			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
+//			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+//			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
   // Store the coordinates of the center of the (0,0) pixel of the array that
   // gets passed to PixelTempReco1D
   // Will add these values to the output of  PixelTempReco1D
 			float tmp_x = float(row_offset) + 0.5f;
 			float tmp_y = float(col_offset) + 0.5f;
-			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
+//			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
-			printf("cluster.size() = %i\n",cluster.size());
+//			printf("cluster.size() = %i\n",cluster.size());
 
 				  // first compute matrix size
 			int mrow = 0, mcol = 0;
@@ -403,12 +403,12 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			mcol = std::min(mcol, TYSIZE);
 			assert(mrow > 0);
 			assert(mcol > 0);
-			printf("mrow = %i, mcol = %i\n",mrow,mcol);
+//			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
-			for (int i = 0; i != cluster.size(); ++i) {
+			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset;
 				int icol = int(pix.y) - col_offset;
@@ -423,10 +423,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				}
 				if ((irow > mrow) || (icol > mcol)) continue;
 				clusbuf[irow][icol] = float(pix.adc);
-//    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+ //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
 			}
-
+//			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
 			LocalPoint trk_lp = ltp.position();
 			float trk_lp_x = trk_lp.x();
@@ -437,6 +437,7 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
 			auto const& topol = geomdetunit->specificTopology();
 			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+		//	printf("fails after lp\n");
 				//===============================
 				// define a tensor and fill it with cluster projection
 			tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
@@ -450,10 +451,10 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 					cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-			//			printf("%f ",clusbuf[i][j]);
+		//				printf("%f ",clusbuf[i][j]);
 					
 				}
-			//		printf("\n");
+		//			printf("\n");
 			}
 
 				// TODO: CENTER THE CLUSTER
@@ -471,16 +472,16 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 				// compute the residual
 			dx[count] = x_gen[count] - x_1dcnn[count];
-			printf("Generic position: %f\n ",x_gen[count]*1e4);
-			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
-			printf("%i\n",count);
+//			printf("Generic position: %f\n ",x_gen[count]*1e4);
+//			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
+//			printf("%i\n",count);
 			count++;
 			
 		}
 	}
-	printf("count = %i\n",count);
+//	printf("count = %i\n",count);
 		//fTree->Fill();
-		/*
+		
 		printf("Output from generic:\n");
 		for(int i=0;i<count;i++){
 			printf("%f\n", x_gen[i]);
@@ -493,6 +494,6 @@ void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		for(int i=0;i<count;i++){
 			printf("%f\n", dx[i]);
 		}
-		*/
+		
 }
 DEFINE_FWK_MODULE(InferCNN);
