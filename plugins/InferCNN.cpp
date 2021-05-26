@@ -137,21 +137,7 @@ public:
 		if (cacheData->graphDef != nullptr) {
 			delete cacheData->graphDef;
 		}
-		//printf("Output from generic:\n");
-		for(int i=0;i<count;i++){
-			fprintf(gen_file,"%f\n", x_gen[i]);
-		}
-		//printf("Output from 1dcnn:\n");
-		for(int i=0;i<count;i++){
-			fprintf(cnn_file,"%f\n", x_1dcnn[i]);
-		}
-		//printf("dx residual:\n");
-		for(int i=0;i<count;i++){
-			fprintf(res_gen_1cnn_file,"%f\n", dx[i]);
-		}
-		fclose(gen_file);
-		fclose(cnn_file);
-		fclose(res_gen_1cnn_file);
+
 	}
 
 	void InferCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -214,6 +200,10 @@ public:
 	void InferCNN::endJob() {
 	// close the session
 		tensorflow::closeSession(session_x);
+				
+		fclose(gen_file);
+		fclose(cnn_file);
+		fclose(res_gen_1cnn_file);
 	/*
 	//fTree->Fill();
 	fFile->cd();
@@ -290,7 +280,7 @@ public:
 	//int mrow=TXSIZE,mcol=TYSIZE;
 	//static float xrec, yrec;
 		static int ix,iy;
-
+		int prev_count = count;
 		for (auto const& track : *tracks) {
 		//if (applyVertexCut_ &&
 		//	(track.pt() < 0.75 || std::abs(track.dxy((*vertices)[0].position())) > 5 * track.dxyError()))
@@ -523,7 +513,18 @@ public:
 		}
 //	printf("count = %i\n",count);
 		//fTree->Fill();
-		
+		//printf("Output from generic:\n");
+		for(int i=prev_count;i<count;i++){
+			fprintf(gen_file,"%f\n", x_gen[i]);
+		}
+		//printf("Output from 1dcnn:\n");
+		for(int i=prev_count;i<count;i++){
+			fprintf(cnn_file,"%f\n", x_1dcnn[i]);
+		}
+		//printf("dx residual:\n");
+		for(int i=prev_count;i<count;i++){
+			fprintf(res_gen_1cnn_file,"%f\n", dx[i]);
+		}
 
 	}
 	DEFINE_FWK_MODULE(InferCNN);
