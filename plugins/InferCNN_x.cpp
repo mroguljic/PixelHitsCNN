@@ -78,10 +78,10 @@ struct CacheData {
 	std::atomic<tensorflow::GraphDef*> graphDef;
 };
 
-class InferCNN : public edm::stream::EDAnalyzer<edm::GlobalCache<CacheData>> {
+class InferCNN_x : public edm::stream::EDAnalyzer<edm::GlobalCache<CacheData>> {
 public:
-	explicit InferCNN(const edm::ParameterSet&, const CacheData*);
-	~InferCNN(){};
+	explicit InferCNN_x(const edm::ParameterSet&, const CacheData*);
+	~InferCNN_x(){};
 
 	static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -115,7 +115,7 @@ public:
 	//edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 	};
 
-	std::unique_ptr<CacheData> InferCNN::initializeGlobalCache(const edm::ParameterSet& config) 
+	std::unique_ptr<CacheData> InferCNN_x::initializeGlobalCache(const edm::ParameterSet& config) 
 	{
 
 	// this method is supposed to create, initialize and return a CacheData instance
@@ -132,7 +132,7 @@ public:
 		return std::unique_ptr<CacheData>(cacheData);
 	}
 
-	void InferCNN::globalEndJob(const CacheData* cacheData) {
+	void InferCNN_x::globalEndJob(const CacheData* cacheData) {
 	// reset the graphDef
 		if (cacheData->graphDef != nullptr) {
 			delete cacheData->graphDef;
@@ -140,7 +140,7 @@ public:
 
 	}
 
-	void InferCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+	void InferCNN_x::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 	// defining this function will lead to a *_cfi file being generated when compiling
 		edm::ParameterSetDescription desc;
 		desc.add<std::string>("graphPath_x");
@@ -150,7 +150,7 @@ public:
 		descriptions.addWithDefaultLabel(desc);
 	}
 
-	InferCNN::InferCNN(const edm::ParameterSet& config, const CacheData* cacheData)
+	InferCNN_x::InferCNN_x(const edm::ParameterSet& config, const CacheData* cacheData)
 	: inputTensorName_x(config.getParameter<std::string>("inputTensorName_x")),
 	anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 	outputTensorName_(config.getParameter<std::string>("outputTensorName")),
@@ -184,7 +184,7 @@ public:
 		
 	}
 
-	void InferCNN::beginJob() {
+	void InferCNN_x::beginJob() {
 	/*
 	printf("IN BEGINJOB");
 	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
@@ -197,7 +197,7 @@ public:
 	*/
 	}
 
-	void InferCNN::endJob() {
+	void InferCNN_x::endJob() {
 	// close the session
 		tensorflow::closeSession(session_x);
 				
@@ -215,7 +215,7 @@ public:
 	*/
 	}
 
-	void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+	void InferCNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 
 //		if (gen_file==NULL) {
@@ -527,4 +527,4 @@ public:
 		}
 
 	}
-	DEFINE_FWK_MODULE(InferCNN);
+	DEFINE_FWK_MODULE(InferCNN_x);

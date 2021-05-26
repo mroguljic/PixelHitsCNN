@@ -63,10 +63,10 @@ process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),w
 
 
 
-# setup InferCNN by loading the auto-generated cfi (see InferCNN.fillDescriptions)
-process.load("TrackerStuff.PixelHitsCNN.inferCNN_cfi")
+# setup InferCNN_y by loading the auto-generated cfi (see InferCNN_y.fillDescriptions)
+process.load("TrackerStuff.PixelHitsCNN.inferCNN_y_cfi")
 
-process.inferCNN = cms.EDAnalyzer('InferCNN',
+process.inferCNN_y = cms.EDAnalyzer('InferCNN_y',
  #graphPath_x = cms.string(os.path.join(datadir, "graph_x_%s.pb"%(graph_ext))),
  graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
  #inputTensorName_x = cms.string("input_1"),
@@ -93,7 +93,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
  # process.MeasurementTrackerEvent*
  # process.TrackRefitter
 #)
-process.pixelCPECNN_step = cms.Path(process.inferCNN)
+process.pixelCPECNN_step = cms.Path(process.inferCNN_y)
 
 # potentially for the det angle approach
 #process.schedule = cms.Schedule(
