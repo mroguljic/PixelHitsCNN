@@ -101,12 +101,12 @@ public:
 		TFile *fFile; TTree *fTree;
 		static const int MAXCLUSTER = 100000;
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
-		int count; char path[1000], infile1[1000], infile2[1000], infile3[1000];
+		int count; char path[100], infile1[100], infile2[100], infile3[300];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
-		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
+		FILE *cnn_file, *gen_file;
 	//const bool applyVertexCut_;
 
 	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
@@ -170,18 +170,18 @@ public:
 			x_1dcnn[i]=-999.0;
 			x_gen[i]=-999.0;
 			dx[i]=-999.0;
-
+			}
 			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
 			sprintf(infile1,"generic_MC_x.txt");
-			gen_file = fopen(infile1, "w");
+	//		gen_file = fopen(infile1, "w");
 
 			sprintf(infile2,"1dcnn_MC_x.txt");
-			cnn_file = fopen(infile2, "w");
+	//		cnn_file = fopen(infile2, "w");
 
-			sprintf(infile3,"res_gen_1dcnn_MC_x.txt");
-			//res_gen_1cnn_file = fopen(infile3, "w");
-		}
+			sprintf(infile3,"%s/cnn_MC_x.txt",path);
+			cnn_file = fopen(infile3, "w");
+		
 	}
 
 	void InferCNN::beginJob() {
@@ -201,8 +201,8 @@ public:
 	// close the session
 		tensorflow::closeSession(session_x);
 				
-		fclose(gen_file);
 		fclose(cnn_file);
+	//	fclose(cnn_file);
 		//fclose(res_gen_1cnn_file);
 	/*
 	//fTree->Fill();
@@ -218,18 +218,18 @@ public:
 	void InferCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 
-		if (gen_file==NULL) {
-			printf("couldn't open generic output file/n");
-			return ;
-		}
+//		if (gen_file==NULL) {
+//			printf("couldn't open generic output file/n");
+//			return ;
+//		}
+	//	if (cnn_file==NULL) {
+	//		printf("couldn't open cnn output file/n");
+	//		return ;
+	//	}
 		if (cnn_file==NULL) {
-			printf("couldn't open cnn output file/n");
+			printf("couldn't open residual output file/n");
 			return ;
 		}
-	//	if (res_gen_1cnn_file==NULL) {
-		//	printf("couldn't open residual output file/n");
-		//	return ;
-		//}
 		// get geometry
 	/*
 	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
@@ -514,17 +514,17 @@ public:
 //	printf("count = %i\n",count);
 		//fTree->Fill();
 		//printf("Output from generic:\n");
+	//	for(int i=prev_count;i<count;i++){
+	//		printf("%f\n", x_gen[i]);
+	//	}
+	//	printf("Output from 1dcnn:\n");
+	//	for(int i=prev_count;i<count;i++){
+	//		printf("%f\n", x_1dcnn[i]);
+	//	}
+	//	printf("dx residual:\n");
 		for(int i=prev_count;i<count;i++){
-			fprintf(gen_file,"%f\n", x_gen[i]);
+			fprintf(cnn_file,"%f %f\n", x_gen[i],x_1dcnn[i]);
 		}
-		//printf("Output from 1dcnn:\n");
-		for(int i=prev_count;i<count;i++){
-			fprintf(cnn_file,"%f\n", x_1dcnn[i]);
-		}
-		//printf("dx residual:\n");
-		//for(int i=prev_count;i<count;i++){
-		//	fprintf(res_gen_1cnn_file,"%f\n", dx[i]);
-		//}
 
 	}
 	DEFINE_FWK_MODULE(InferCNN);
