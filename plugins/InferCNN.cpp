@@ -180,7 +180,7 @@ public:
 			cnn_file = fopen(infile2, "w");
 
 			sprintf(infile3,"res_gen_1dcnn_MC_x.txt");
-			res_gen_1cnn_file = fopen(infile3, "w");
+			//res_gen_1cnn_file = fopen(infile3, "w");
 		}
 	}
 
@@ -203,7 +203,7 @@ public:
 				
 		fclose(gen_file);
 		fclose(cnn_file);
-		fclose(res_gen_1cnn_file);
+		//fclose(res_gen_1cnn_file);
 	/*
 	//fTree->Fill();
 	fFile->cd();
@@ -226,10 +226,10 @@ public:
 			printf("couldn't open cnn output file/n");
 			return ;
 		}
-		if (res_gen_1cnn_file==NULL) {
-			printf("couldn't open residual output file/n");
-			return ;
-		}
+	//	if (res_gen_1cnn_file==NULL) {
+		//	printf("couldn't open residual output file/n");
+		//	return ;
+		//}
 		// get geometry
 	/*
 	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
@@ -522,9 +522,9 @@ public:
 			fprintf(cnn_file,"%f\n", x_1dcnn[i]);
 		}
 		//printf("dx residual:\n");
-		for(int i=prev_count;i<count;i++){
-			fprintf(res_gen_1cnn_file,"%f\n", dx[i]);
-		}
+		//for(int i=prev_count;i<count;i++){
+		//	fprintf(res_gen_1cnn_file,"%f\n", dx[i]);
+		//}
 
 	}
 	DEFINE_FWK_MODULE(InferCNN);
