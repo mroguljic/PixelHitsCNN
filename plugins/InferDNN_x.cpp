@@ -179,7 +179,7 @@ public:
 			sprintf(infile2,"1dcnn_MC_x.txt");
 	//		cnn_file = fopen(infile2, "w");
 
-			sprintf(infile3,"%s/cnn_MC_x.txt",path);
+			sprintf(infile3,"%s/dnn_MC_x.txt",path);
 			cnn_file = fopen(infile3, "w");
 		
 	}
@@ -472,17 +472,17 @@ public:
 		//	printf("fails after lp\n");
 				//===============================
 				// define a tensor and fill it with cluster projection
-				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
+				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE});
     		// angles
 				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
 				angles.tensor<float,2>()(0, 0) = cotAlpha;
 				angles.tensor<float,2>()(0, 1) = cotBeta;
 
 				for (size_t i = 0; i < TXSIZE; i++) {
-					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
+					cluster_flat_x.tensor<float,2>()(0, i) = 0;
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+						cluster_flat_x.tensor<float,2>()(0, i) += clusbuf[i][j];
 		//				printf("%f ",clusbuf[i][j]);
 
 					}

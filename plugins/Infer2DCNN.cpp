@@ -147,7 +147,8 @@ public:
 		desc.add<std::string>("graphPath_");
 		desc.add<std::string>("inputTensorName_");
 		desc.add<std::string>("anglesTensorName_");
-		desc.add<std::string>("outputTensorName");
+		desc.add<std::string>("outputTensorName_x");
+		desc.add<std::string>("outputTensorName_y");
 		descriptions.addWithDefaultLabel(desc);
 	}
 
@@ -477,11 +478,10 @@ public:
 				angles.tensor<float,2>()(0, 0) = cotAlpha;
 				angles.tensor<float,2>()(0, 1) = cotBeta;
 
-				for (size_t i = 0; i < TXSIZE; i++) {
-					cluster_.tensor<float,3>()(0, i, 0) = 0;
-					for (size_t j = 0; j < TYSIZE; j++){
-            //1D projection in x
-						cluster_.tensor<float,3>()(0, i, j, 0) += clusbuf[i][j];
+				for (int i = 0; i < TXSIZE; i++) {
+					//cluster_.tensor<float,4>()(0, i,j, 0) = 0;
+					for (int j = 0; j < TYSIZE; j++){
+						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];
 		//				printf("%f ",clusbuf[i][j]);
 
 					}
@@ -494,7 +494,8 @@ public:
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				std::vector<tensorflow::Tensor> output_y;
-				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_x, outputTensorName_y}, {&output_x,&output_y});
+				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_x}, &output_x);
+				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_y}, &output_y);
 				// convert microns to cms
 				x_2dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0)*1.0e-4; 
