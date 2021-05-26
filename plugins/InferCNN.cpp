@@ -101,7 +101,7 @@ public:
 		TFile *fFile; TTree *fTree;
 		static const int MAXCLUSTER = 100000;
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
-		int count; char path[100], infile[100];
+		int count; char path[1000], infile1[1000], infile2[1000], infile3[1000];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -171,16 +171,16 @@ public:
 			x_gen[i]=-999.0;
 			dx[i]=-999.0;
 
-			sprintf(path,"/uscms/home/ssekhar/nobackup/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN")
+			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
-			sprintf(infile,"%s/generic_MC_x.txt",path);
-			gen_file = fopen(infile, "w");
+			sprintf(infile1,"generic_MC_x.txt");
+			gen_file = fopen(infile1, "w");
 
-			sprintf(infile,"%s/1dcnn_MC_x.txt",path);
-			cnn_file = fopen(infile, "w");
+			sprintf(infile2,"1dcnn_MC_x.txt");
+			cnn_file = fopen(infile2, "w");
 
-			sprintf(infile,"%s/res_gen_1dcnn_MC_x.txt",path);
-			res_gen_1cnn_file = fopen(infile, "w");
+			sprintf(infile3,"res_gen_1dcnn_MC_x.txt");
+			res_gen_1cnn_file = fopen(infile3, "w");
 		}
 	}
 
