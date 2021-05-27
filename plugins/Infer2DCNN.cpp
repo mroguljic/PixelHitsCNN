@@ -438,13 +438,42 @@ public:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-
-  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
+int clustersize_x = 0, clustersize_y = 0;
+				int same_x = 500, same_y = 500; //random initial value
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset;
 					int icol = int(pix.y) - col_offset;
+					//double pixels skip
+					if ((int)pix.x == 79){
+						i+=2; continue;
+					}
+					if ((int)pix.y % 52 == 51 ){
+						i+=2; continue; 
+					}
 
+					if(irow != same_x){
+						clustersize_x++;
+						same_x = irow;
+					}
+					if(icol != same_y){
+						clustersize_y++;
+						same_y = icol;
+					}
+				}
+				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
+				int mid_x = int(clustersize_x/2)-1;
+				int mid_y = int(clustersize_y/2)-1;
+				int offset_x = 6 - mid_x;
+				int offset_y = 10 - mid_y;
+				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
+  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
+				for (int i = 0; i < cluster.size(); ++i) {
+					auto pix = cluster.pixel(i);
+					int irow = int(pix.x) - row_offset + offset_x;
+					int icol = int(pix.y) - col_offset + offset_y;
+					//printf("irow = %i, icol = %i\n",irow,icol);
+					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
     // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
     // Ignore them for the moment...
 					if ((int)pix.x == 79){
@@ -453,7 +482,7 @@ public:
 					if ((int)pix.y % 52 == 51 ){
 						i+=2; continue; 
 					}
-					if ((irow > mrow) || (icol > mcol)) continue;
+					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
  //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
