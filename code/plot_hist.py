@@ -5,28 +5,26 @@ def plots_xy(results,label,algo):
 
 	gen = results[:,0]*1e4
 	nn = results[:,1]*1e4
-	print(gen.shape,nn.shape)
 
-	if label=='x':
-		x = np.linspace(-0.8,0.8,15)
-	else:
-		x = np.linspace(-3,3,25)
+	plt.hist(nn,facecolor='None',edgecolor='r',lw=2,label="%s_%s"%(label,algo),bins=30)
+	#plt.title()
+	#plt.xlabel("microns")
 
-	plt.hist(gen,bins=x)
-	plt.title("%s_generic"%label)
-	plt.xlabel("cm")
-	plt.savefig('plots/%s_gen_%s.png'%(label,algo))
+	plt.hist(gen,facecolor='None',edgecolor='b',lw=2,label="%s_generic"%label,bins=30)
+	plt.title("Comparison between %s_generic and %s_%s outputs"%(label,label,algo))
+	plt.xlabel("microns")
+	#plt.savefig('plots/%s_gen_%s.png'%(label,algo))
+	#plt.close()
+
+	
+	plt.legend()
+	plt.savefig('plots/%s_compare_%s.png'%(label,algo))
 	plt.close()
 
-	plt.hist(nn,bins=x)
-	plt.title("%s_%s"%(label,algo))
-	plt.xlabel("cm")
-	plt.savefig('plots/%s_cnn_%s.png'%(label,algo))
-	plt.close()
-
-	plt.hist(gen-nn,bins=x)
+	bins = np.linspace(-1700,1700,100)
+	plt.hist(gen-nn,bins=bins)
 	plt.title("d%s = %s_generic - %s_%s"%(label,label,label,algo))
-	plt.xlabel("cm")
+	plt.xlabel("microns")
 	plt.savefig('plots/%s_residuals_%s.png'%(label,algo))
 	plt.close()
 
@@ -36,10 +34,10 @@ cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")
 dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")
 dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")
 
-plots_xy(cnn1d_x,'x','cnn1d')
-plots_xy(cnn1d_y,'y','cnn1d')
-plots_xy(dnn_x,'x','cnn1d')
-plots_xy(dnn_y,'y','cnn1d')
+plots_xy(cnn1d_x,'x','1dcnn')
+plots_xy(cnn1d_y,'y','1dcnn')
+plots_xy(dnn_x,'x','dnn')
+plots_xy(dnn_y,'y','dnn')
 
 cnn2d = np.genfromtxt("txt_files/cnn2d_MC.txt")
 
@@ -52,5 +50,5 @@ cnn2d_x = np.vstack((x_gen,x_cnn2d)).T
 cnn2d_y = np.vstack((y_gen,y_cnn2d)).T
 print(cnn2d_x.shape, cnn2d_y.shape)
 
-plots_xy(cnn2d_x,'x','cnn2d')
-plots_xy(cnn2d_y,'y','cnn2d')
+plots_xy(cnn2d_x,'x','2dcnn')
+plots_xy(cnn2d_y,'y','2dcnn')
