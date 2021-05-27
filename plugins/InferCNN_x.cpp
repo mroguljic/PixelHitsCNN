@@ -438,12 +438,40 @@ public:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-
-  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
+				int clustersize_x = 0, clustersize_y = 0;
+				int same_x = 500, same_y = 500; //random initial value
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset;
 					int icol = int(pix.y) - col_offset;
+					//double pixels skip
+					if ((int)pix.x == 79){
+						i+=2; continue;
+					}
+					if ((int)pix.y % 52 == 51 ){
+						i+=2; continue; 
+					}
+
+					if(irow != same_x){
+						clustersize_x++;
+						same_x = irow;
+					}
+					if(icol != same_y){
+						clustersize_y++;
+						same_y = icol;
+					}
+				}
+
+				int mid_x = int(clustersize_x/2)-1;
+				int mid_y = int(clustersize_y/2)-1;
+				int offset_x = 6 - mid_x;
+				int offset_y = 10 - mid_y;
+
+  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
+				for (int i = 0; i < cluster.size(); ++i) {
+					auto pix = cluster.pixel(i);
+					int irow = int(pix.x) - row_offset + offset_x;
+					int icol = int(pix.y) - col_offset + offset_y;
 
     // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
     // Ignore them for the moment...
@@ -483,10 +511,10 @@ public:
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-		//				printf("%f ",clusbuf[i][j]);
+						printf("%f ",clusbuf[i][j]);
 
 					}
-		//			printf("\n");
+					printf("\n");
 				}
 
 				// TODO: CENTER THE CLUSTER
