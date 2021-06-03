@@ -62,6 +62,10 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+
 class TObject;
 class TTree;
 class TH1D;
@@ -100,13 +104,16 @@ public:
 		tensorflow::Session* session_x;
 		TFile *fFile; TTree *fTree;
 		static const int MAXCLUSTER = 100000;
+		static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
+		float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
+  		float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
 		int count; char path[100], infile1[100], infile2[100], infile3[300];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
-		FILE *cnn_file, *gen_file;
+		FILE *cnn_file, *gen_file, *sim_file;
 	//const bool applyVertexCut_;
 
 	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
@@ -159,7 +166,7 @@ public:
 //fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
 	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
-	fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_1dcnn.root"))) {
+	trackerHitAssociatorConfig_(config, consumesCollector()) {
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
@@ -170,14 +177,19 @@ public:
 			x_1dcnn[i]=-999.0;
 			x_gen[i]=-999.0;
 			dx[i]=-999.0;
+			for(int j=0;j<SIMHITPERCLMAX;j++){
+				fClSimHitLx[i][j]=-999.0;
+				fClSimHitLy[i][j]=-999.0;
+			}
+			
 			}
 			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
 			sprintf(infile1,"generic_MC_x.txt");
 	//		gen_file = fopen(infile1, "w");
 
-			sprintf(infile2,"1dcnn_MC_x.txt");
-	//		cnn_file = fopen(infile2, "w");
+			sprintf(infile2,"%s/simhits_MC.txt",path);
+			sim_file = fopen(infile2, "w");
 
 			sprintf(infile3,"%s/cnn_MC_x.txt",path);
 			cnn_file = fopen(infile3, "w");
@@ -202,7 +214,7 @@ public:
 		tensorflow::closeSession(session_x);
 				
 		fclose(cnn_file);
-	//	fclose(cnn_file);
+		fclose(sim_file);
 		//fclose(res_gen_1cnn_file);
 	/*
 	//fTree->Fill();
@@ -218,10 +230,10 @@ public:
 	void InferCNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 
-//		if (gen_file==NULL) {
-//			printf("couldn't open generic output file/n");
-//			return ;
-//		}
+		if (sim_file==NULL) {
+			printf("couldn't open simhit output file/n");
+			return ;
+		}
 	//	if (cnn_file==NULL) {
 	//		printf("couldn't open cnn output file/n");
 	//		return ;
@@ -245,6 +257,11 @@ public:
 			return;
 	}
 	*/
+		std::vector<PSimHit> vec_simhits_assoc;
+		TrackerHitAssociator *associate(0);
+	  
+	    associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
+	  
 
 	//TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
 
@@ -530,9 +547,29 @@ public:
 				x_1dcnn[count]+=lp.x(); 
 				// get the generic position
 				x_gen[count] = hit->localPosition().x();
+				//get sim hits
+				vec_simhits_assoc.clear();
+            vec_simhits_assoc = associate->associateHit(*pixhit);
 
-				// compute the residual
-				dx[count] = x_gen[count] - x_1dcnn[count];
+            //fClSimHitN[count] = (int)vec_simhits_assoc.size();
+            int iSimHit = 0;
+
+            for (std::vector<PSimHit>::const_iterator m = vec_simhits_assoc.begin(); 
+              m < vec_simhits_assoc.end() && iSimHit < SIMHITPERCLMAX; ++m) 
+              {
+
+             
+
+              fClSimHitLx[count][iSimHit]    = ( m->entryPoint().x() + m->exitPoint().x() ) / 2.0;
+              fClSimHitLy[count][iSimHit]    = ( m->entryPoint().y() + m->exitPoint().y() ) / 2.0;
+
+              ++iSimHit;
+
+            } // end sim hit loop
+
+				// compute the generic residual
+				//dx[count] = x_gen[count] - x_1dcnn[count];
+
 //			printf("Generic position: %f\n ",x_gen[count]*1e4);
 //			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
 //			printf("%i\n",count);
@@ -552,6 +589,13 @@ public:
 	//	}
 	//	printf("dx residual:\n");
 		for(int i=prev_count;i<count;i++){
+			for(int j=0; j<SIMHITPERCLMAX;j++){
+				fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
+			}
+			for(int j=0; j<SIMHITPERCLMAX;j++){
+				fprintf(sim_file,"%f ", fClSimHitLy[i][j]);
+			}
+			fprintf(sim_file,"\n");
 			fprintf(cnn_file,"%f %f\n", x_gen[i],x_1dcnn[i]);
 		}
 
