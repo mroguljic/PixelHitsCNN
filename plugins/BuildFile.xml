@@ -6,5 +6,10 @@
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <use name="Alignment/OfflineValidation"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/TrackAssociator"/>
 
 <flags EDM_PLUGIN="1" />

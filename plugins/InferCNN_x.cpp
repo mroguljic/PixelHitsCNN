@@ -65,6 +65,8 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
 class TObject;
 class TTree;
@@ -114,6 +116,8 @@ public:
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 		FILE *cnn_file, *gen_file, *sim_file;
+		TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+
 	//const bool applyVertexCut_;
 
 	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
