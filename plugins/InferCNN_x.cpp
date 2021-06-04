@@ -115,6 +115,9 @@ public:
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
+		edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> PixelDigiSimLinkToken;
+  edm::EDGetTokenT<edm::SimTrackContainer> SimTrackContainerToken;
+  edm::EDGetTokenT<edm::SimVertexContainer> SimVertexContainerToken;
 		FILE *cnn_file, *gen_file, *sim_file;
 		TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
@@ -174,6 +177,9 @@ public:
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+		  PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
+  SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
+  SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
 		count = 0;
 
 	//initializations
