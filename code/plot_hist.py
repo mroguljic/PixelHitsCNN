@@ -1,10 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 
-def plots_xy(results,label,algo):
+img_ext = 'jun4'
+SIMHITPERCLMAX = 10
 
-	gen = results[:,0]*1e4
-	nn = results[:,1]*1e4
+def plot_residual(results, sim, label,algo):
+	'''
+	results = results*1e4
+	sim = results[:,1]*1e4
 
 	plt.hist(nn,facecolor='None',edgecolor='r',lw=2,label="%s_%s"%(label,algo),bins=30)
 	#plt.title()
@@ -20,35 +24,56 @@ def plots_xy(results,label,algo):
 	plt.legend()
 	plt.savefig('plots/%s_compare_%s.png'%(label,algo))
 	plt.close()
+	'''
+	bins = np.linspace(-500,500,100)
+	residuals = np.zeros_like(results)+9999
 
-	bins = np.linspace(-1700,1700,100)
-	plt.hist(gen-nn,bins=bins)
-	plt.title("d%s = %s_generic - %s_%s"%(label,label,label,algo))
-	plt.xlabel("microns")
-	plt.savefig('plots/%s_residuals_%s.png'%(label,algo))
+	for i in range(len(results)):
+		for j in range(SIMHITPERCLMAX):
+			if(abs(results[i]-sim[i][j])<residuals[i]):
+				residuals[i] = (results[i]-sim[i][j])*1e4
+	
+	RMS = np.sqrt(np.mean(residuals*residuals))
+	mean, sigma = norm.fit(residuals)
+
+	plt.hist(residuals,bins=bins,histtype='step', density=True,linewidth=2,label=r'$\vartriangle$'+label)
+	xmin, xmax = plt.xlim()
+	x = np.linspace(xmin, xmax, 100)
+	p = norm.pdf(x, mean, sigma)
+	plt.title('%s - residuals in %s, RMS = %0.2f, %s = %0.2f'%(algo, label,RMS,r'$\sigma$',sigma))
+	#plt.ylabel('No. of samples')
+	plt.xlabel(r'$\mu m$')
+
+	plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
+	plt.legend()
+	plt.savefig("plots/%s_residuals_%s_%s.png"%(label,algo,img_ext))
 	plt.close()
 
 
-cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")
-cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")
-dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")
-dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")
+cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,1]
+cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,1]
 
-plots_xy(cnn1d_x,'x','1dcnn')
-plots_xy(cnn1d_y,'y','1dcnn')
-plots_xy(dnn_x,'x','dnn')
-plots_xy(dnn_y,'y','dnn')
+dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")[:,1]
+dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")[:,1]
+
+gen_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,0]
+gen_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,0]
 
 cnn2d = np.genfromtxt("txt_files/cnn2d_MC.txt")
+cnn2d_x = cnn2d[:,2]
+cnn2d_y = cnn2d[:,3]
 
-x_gen = cnn2d[:,0]
-y_gen = cnn2d[:,1]
-x_cnn2d = cnn2d[:,2]
-y_cnn2d = cnn2d[:,3]
+simhits = np.genfromtxt("txt_files/simhits_MC.txt")
+simhits_x = simhits[:,0:10]
+simhits_y = simhits[:,10:20]
+print(simhits_x.shape)
+print(simhits_y.shape)
 
-cnn2d_x = np.vstack((x_gen,x_cnn2d)).T
-cnn2d_y = np.vstack((y_gen,y_cnn2d)).T
-print(cnn2d_x.shape, cnn2d_y.shape)
-
-plots_xy(cnn2d_x,'x','2dcnn')
-plots_xy(cnn2d_y,'y','2dcnn')
+plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
+plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
+plot_residual(dnn_x,simhits_x,'x','dnn')
+plot_residual(dnn_y,simhits_y,'y','dnn')
+plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
+plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
+plot_residual(gen_x,simhits_x,'x','gen')
+plot_residual(gen_y,simhits_y,'y','gen')

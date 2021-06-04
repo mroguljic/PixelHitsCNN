@@ -223,16 +223,7 @@ public:
 	}
 
 	void InferCNN_x::beginJob() {
-	/*
-	printf("IN BEGINJOB");
-	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
-	fFile->cd();
-	fTree = new TTree("x_rec", "x_rec");
- // fTree->Branch("x_gen",        x_gen,       "x_gen");
-	fTree->Branch("x_1dcnn",       x_1dcnn,       "x_1dcnn/F");
-	fTree->Branch("x_gen",        x_gen,       "x_gen/F");
-	fTree->Branch("dx_1dcnn",       dx,       "dx_1dcnn/F");
-	*/
+
 	}
 
 	void InferCNN_x::endJob() {
@@ -241,16 +232,7 @@ public:
 				
 		fclose(cnn_file);
 		fclose(sim_file);
-		//fclose(res_gen_1cnn_file);
-	/*
-	//fTree->Fill();
-	fFile->cd();
-	fTree->Write();
-	fFile->Write();
-	fFile->Close();
-	//delete fFile;
-	printf("IN ENDJOB");
-	*/
+	
 	}
 
 	void InferCNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -569,6 +551,7 @@ public:
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
+				printf("%f\n",x_1dcnn[count]);
 				// go back to module coordinate system
 				x_1dcnn[count]+=lp.x(); 
 				// get the generic position
