@@ -74,6 +74,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+//#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
 
 class TObject;
 class TTree;
