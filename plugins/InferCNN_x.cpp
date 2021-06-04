@@ -173,6 +173,9 @@ public:
 		desc.add<std::string>("outputTensorName");
 		desc.add<bool>("associatePixel");
 		desc.add<bool>("associateStrip");
+		desc.add<bool>("associateRecoTracks");
+		desc.add<std::string>("pixelSimLinkSrc");
+		desc.add<std::string>("stripSimLinkSrc");
 		desc.add<std::vector<std::string>>("ROUList");
 		descriptions.addWithDefaultLabel(desc);
 	}
