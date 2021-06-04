@@ -68,6 +68,13 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
+
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 class TObject;
 class TTree;
 class TH1D;
@@ -110,7 +117,7 @@ public:
 		float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
   		float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
-		int count; char path[100], infile1[100], infile2[100], infile3[300];
+		int count; char path[100], infile1[300], infile2[300], infile3[300];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
