@@ -105,20 +105,20 @@ public:
 	static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
 	static void globalEndJob(const CacheData*); // does it have to be static
 
-	private:
-		void beginJob();
-		void analyze(const edm::Event&, const edm::EventSetup&);
-		void endJob();
+private:
+	void beginJob();
+	void analyze(const edm::Event&, const edm::EventSetup&);
+	void endJob();
 
-		std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y;
-		std::string outputTensorName_;
+	std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y;
+	std::string outputTensorName_;
 	//std::string     fRootFileName;
-		tensorflow::Session* session_x;
-		TFile *fFile; TTree *fTree;
-		static const int MAXCLUSTER = 100000;
+	tensorflow::Session* session_x;
+	TFile *fFile; TTree *fTree;
+	static const int MAXCLUSTER = 100000;
 		static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
 		float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
-  		float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
+		float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
 		int count; char path[100], infile1[300], infile2[300], infile3[300];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
@@ -126,8 +126,8 @@ public:
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 		edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> PixelDigiSimLinkToken;
-  edm::EDGetTokenT<edm::SimTrackContainer> SimTrackContainerToken;
-  edm::EDGetTokenT<edm::SimVertexContainer> SimVertexContainerToken;
+		edm::EDGetTokenT<edm::SimTrackContainer> SimTrackContainerToken;
+		edm::EDGetTokenT<edm::SimVertexContainer> SimVertexContainerToken;
 		FILE *cnn_file, *gen_file, *sim_file;
 		TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
@@ -193,9 +193,9 @@ public:
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
-		  PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
-  SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
-  SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
+		PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
+		SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
+		SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
 		count = 0;
 
 	//initializations
@@ -208,17 +208,17 @@ public:
 				fClSimHitLy[i][j]=-999.0;
 			}
 			
-			}
-			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
+		}
+		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
-			sprintf(infile1,"generic_MC_x.txt");
+		sprintf(infile1,"generic_MC_x.txt");
 	//		gen_file = fopen(infile1, "w");
 
-			sprintf(infile2,"%s/simhits_MC.txt",path);
-			sim_file = fopen(infile2, "w");
+		sprintf(infile2,"%s/simhits_MC.txt",path);
+		sim_file = fopen(infile2, "w");
 
-			sprintf(infile3,"%s/cnn_MC_x.txt",path);
-			cnn_file = fopen(infile3, "w");
+		sprintf(infile3,"%s/cnn_MC_x.txt",path);
+		cnn_file = fopen(infile3, "w");
 		
 	}
 
@@ -229,10 +229,10 @@ public:
 	void InferCNN_x::endJob() {
 	// close the session
 		tensorflow::closeSession(session_x);
-				
+
 		fclose(cnn_file);
 		fclose(sim_file);
-	
+
 	}
 
 	void InferCNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -267,9 +267,9 @@ public:
 	*/
 		std::vector<PSimHit> vec_simhits_assoc;
 		TrackerHitAssociator *associate(0);
-	  
-	    associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
-	  
+
+		associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
+
 
 	//TH1F* res_x = new TH1F("h706","dx = x_gen - x_1dcnn (all sig)",120,-300,300);
 
@@ -537,45 +537,45 @@ public:
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/10;
-						printf("%i ",int(clusbuf[i][j]));
+					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
-					printf("\n");
+					//printf("\n");
 				}
-				printf("\n");
-			 for (size_t i = 0; i < TXSIZE; i++) {
-                                         printf("%f ", cluster_flat_x.tensor<float,3>()(0, i, 0));	
-				// TODO: CENTER THE CLUSTER
-				}
-				printf("\n");
+				//printf("\n");
+			 //for (size_t i = 0; i < TXSIZE; i++) {
+               //                          printf("%f ", cluster_flat_x.tensor<float,3>()(0, i, 0));	
+		
+			//	}
+			//	printf("\n");
 
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
-				x_1dcnn[count] = output_x[0].matrix<float>()(0,0); 
-				printf("cota = %f, cotb = %f, x_cnn = %f\n",cotAlpha,cotBeta,x_1dcnn[count]);
+				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1e-4; 
+			//	printf("cota = %f, cotb = %f, x_cnn = %f\n",cotAlpha,cotBeta,x_1dcnn[count]);
 				// go back to module coordinate system
 				x_1dcnn[count]+=lp.x(); 
 				// get the generic position
 				x_gen[count] = hit->localPosition().x();
 				//get sim hits
 				vec_simhits_assoc.clear();
-            vec_simhits_assoc = associate->associateHit(*pixhit);
+				vec_simhits_assoc = associate->associateHit(*pixhit);
 
             //fClSimHitN[count] = (int)vec_simhits_assoc.size();
-            int iSimHit = 0;
+				int iSimHit = 0;
 
-            for (std::vector<PSimHit>::const_iterator m = vec_simhits_assoc.begin(); 
-              m < vec_simhits_assoc.end() && iSimHit < SIMHITPERCLMAX; ++m) 
-              {
+				for (std::vector<PSimHit>::const_iterator m = vec_simhits_assoc.begin(); 
+					m < vec_simhits_assoc.end() && iSimHit < SIMHITPERCLMAX; ++m) 
+				{
 
-             
 
-              fClSimHitLx[count][iSimHit]    = ( m->entryPoint().x() + m->exitPoint().x() ) / 2.0;
-              fClSimHitLy[count][iSimHit]    = ( m->entryPoint().y() + m->exitPoint().y() ) / 2.0;
 
-              ++iSimHit;
+					fClSimHitLx[count][iSimHit]    = ( m->entryPoint().x() + m->exitPoint().x() ) / 2.0;
+					fClSimHitLy[count][iSimHit]    = ( m->entryPoint().y() + m->exitPoint().y() ) / 2.0;
+
+					++iSimHit;
 
             } // end sim hit loop
 
@@ -585,10 +585,10 @@ public:
 //			printf("Generic position: %f\n ",x_gen[count]*1e4);
 //			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
 //			printf("%i\n",count);
-				count++;
+            count++;
 
-			}
-		}
+        }
+    }
 //	printf("count = %i\n",count);
 		//fTree->Fill();
 		//printf("Output from generic:\n");
@@ -600,16 +600,16 @@ public:
 	//		printf("%f\n", x_1dcnn[i]);
 	//	}
 	//	printf("dx residual:\n");
-		for(int i=prev_count;i<count;i++){
-			for(int j=0; j<SIMHITPERCLMAX;j++){
-				fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
-			}
-			for(int j=0; j<SIMHITPERCLMAX;j++){
-				fprintf(sim_file,"%f ", fClSimHitLy[i][j]);
-			}
-			fprintf(sim_file,"\n");
-			fprintf(cnn_file,"%f %f\n", x_gen[i],x_1dcnn[i]);
-		}
+    for(int i=prev_count;i<count;i++){
+    	for(int j=0; j<SIMHITPERCLMAX;j++){
+    		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
+    	}
+    	for(int j=0; j<SIMHITPERCLMAX;j++){
+    		fprintf(sim_file,"%f ", fClSimHitLy[i][j]);
+    	}
+    	fprintf(sim_file,"\n");
+    	fprintf(cnn_file,"%f %f\n", x_gen[i],x_1dcnn[i]);
+    }
 
-	}
-	DEFINE_FWK_MODULE(InferCNN_x);
+}
+DEFINE_FWK_MODULE(InferCNN_x);

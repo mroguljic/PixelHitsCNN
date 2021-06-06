@@ -511,7 +511,7 @@ int clustersize_x = 0, clustersize_y = 0;
 					cluster_flat_x.tensor<float,2>()(0, i) = 0;
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,2>()(0, i) += clusbuf[i][j];
+						cluster_flat_x.tensor<float,2>()(0, i) += clusbuf[i][j]/10;
 		//				printf("%f ",clusbuf[i][j]);
 
 					}
