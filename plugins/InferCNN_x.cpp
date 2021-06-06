@@ -536,22 +536,25 @@ public:
 					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-				//		printf("%f ",clusbuf[i][j]);
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/10;
+						printf("%i ",int(clusbuf[i][j]));
 
 					}
-				//	printf("\n");
+					printf("\n");
 				}
-
+				printf("\n");
+			 for (size_t i = 0; i < TXSIZE; i++) {
+                                         printf("%f ", cluster_flat_x.tensor<float,3>()(0, i, 0));	
 				// TODO: CENTER THE CLUSTER
-
+				}
+				printf("\n");
 
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
-				x_1dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
-				printf("%f\n",x_1dcnn[count]);
+				x_1dcnn[count] = output_x[0].matrix<float>()(0,0); 
+				printf("cota = %f, cotb = %f, x_cnn = %f\n",cotAlpha,cotBeta,x_1dcnn[count]);
 				// go back to module coordinate system
 				x_1dcnn[count]+=lp.x(); 
 				// get the generic position
