@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-img_ext = 'jun4'
+img_ext = 'jun9'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
