@@ -442,7 +442,8 @@ public:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-int clustersize_x = 0, clustersize_y = 0;
+				int clustersize_x = 0, clustersize_y = 0;
+				bool bigPixel = false;
 				int same_x = 500, same_y = 500; //random initial value
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -450,10 +451,10 @@ int clustersize_x = 0, clustersize_y = 0;
 					int icol = int(pix.y) - col_offset;
 					//double pixels skip
 					if ((int)pix.x == 79){
-						i+=2; continue;
+						bigPixel=true; break;
 					}
 					if ((int)pix.y % 52 == 51 ){
-						i+=2; continue; 
+						bigPixel=true; break;
 					}
 
 					if(irow != same_x){
@@ -465,6 +466,7 @@ int clustersize_x = 0, clustersize_y = 0;
 						same_y = icol;
 					}
 				}
+				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 
 				if(clustersize_x%2==0) mid_x = int(clustersize_x/2);
@@ -483,12 +485,7 @@ int clustersize_x = 0, clustersize_y = 0;
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
     // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
     // Ignore them for the moment...
-					if ((int)pix.x == 79){
-						i+=2; continue;
-					}
-					if ((int)pix.y % 52 == 51 ){
-						i+=2; continue; 
-					}
+					
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
  //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
