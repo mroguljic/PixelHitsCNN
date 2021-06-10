@@ -107,6 +107,9 @@ public:
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
+		float micronsToCm = 1e-4;
+		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
+		int mid_x = 0, mid_y = 0;
 	//const bool applyVertexCut_;
 
 	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
@@ -440,6 +443,7 @@ public:
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 int clustersize_x = 0, clustersize_y = 0;
+					bool bigPixel=false;
 				int same_x = 500, same_y = 500; //random initial value
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -447,10 +451,10 @@ int clustersize_x = 0, clustersize_y = 0;
 					int icol = int(pix.y) - col_offset;
 					//double pixels skip
 					if ((int)pix.x == 79){
-						i+=2; continue;
+					bigPixel=true; break;
 					}
 					if ((int)pix.y % 52 == 51 ){
-						i+=2; continue; 
+						bigPixel=true; break; 
 					}
 
 					if(irow != same_x){
@@ -462,9 +466,12 @@ int clustersize_x = 0, clustersize_y = 0;
 						same_y = icol;
 					}
 				}
+					if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				int mid_x = int(clustersize_x/2)-1;
-				int mid_y = int(clustersize_y/2)-1;
+				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
+				else mid_x = int(clustersize_x/2)-0.5;
+				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
+				else mid_y = int(clustersize_y/2)-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
@@ -477,12 +484,7 @@ int clustersize_x = 0, clustersize_y = 0;
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
     // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
     // Ignore them for the moment...
-					if ((int)pix.x == 79){
-						i+=2; continue;
-					}
-					if ((int)pix.y % 52 == 51 ){
-						i+=2; continue; 
-					}
+					
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
  //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
@@ -526,7 +528,8 @@ int clustersize_x = 0, clustersize_y = 0;
 				std::vector<tensorflow::Tensor> output_y;
 				tensorflow::run(session_y, {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
 				// convert microns to cms
-				y_1dcnn[count] = output_y[0].matrix<float>()(0,0)*1.0e-4; 
+				y_1dcnn[count] = output_y[0].matrix<float>()(0,0);
+				y_1dcnn[count] = (y_1dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;  
 				// go back to module coordinate system
 				y_1dcnn[count]+=lp.y(); 
 				// get the generic position
