@@ -517,11 +517,11 @@ int clustersize_x = 0, clustersize_y = 0;
 				for (int i = 0; i < TXSIZE; i++) {
 					//cluster_.tensor<float,4>()(0, i,j, 0) = 0;
 					for (int j = 0; j < TYSIZE; j++){
-						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/10;
-						printf("%i ",int(clusbuf[i][j]));
+						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/100;
+				//		printf("%i ",int(clusbuf[i][j]));
 
 					}
-					printf("\n");
+				//	printf("\n");
 				}
 
 				// TODO: CENTER THE CLUSTER
@@ -535,7 +535,7 @@ int clustersize_x = 0, clustersize_y = 0;
 				// convert microns to cms
 				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
-				printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
+				//printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
 
 				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
 				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
