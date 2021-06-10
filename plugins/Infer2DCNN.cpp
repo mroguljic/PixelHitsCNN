@@ -530,9 +530,9 @@ int clustersize_x = 0, clustersize_y = 0;
 				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_y}, &output_y);
 				// convert microns to cms
 				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
-				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x+0.5)*micronsToCm;
+				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x+0.5))*micronsToCm;
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
-				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y+0.5)*micronsToCm;
+				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y+0.5))*micronsToCm;
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
 				y_2dcnn[count]+=lp.y(); 
