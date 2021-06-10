@@ -110,6 +110,7 @@ public:
 		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
 		float micronsToCm = 1e-4;
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
+		int mid_x = 0, mid_y = 0;
 
 	//const bool applyVertexCut_;
 
@@ -465,8 +466,11 @@ int clustersize_x = 0, clustersize_y = 0;
 					}
 				}
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				int mid_x = int(clustersize_x/2);
-				int mid_y = int(clustersize_y/2);
+
+				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
+				else mid_x = int(clustersize_x/2)-0.5;
+				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
+				else mid_y = int(clustersize_y/2)-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
