@@ -467,9 +467,9 @@ int clustersize_x = 0, clustersize_y = 0;
 				}
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 
-				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
+				if(clustersize_x%2==0) mid_x = int(clustersize_x/2);
 				else mid_x = int(clustersize_x/2)-0.5;
-				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
+				if(clustersize_y%2==0) mid_y = int(clustersize_y/2);
 				else mid_y = int(clustersize_y/2)-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
@@ -517,11 +517,11 @@ int clustersize_x = 0, clustersize_y = 0;
 				for (int i = 0; i < TXSIZE; i++) {
 					//cluster_.tensor<float,4>()(0, i,j, 0) = 0;
 					for (int j = 0; j < TYSIZE; j++){
-						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/100;
-				//		printf("%i ",int(clusbuf[i][j]));
+						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/10;
+						//printf("%i ",int(clusbuf[i][j]));
 
 					}
-				//	printf("\n");
+					//printf("\n");
 				}
 
 				// TODO: CENTER THE CLUSTER
