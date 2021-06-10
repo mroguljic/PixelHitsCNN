@@ -530,8 +530,8 @@ public:
 				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_x}, &output_x);
 				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_y}, &output_y);
 				// convert microns to cms
-				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
-				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
+				x_2dcnn[count] = -output_x[0].matrix<float>()(0,0);
+				y_2dcnn[count] = -output_y[0].matrix<float>()(0,0);
 				//printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
 
 				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
