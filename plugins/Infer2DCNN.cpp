@@ -508,8 +508,8 @@ public:
 				tensorflow::Tensor cluster_(tensorflow::DT_FLOAT, {1,TXSIZE,TYSIZE,1});
     		// angles
 				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
-				angles.tensor<float,2>()(0, 0) = cotAlpha;
-				angles.tensor<float,2>()(0, 1) = cotBeta;
+				angles.tensor<float,2>()(0, 0) = cotBeta;
+				angles.tensor<float,2>()(0, 1) = cotAlpha;
 
 				for (int i = 0; i < TXSIZE; i++) {
 					//cluster_.tensor<float,4>()(0, i,j, 0) = 0;
