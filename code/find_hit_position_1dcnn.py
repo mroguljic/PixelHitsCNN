@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_apr12"
+img_ext = "1dcnn_p1_jun9"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -87,7 +87,8 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Conv1D(64, kernel_size=3, padding="same")(inputs)
+x = BatchNormalization(axis=-1)(inputs)
+x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
 x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
@@ -167,7 +168,8 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Conv1D(64, kernel_size=3, padding="same")(inputs)
+y = BatchNormalization(axis=-1)(inputs)
+y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
