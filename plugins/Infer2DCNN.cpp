@@ -108,6 +108,8 @@ public:
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
 		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
+		float micronsToCm = 1e-4;
+		float pixelsize_z = 285.0;
 	//const bool applyVertexCut_;
 
 	//edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
@@ -526,8 +528,10 @@ int clustersize_x = 0, clustersize_y = 0;
 				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_x}, &output_x);
 				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_y}, &output_y);
 				// convert microns to cms
-				x_2dcnn[count] = output_x[0].matrix<float>()(0,0)*1.0e-4; 
-				y_2dcnn[count] = output_y[0].matrix<float>()(0,0)*1.0e-4; 
+				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
+				x_2dcnn[count] = -(x_2dcnn[count]+(pixelsize_z/2)*cotAlpha)*micronsToCm;
+				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
+				y_2dcnn[count] = -(y_2dcnn[count]+(pixelsize_z/2)*cotBeta)*micronsToCm;
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
 				y_2dcnn[count]+=lp.y(); 
