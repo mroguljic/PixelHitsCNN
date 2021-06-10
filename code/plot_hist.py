@@ -32,11 +32,11 @@ def plot_residual(results, sim, label,algo):
 		for j in range(SIMHITPERCLMAX):
 			if(abs(results[i]-sim[i][j])<residuals[i]):
 				residuals[i] = (results[i]-sim[i][j])*1e4
-	
+	residuals = residuals[residuals<1000]
 	RMS = np.sqrt(np.mean(residuals*residuals))
 	mean, sigma = norm.fit(residuals)
 
-	plt.hist(residuals,bins=bins,histtype='step', density=True,linewidth=2,label=r'$\vartriangle$'+label)
+	plt.hist(residuals, bins=bins, histtype='step', density=True,linewidth=2,label=r'$\vartriangle$'+label)
 	xmin, xmax = plt.xlim()
 	x = np.linspace(xmin, xmax, 100)
 	p = norm.pdf(x, mean, sigma)
