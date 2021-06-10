@@ -469,9 +469,9 @@ public:
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 
-				if(clustersize_x%2==0) mid_x = int(clustersize_x/2);
+				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
 				else mid_x = int(clustersize_x/2)-0.5;
-				if(clustersize_y%2==0) mid_y = int(clustersize_y/2);
+				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
 				else mid_y = int(clustersize_y/2)-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
@@ -534,8 +534,8 @@ public:
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
 				//printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
 
-				x_2dcnn[count] = (x_2dcnn[count]-pixelsize_x*(mid_x))*micronsToCm;
-				y_2dcnn[count] = (y_2dcnn[count]-pixelsize_y*(mid_y))*micronsToCm;
+				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
+				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
 				y_2dcnn[count]+=lp.y(); 
