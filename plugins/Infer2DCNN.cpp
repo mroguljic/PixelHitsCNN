@@ -416,8 +416,8 @@ public:
   // Store the coordinates of the center of the (0,0) pixel of the array that
   // gets passed to PixelTempReco1D
   // Will add these values to the output of  PixelTempReco1D
-				float tmp_x = float(row_offset) ;
-				float tmp_y = float(col_offset) ;
+				float tmp_x = float(row_offset) + 0.5f;
+				float tmp_y = float(col_offset) + 0.5f;
 //			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
 //			printf("cluster.size() = %i\n",cluster.size());
@@ -534,8 +534,8 @@ public:
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
 				//printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
 
-				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
-				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
+				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x+0.5))*micronsToCm;
+				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y-0.5))*micronsToCm;
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
 				y_2dcnn[count]+=lp.y(); 
