@@ -416,8 +416,8 @@ public:
   // Store the coordinates of the center of the (0,0) pixel of the array that
   // gets passed to PixelTempReco1D
   // Will add these values to the output of  PixelTempReco1D
-				float tmp_x = float(row_offset) + 0.5f;
-				float tmp_y = float(col_offset) + 0.5f;
+				float tmp_x = float(row_offset) ;
+				float tmp_y = float(col_offset) ;
 //			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
 //			printf("cluster.size() = %i\n",cluster.size());
@@ -508,8 +508,8 @@ public:
 				tensorflow::Tensor cluster_(tensorflow::DT_FLOAT, {1,TXSIZE,TYSIZE,1});
     		// angles
 				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
-				angles.tensor<float,2>()(0, 0) = cotBeta;
-				angles.tensor<float,2>()(0, 1) = cotAlpha;
+				angles.tensor<float,2>()(0, 0) = cotAlpha;
+				angles.tensor<float,2>()(0, 1) = cotBeta;
 
 				for (int i = 0; i < TXSIZE; i++) {
 					//cluster_.tensor<float,4>()(0, i,j, 0) = 0;
