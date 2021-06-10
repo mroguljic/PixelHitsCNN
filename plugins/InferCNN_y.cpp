@@ -528,7 +528,7 @@ int clustersize_x = 0, clustersize_y = 0;
 				std::vector<tensorflow::Tensor> output_y;
 				tensorflow::run(session_y, {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
 				// convert microns to cms
-				y_1dcnn[count] = output_y[0].matrix<float>()(0,0)*;
+				y_1dcnn[count] = output_y[0].matrix<float>()(0,0);
 				y_1dcnn[count] = (y_1dcnn[count]+pixelsize_y*(mid_y))*micronsToCm; 
 				// go back to module coordinate system
 				y_1dcnn[count]+=lp.y(); 
