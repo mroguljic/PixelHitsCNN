@@ -71,6 +71,16 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 
+for cl in range(50):
+  for i in range(13):
+    for j in range(21):
+
+      one_mat = pix_train[cl].reshape((13,21))
+      printf("%i ",int(one_mat[i][j]))
+      
+    printf("\n")
+
+
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
@@ -80,6 +90,8 @@ validation_split = 0.2
 
 train_time_s = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
+
+'''
 
 inputs = Input(shape=(13,21,1))
 angles = Input(shape=(2,))
@@ -223,3 +235,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
+'''
