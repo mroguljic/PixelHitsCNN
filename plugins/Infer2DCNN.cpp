@@ -488,7 +488,7 @@ public:
 					
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
- //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
 				}
 //			printf("fails after filling buffer\n");
@@ -502,7 +502,8 @@ public:
 				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
 				auto const& topol = geomdetunit->specificTopology();
 				lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
-		//	printf("fails after lp\n");
+
+			printf("lp.x() = %f, lp.y() = %f\n"lp.x(),lp.y());
 				//===============================
 				// define a tensor and fill it with cluster projection
 				tensorflow::Tensor cluster_(tensorflow::DT_FLOAT, {1,TXSIZE,TYSIZE,1});
@@ -515,10 +516,10 @@ public:
 					//cluster_.tensor<float,4>()(0, i,j, 0) = 0;
 					for (int j = 0; j < TYSIZE; j++){
 						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/10;
-						//printf("%i ",int(clusbuf[i][j]));
+						printf("%i ",int(clusbuf[i][j]));
 
 					}
-					//printf("\n");
+					printf("\n");
 				}
 
 				// TODO: CENTER THE CLUSTER
