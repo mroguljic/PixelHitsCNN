@@ -444,7 +444,9 @@ public:
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 				int clustersize_x = 0, clustersize_y = 0;
 				bool bigPixel = false;
+				int irow_sum = 0, icol_sum = 0;
 				int same_x = 500, same_y = 500; //random initial value
+
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset;
@@ -456,7 +458,8 @@ public:
 					if ((int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-
+					irow_sum+=irow;
+					icol_sum+=icol;
 					if(irow != same_x){
 						clustersize_x++;
 						same_x = irow;
@@ -468,11 +471,12 @@ public:
 				}
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-
-				if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
-				else mid_x = clustersize_x/2.-0.5;
-				if(clustersize_y%2==0) mid_y = clustersize_y/2-1;
-				else mid_y = clustersize_y/2.-0.5;
+				mid_x = round(irow_sum/cluster.size());
+				mid_y = round(icol_sum/cluster.size());
+				//if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
+				//else mid_x = clustersize_x/2.-0.5;
+				//if(clustersize_y%2==0) mid_y = clustersize_y/2-1;
+				//else mid_y = clustersize_y/2.-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
