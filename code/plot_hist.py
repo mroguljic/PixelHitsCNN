@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+from matplotlib.backends.backend_pdf import PdfPages
 
-img_ext = 'jun9'
+img_ext = 'jun15'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
@@ -49,6 +50,8 @@ def plot_residual(results, sim, label,algo):
 	plt.savefig("plots/%s_residuals_%s_%s.png"%(label,algo,img_ext))
 	plt.close()
 
+	return residuals 
+
 
 cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,1]
 cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,1]
@@ -69,11 +72,69 @@ simhits_y = simhits[:,10:20]
 print(simhits_x.shape)
 print(simhits_y.shape)
 
-plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
-plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
+residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
+residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
 #plot_residual(dnn_x,simhits_x,'x','dnn')
 #plot_residual(dnn_y,simhits_y,'y','dnn')
-plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
-plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
-plot_residual(gen_x,simhits_x,'x','gen')
-plot_residual(gen_y,simhits_y,'y','gen')
+residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
+residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
+residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
+residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
+
+
+#print clustersize wise residuals
+bins = np.linspace(-400,400,200)
+
+for label in ['x','y']:
+
+	pp = PdfPages('plots/res_vs_csize_2dcnn_%s_%s.pdf'%(label,img_ext))
+	clustersize_res = np.genfromtxt("txt_files/cnn2d_MC_perclustersize_%s.txt"%label)
+
+	cl1 = clustersize_res[:,0]
+	cl2 = clustersize_res[:,1]
+	cl3 = clustersize_res[:,2]
+	cl4 = clustersize_res[:,3]
+	cl5 = clustersize_res[:,4]
+	cl6 = clustersize_res[:,5]
+
+	if label=='x': residuals = residuals_x
+	else: residuals = residuals_y 
+
+	cl1 = residuals[cl1!=-999.]
+	cl2 = residuals[cl2!=-999.]
+	cl3 = residuals[cl3!=-999.]
+	cl4 = residuals[cl4!=-999.]
+	cl5 = residuals[cl5!=-999.]
+	cl6 = residuals[cl6!=-999.]
+
+	plt.hist(cl1, bins=bins, histtype='step', density=True,linewidth=2)
+	plt.title('2dCNN - residuals in %s, clustersize = 1'%label)
+	pp.savefig()
+	plt.close()
+
+	plt.hist(cl2, bins=bins, histtype='step', density=True,linewidth=2)
+	plt.title('2dCNN - residuals in %s, clustersize = 2'%label)
+	pp.savefig()
+	plt.close()
+
+	plt.hist(cl3, bins=bins, histtype='step', density=True,linewidth=2)
+	plt.title('2dCNN - residuals in %s, clustersize = 3'%label)
+	pp.savefig()
+	plt.close()
+
+	plt.hist(cl4, bins=bins, histtype='step', density=True,linewidth=2)
+	plt.title('2dCNN - residuals in %s, clustersize = 4'%label)
+	pp.savefig()
+	plt.close()
+
+	plt.hist(cl5, bins=bins, histtype='step', density=True,linewidth=2)
+	plt.title('2dCNN - residuals in %s, clustersize = 5'%label)
+	pp.savefig()
+	plt.close()
+
+	plt.hist(cl6, bins=bins, histtype='step', density=True,linewidth=2)
+	plt.title('2dCNN - residuals in %s, clustersize = 6'%label)
+	pp.savefig()
+	plt.close()
+
+	pp.close()

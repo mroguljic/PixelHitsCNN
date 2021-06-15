@@ -173,14 +173,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
+
 cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
@@ -201,7 +201,7 @@ history = model.fit([pix_train/35000, angles_train], [x_train, y_train],
 
 plot_cnn_loss(history.history,"x",img_ext)
 plot_cnn_loss(history.history,"y",img_ext)
-'''
+
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
