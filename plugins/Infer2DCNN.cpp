@@ -196,7 +196,7 @@ public:
 			sprintf(infile2,"%s/cnn2d_MC.txt",path);
 			cnn_file = fopen(infile2, "w");
 
-			sprintf(infile3,"%s/cnn2d_MC_perclustersize_x.txt",path);
+			sprintf(infile3,"%s/cnn2d_MC_perclustersize_y.txt",path);
 			clustersize_file = fopen(infile3, "w");
 	}
 
@@ -566,24 +566,24 @@ public:
 //			printf("Generic position: %f\n ",x_gen[count]*1e4);
 //			printf("1dcnn position: %f\n ",x_2dcnn[count]*1e4);
 //			printf("%i\n",count);
-				switch(clustersize_x){
+				switch(clustersize_y){
 					case 1: 
-					clsize_1[count]=x_2dcnn[count];
+					clsize_1[count]=y_2dcnn[count];
 					break;
 					case 2: 
-					clsize_2[count]=x_2dcnn[count];
+					clsize_2[count]=y_2dcnn[count];
 					break;
 					case 3: 
-					clsize_3[count]=x_2dcnn[count];
+					clsize_3[count]=y_2dcnn[count];
 					break;
 					case 4: 
-					clsize_4[count]=x_2dcnn[count];
+					clsize_4[count]=y_2dcnn[count];
 					break;
 					case 5: 
-					clsize_5[count]=x_2dcnn[count];
+					clsize_5[count]=y_2dcnn[count];
 					break;
 					case 6: 
-					clsize_6[count]=x_2dcnn[count];
+					clsize_6[count]=y_2dcnn[count];
 					break;
 				}
 
