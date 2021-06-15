@@ -108,7 +108,7 @@ public:
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
-		FILE *cnn_file, *clustersize_file, *res_gen_1cnn_file;
+		FILE *cnn_file, *clustersize_x_file, *clustersize_y_file, *res_gen_1cnn_file;
 		float micronsToCm = 1e-4;
 		//phase 1 sizes
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
@@ -537,7 +537,7 @@ public:
                                        }
 				for (int i = 0; i < TXSIZE; i++) {
 					for (int j = 0; j < TYSIZE; j++){
-						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/10;
+						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/35000;
 					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
