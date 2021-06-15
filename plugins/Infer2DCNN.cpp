@@ -99,16 +99,18 @@ public:
 	//std::string     fRootFileName;
 		tensorflow::Session* session_;
 		TFile *fFile; TTree *fTree;
-		static const int MAXCLUSTER = 100000;
-		float x_gen[MAXCLUSTER], x_2dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
-		float y_gen[MAXCLUSTER], y_2dcnn[MAXCLUSTER], dy[MAXCLUSTER]; 
+		static const int MAXCLUSTER = 50000;
+		float x_gen[MAXCLUSTER], x_2dcnn[MAXCLUSTER]; 
+		float y_gen[MAXCLUSTER], y_2dcnn[MAXCLUSTER]; 
+		float clsize_1[MAXCLUSTER], clsize_2[MAXCLUSTER], clsize_3[MAXCLUSTER], clsize_4[MAXCLUSTER], clsize_5[MAXCLUSTER], clsize_6[MAXCLUSTER];
 		int count; char path[100], infile1[300], infile2[300], infile3[300];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
-		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
+		FILE *cnn_file, *clustersize_file, *res_gen_1cnn_file;
 		float micronsToCm = 1e-4;
+		//phase 1 sizes
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
 		int mid_x = 0, mid_y = 0;
 
@@ -176,18 +178,26 @@ public:
 		for(int i=0;i<MAXCLUSTER;i++){
 			x_2dcnn[i]=-999.0;
 			x_gen[i]=-999.0;
-			dx[i]=-999.0;
+			
 
 			y_2dcnn[i]=-999.0;
 			y_gen[i]=-999.0;
-			dy[i]=-999.0;
 
+			clsize_1[i]=-999.0;
+			clsize_2[i]=-999.0;
+			clsize_3[i]=-999.0;
+			clsize_4[i]=-999.0;			
+			clsize_5[i]=-999.0;
+			clsize_6[i]=-999.0;
 		}
 			
 			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
 			sprintf(infile2,"%s/cnn2d_MC.txt",path);
 			cnn_file = fopen(infile2, "w");
+
+			sprintf(infile3,"%s/cnn2d_MC_perclustersize_x.txt",path);
+			clustersize_file = fopen(infile3, "w");
 	}
 
 	void Infer2DCNN::beginJob() {
@@ -551,11 +561,33 @@ public:
 				x_gen[count] = hit->localPosition().x();
 				y_gen[count] = hit->localPosition().y();
 				// compute the residual
-				dx[count] = x_gen[count] - x_2dcnn[count];
-				dy[count] = y_gen[count] - y_2dcnn[count];
+				//dx[count] = x_gen[count] - x_2dcnn[count];
+				//dy[count] = y_gen[count] - y_2dcnn[count];
 //			printf("Generic position: %f\n ",x_gen[count]*1e4);
 //			printf("1dcnn position: %f\n ",x_2dcnn[count]*1e4);
 //			printf("%i\n",count);
+				switch(clustersize_x){
+					case 1: 
+					clsize_1[count]=x_2dcnn[count];
+					break;
+					case 2: 
+					clsize_2[count]=x_2dcnn[count];
+					break;
+					case 3: 
+					clsize_3[count]=x_2dcnn[count];
+					break;
+					case 4: 
+					clsize_4[count]=x_2dcnn[count];
+					break;
+					case 5: 
+					clsize_5[count]=x_2dcnn[count];
+					break;
+					case 6: 
+					clsize_6[count]=x_2dcnn[count];
+					break;
+				}
+
+
 				count++;
 
 			}
@@ -564,6 +596,7 @@ public:
 		//fTree->Fill();
 		for(int i=prev_count;i<count;i++){
 			fprintf(cnn_file,"%f %f %f %f\n", x_gen[i],y_gen[i],x_2dcnn[i],y_2dcnn[i]);
+			fprintf(clustersize_file,"%f %f %f %f %f %f\n", clsize_1[i],clsize_2[i],clsize_3[i],clsize_4[i],clsize_5[i],clsize_6[i]);
 		}
 	
 
