@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_jun9"
+img_ext = "1dcnn_p1_jun15"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -87,8 +87,7 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = BatchNormalization(axis=-1)(inputs)
-x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
 x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
@@ -147,7 +146,7 @@ ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
+history = model.fit([xpix_flat_train[:,:,np.newaxis]/35000,angles_train], [x_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
@@ -158,7 +157,7 @@ plot_dnn_loss(history.history,'x',img_ext)
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
-x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
+x_pred = model.predict([xpix_flat_test[:,:,np.newaxis]/35000,angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
 
 
@@ -168,8 +167,7 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = BatchNormalization(axis=-1)(inputs)
-y = Conv1D(64, kernel_size=3, padding="same")(y)
+y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
@@ -227,7 +225,7 @@ ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
+history = model.fit([ypix_flat_train[:,:,np.newaxis]/35000,angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 validation_split=validation_split,
@@ -239,7 +237,7 @@ plot_dnn_loss(history.history,'y',img_ext)
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-y_pred = model.predict([ypix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
+y_pred = model.predict([ypix_flat_test[:,:,np.newaxis]/35000,angles_test], batch_size=9000)
 inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
