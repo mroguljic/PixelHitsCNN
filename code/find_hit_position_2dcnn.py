@@ -45,7 +45,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "2dcnn_p1_apr12"
+img_ext = "2dcnn_p1_jun14"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -70,16 +70,12 @@ clustersize_y_test = f['clustersize_y'][...]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
-
+'''
 for cl in range(50):
-  for i in range(13):
-    for j in range(21):
 
-      one_mat = pix_train[cl].reshape((13,21))
-      printf("%i ",int(one_mat[i][j]))
-      
-    printf("\n")
-
+   print((pix_train[cl]/10).reshape((13,21)).astype(int))
+   print("\n")   
+'''
 
 # Model configuration
 batch_size = 256
@@ -91,7 +87,7 @@ validation_split = 0.2
 train_time_s = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
-'''
+
 
 inputs = Input(shape=(13,21,1))
 angles = Input(shape=(2,))
@@ -106,11 +102,11 @@ x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
 '''
-x = Conv2D(256, (3, 3), padding="same")(x)
-x = Activation("relu")(x)
-x = BatchNormalization(axis=-1)(x)
-x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
-x = Dropout(0.25)(x)
+#x = Conv2D(256, (3, 3), padding="same")(x)
+#x = Activation("relu")(x)
+#x = BatchNormalization(axis=-1)(x)
+#x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
+#x = Dropout(0.25)(x)
 '''
 x = Conv2D(128, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
@@ -129,10 +125,10 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 '''
-x = Dense(256)(x)
-x = Activation("relu")(x)
-x = BatchNormalization()(x)
-x = Dropout(0.25)(x)
+#x = Dense(256)(x)
+#x = Activation("relu")(x)
+#x = BatchNormalization()(x)
+#x = Dropout(0.25)(x)
 '''
 x = Dense(128)(x)
 x = Activation("relu")(x)
@@ -154,10 +150,10 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 '''
-y = Dense(256)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
+#y = Dense(256)(y)
+#y = Activation("relu")(y)
+#y = BatchNormalization()(y)
+#y = Dropout(0.25)(y)
 '''
 y = Dense(128)(y)
 y = Activation("relu")(y)
@@ -177,14 +173,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
@@ -196,7 +192,8 @@ ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([pix_train, angles_train], [x_train, y_train],
+#dividing all inputs by 35k to keep it in a range
+history = model.fit([pix_train/35000, angles_train], [x_train, y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
@@ -204,12 +201,12 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
 
 plot_cnn_loss(history.history,"x",img_ext)
 plot_cnn_loss(history.history,"y",img_ext)
-
+'''
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
 start = time.clock()
-x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=9000)
+x_pred, y_pred = model.predict([pix_test/35000, angles_test], batch_size=9000)
 inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
@@ -235,4 +232,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-'''
+
