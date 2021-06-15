@@ -532,7 +532,7 @@ public:
                                        }
 				for (int i = 0; i < TXSIZE; i++) {
 					for (int j = 0; j < TYSIZE; j++){
-						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];
+						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/10;
 					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
