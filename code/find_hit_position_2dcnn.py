@@ -49,7 +49,7 @@ img_ext = "2dcnn_p1_jun16"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_train = int(f['train_hits'][...])
+pix_train = (f['train_hits'][...]).astype(int)
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
 x_train = f['x'][...] 
@@ -60,7 +60,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_test = int(f['test_hits'][...])
+pix_test = (f['test_hits'][...]).astype(int)
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
 x_test = f['x'][...]
@@ -73,7 +73,7 @@ f.close()
 for cl in range(10):
 
    print((pix_train[cl]).reshape((13,21)))
-   print('x_label = %f, y_label = %f\n',%(x_train[cl],y_train[cl]))
+   print('x_label = %f, y_label = %f\n'%(x_train[cl],y_train[cl]))
    print("\n")
 
 print("max train = ",np.amax(pix_train))
