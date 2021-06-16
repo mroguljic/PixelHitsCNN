@@ -176,7 +176,7 @@ public:
 			y_gen[i]=-999.0;
 			dy[i]=-999.0;
 
-			or(int j=0;j<2;j++){
+			for(int j=0;j<2;j++){
 				clsize_1[i][j]=-999.0;
 				clsize_2[i][j]=-999.0;
 				clsize_3[i][j]=-999.0;
@@ -557,22 +557,22 @@ public:
 //			printf("%i\n",count);
 				switch(clustersize_y){
 					case 1: 
-					clsize_1[count][1]=y_2dcnn[count];
+					clsize_1[count][1]=y_1dcnn[count];
 					break;
 					case 2: 
-					clsize_2[count][1]=y_2dcnn[count];
+					clsize_2[count][1]=y_1dcnn[count];
 					break;
 					case 3: 
-					clsize_3[count][1]=y_2dcnn[count];
+					clsize_3[count][1]=y_1dcnn[count];
 					break;
 					case 4: 
-					clsize_4[count][1]=y_2dcnn[count];
+					clsize_4[count][1]=y_1dcnn[count];
 					break;
 					case 5: 
-					clsize_5[count][1]=y_2dcnn[count];
+					clsize_5[count][1]=y_1dcnn[count];
 					break;
 					case 6: 
-					clsize_6[count][1]=y_2dcnn[count];
+					clsize_6[count][1]=y_1dcnn[count];
 					break;
 				}
 				count++;

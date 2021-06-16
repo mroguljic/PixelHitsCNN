@@ -605,22 +605,22 @@ private:
 //			printf("%i\n",count);
             switch(clustersize_x){
 					case 1: 
-					clsize_1[count][0]=x_2dcnn[count];
+					clsize_1[count][0]=x_1dcnn[count];
 					break;
 					case 2: 
-					clsize_2[count][0]=x_2dcnn[count];
+					clsize_2[count][0]=x_1dcnn[count];
 					break;
 					case 3: 
-					clsize_3[count][0]=x_2dcnn[count];
+					clsize_3[count][0]=x_1dcnn[count];
 					break;
 					case 4: 
-					clsize_4[count][0]=x_2dcnn[count];
+					clsize_4[count][0]=x_1dcnn[count];
 					break;
 					case 5: 
-					clsize_5[count][0]=x_2dcnn[count];
+					clsize_5[count][0]=x_1dcnn[count];
 					break;
 					case 6: 
-					clsize_6[count][0]=x_2dcnn[count];
+					clsize_6[count][0]=x_1dcnn[count];
 					break;
 				}
             count++;
