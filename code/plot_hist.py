@@ -47,7 +47,7 @@ def plot_residual(results, sim, label,algo):
 
 	plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
 	plt.legend()
-	plt.savefig("plots/%s_residuals_%s_%s.png"%(label,algo,img_ext))
+	plt.savefig("plots/CMSSW/residuals/%s_residuals_%s_%s.png"%(label,algo,img_ext))
 	plt.close()
 
 	return residuals 
@@ -86,55 +86,57 @@ residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
 bins = np.linspace(-400,400,200)
 
 for label in ['x','y']:
+	for algo in ['1dcnn','2dcnn']:
 
-	pp = PdfPages('plots/res_vs_csize_2dcnn_%s_%s.pdf'%(label,img_ext))
-	clustersize_res = np.genfromtxt("txt_files/cnn2d_MC_perclustersize_%s.txt"%label)
+		pp = PdfPages('plots/CMSSW/per_clustersize/res_vs_csize_%s_%s_%s.pdf'%(algo,label,img_ext))
+		clustersize_res = np.genfromtxt("txt_files/cnn2d_MC_perclustersize_%s.txt"%label)
+		if algo=='1dcnn': clustersize_res = np.genfromtxt("txt_files/cnn1d_MC_perclustersize_%s.txt"%label)
 
-	cl1 = clustersize_res[:,0]
-	cl2 = clustersize_res[:,1]
-	cl3 = clustersize_res[:,2]
-	cl4 = clustersize_res[:,3]
-	cl5 = clustersize_res[:,4]
-	cl6 = clustersize_res[:,5]
+		cl1 = clustersize_res[:,0]
+		cl2 = clustersize_res[:,1]
+		cl3 = clustersize_res[:,2]
+		cl4 = clustersize_res[:,3]
+		cl5 = clustersize_res[:,4]
+		cl6 = clustersize_res[:,5]
 
-	if label=='x': residuals = residuals_x
-	else: residuals = residuals_y 
+		if label=='x': residuals = residuals_x
+		else: residuals = residuals_y 
 
-	cl1 = residuals[cl1!=-999.]
-	cl2 = residuals[cl2!=-999.]
-	cl3 = residuals[cl3!=-999.]
-	cl4 = residuals[cl4!=-999.]
-	cl5 = residuals[cl5!=-999.]
-	cl6 = residuals[cl6!=-999.]
+		cl1 = residuals[cl1!=-999.]
+		cl2 = residuals[cl2!=-999.]
+		cl3 = residuals[cl3!=-999.]
+		cl4 = residuals[cl4!=-999.]
+		cl5 = residuals[cl5!=-999.]
+		cl6 = residuals[cl6!=-999.]
 
-	plt.hist(cl1, bins=bins, histtype='step', density=True,linewidth=2)
-	plt.title('2dCNN - residuals in %s, clustersize = 1'%label)
-	pp.savefig()
-	plt.close()
+		plt.hist(cl1, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.title('%s - residuals in %s, clustersize = 1'%(algo,label))
+		pp.savefig()
+		plt.close()
 
-	plt.hist(cl2, bins=bins, histtype='step', density=True,linewidth=2)
-	plt.title('2dCNN - residuals in %s, clustersize = 2'%label)
-	pp.savefig()
-	plt.close()
+		plt.hist(cl2, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.title('%s - residuals in %s, clustersize = 2'%(algo,label))
+		pp.savefig()
+		plt.close()
 
-	plt.hist(cl3, bins=bins, histtype='step', density=True,linewidth=2)
-	plt.title('2dCNN - residuals in %s, clustersize = 3'%label)
-	pp.savefig()
-	plt.close()
+		plt.hist(cl3, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.title('%s - residuals in %s, clustersize = 3'%(algo,label))
+		pp.savefig()
+		plt.close()
 
-	plt.hist(cl4, bins=bins, histtype='step', density=True,linewidth=2)
-	plt.title('2dCNN - residuals in %s, clustersize = 4'%label)
-	pp.savefig()
-	plt.close()
+		plt.hist(cl4, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.title('%s - residuals in %s, clustersize = 4'%(algo,label))
+		pp.savefig()
+		plt.close()
 
-	plt.hist(cl5, bins=bins, histtype='step', density=True,linewidth=2)
-	plt.title('2dCNN - residuals in %s, clustersize = 5'%label)
-	pp.savefig()
-	plt.close()
+		plt.hist(cl5, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.title('%s - residuals in %s, clustersize = 5'%(algo,label))
+		pp.savefig()
+		plt.close()
 
-	plt.hist(cl6, bins=bins, histtype='step', density=True,linewidth=2)
-	plt.title('2dCNN - residuals in %s, clustersize = 6'%label)
-	pp.savefig()
-	plt.close()
+		plt.hist(cl6, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.title('%s - residuals in %s, clustersize = 6'%(algo,label))
+		pp.savefig()
+		plt.close()
 
-	pp.close()
+		pp.close()

@@ -14,7 +14,7 @@ def plot_cnn_loss(history,label,img_ext):
 	plt.xlabel('epoch')
 	plt.legend(['%s-train'%(label), '%s-validation'%(label)], loc='upper right')
 	#plt.show()
-	plt.savefig("plots/loss_%s_%s.png"%(label,img_ext))
+	plt.savefig("plots/python/loss/loss_%s_%s.png"%(label,img_ext))
 	plt.close()
 
 def plot_dnn_loss(history,label,img_ext):
@@ -25,7 +25,7 @@ def plot_dnn_loss(history,label,img_ext):
 	plt.xlabel('epoch')
 	plt.legend(['%s-train'%(label), '%s-validation'%(label)], loc='upper right')
 	#plt.show()
-	plt.savefig("plots/loss_%s_%s.png"%(label,img_ext))
+	plt.savefig("plots/python/loss/loss_%s_%s.png"%(label,img_ext))
 	plt.close()
 
 
@@ -40,7 +40,7 @@ def plot_residuals(residuals,mean,sigma,RMS,label,img_ext):
 
 	plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
 	plt.legend()
-	plt.savefig("plots/residuals_%s_%s.png"%(label,img_ext))
+	plt.savefig("plots/python/residuals/residuals_%s_%s.png"%(label,img_ext))
 	plt.close()
 
 def plot_by_clustersize(residuals,clustersize,label,img_ext):
@@ -75,6 +75,6 @@ def plot_by_clustersize(residuals,clustersize,label,img_ext):
 	plt.xlabel('clustersize in %s'%(label))
 	plt.ylabel('resolution in %s'%(label))
 	plt.title('resolution vs clustersize in %s'%(label))
-	plt.savefig("plots/resvssize_%s_%s"%(label,img_ext))
+	plt.savefig("plots/python/per_clustersize/resvssize_%s_%s"%(label,img_ext))
 	plt.close()
 
