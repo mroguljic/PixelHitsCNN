@@ -70,6 +70,9 @@ clustersize_y_test = f['clustersize_y'][...]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
+print("max train = ",np.amax(pix_train))
+print("max test = ",np.amax(pix_test))
+
 '''
 for cl in range(50):
 
@@ -86,7 +89,7 @@ validation_split = 0.2
 
 train_time_s = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
-
+'''
 
 
 inputs = Input(shape=(13,21,1))
@@ -232,4 +235,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-
+'''

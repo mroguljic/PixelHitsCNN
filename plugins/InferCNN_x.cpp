@@ -234,7 +234,7 @@ private:
 		cnn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/cnn1d_MC_perclustersize_x.txt",path);
-		clustersize_x_file = fopen(infile3, "w");
+		clustersize_x_file = fopen(infile4, "w");
 
 		
 	}
