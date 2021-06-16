@@ -70,16 +70,11 @@ clustersize_y_test = f['clustersize_y'][...]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
-for cl in range(10):
-
-   print((pix_train[cl]).reshape((13,21)))
-   print('x_label = %f, y_label = %f\n'%(x_train[cl],y_train[cl]))
-   print("\n")
 
 print("max train = ",np.amax(pix_train))
 print("max test = ",np.amax(pix_test))
-pix_train/=np.amax(pix_train)
-pix_test/=np.amax(pix_train) 
+#pix_train/=np.amax(pix_train)
+#pix_test/=np.amax(pix_train) 
    
 
 
@@ -92,7 +87,7 @@ validation_split = 0.2
 
 train_time_s = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
-'''
+
 
 
 inputs = Input(shape=(13,21,1))
@@ -179,14 +174,14 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-
+'''
 cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
@@ -207,7 +202,7 @@ history = model.fit([pix_train/35000, angles_train], [x_train, y_train],
 
 plot_cnn_loss(history.history,"x",img_ext)
 plot_cnn_loss(history.history,"y",img_ext)
-
+'''
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
@@ -217,7 +212,13 @@ inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
 
+for cl in range(10):
 
+   print((pix_test[cl]).reshape((13,21)))
+   print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
+   print('x_pred = %f, y_pred = %f\n'%(x_pred[cl],y_pred[cl]))
+   print("\n")
+'''
 residuals_x = x_pred - x_test
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
