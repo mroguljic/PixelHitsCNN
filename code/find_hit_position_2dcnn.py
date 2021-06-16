@@ -185,7 +185,7 @@ cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_co
 cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 callbacks = [
-EarlyStopping(patience=3),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
