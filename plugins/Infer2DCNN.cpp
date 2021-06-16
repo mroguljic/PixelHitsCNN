@@ -532,6 +532,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				angles.tensor<float,2>()(0, 1) = cotBeta;
 				for (int i = 0; i < TXSIZE; i++) {
 					for(int j = 0; j<TYSIZE; j++){ 
+						cluster_.tensor<float,4>()(0, i,j, 0) = clusbuf[i][j];
 						cluster_.tensor<float,4>()(0, i,j, 0) = 0;
 					} 
 				}

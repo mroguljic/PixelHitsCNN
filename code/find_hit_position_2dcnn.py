@@ -45,7 +45,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "2dcnn_p1_jun16"
+img_ext = "2dcnn_p1_jun14"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
