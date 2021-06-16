@@ -102,11 +102,13 @@ public:
 		static const int MAXCLUSTER = 100000;
 		float y_gen[MAXCLUSTER], y_1dcnn[MAXCLUSTER], dy[MAXCLUSTER]; 
 		int count; char path[100], infile1[300], infile2[300], infile3[300];
+		float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
+		
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
-		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
+		FILE *cnn_file, *gen_file, *res_gen_1cnn_file, *clustersize_y_file;
 		float micronsToCm = 1e-4;
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
 		int mid_x = 0, mid_y = 0;
@@ -173,6 +175,15 @@ public:
 			y_1dcnn[i]=-999.0;
 			y_gen[i]=-999.0;
 			dy[i]=-999.0;
+
+			or(int j=0;j<2;j++){
+				clsize_1[i][j]=-999.0;
+				clsize_2[i][j]=-999.0;
+				clsize_3[i][j]=-999.0;
+				clsize_4[i][j]=-999.0;			
+				clsize_5[i][j]=-999.0;
+				clsize_6[i][j]=-999.0;
+			}
 		}
 			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
@@ -184,6 +195,10 @@ public:
 
 			sprintf(infile3,"%s/cnn_MC_y.txt",path);
 			cnn_file = fopen(infile3, "w");
+
+			sprintf(infile2,"%s/cnn1d_MC_perclustersize_y.txt",path);
+			clustersize_y_file = fopen(infile2, "w");
+
 		
 	}
 
@@ -442,7 +457,8 @@ public:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-int clustersize_x = 0, clustersize_y = 0;
+				int clustersize_x = 0, clustersize_y = 0;
+				int irow_sum = 0, icol_sum = 0;
 				bool bigPixel=false;
 				int same_x = 500, same_y = 500; //random initial value
 				for (int i = 0; i < cluster.size(); ++i) {
@@ -456,7 +472,8 @@ int clustersize_x = 0, clustersize_y = 0;
 					if ((int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-
+					irow_sum+=irow;
+					icol_sum+=icol;
 					if(irow != same_x){
 						clustersize_x++;
 						same_x = irow;
@@ -468,10 +485,8 @@ int clustersize_x = 0, clustersize_y = 0;
 				}
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
-				else mid_x = int(clustersize_x/2)-0.5;
-				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
-				else mid_y = int(clustersize_y/2)-0.5;
+				mid_x = round(irow_sum/cluster.size());
+				mid_y = round(icol_sum/cluster.size());
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
@@ -514,7 +529,7 @@ int clustersize_x = 0, clustersize_y = 0;
 					cluster_flat_y.tensor<float,3>()(0, i, 0) = 0;
 					for (size_t j = 0; j < TXSIZE; j++){
             //1D projection in x
-						cluster_flat_y.tensor<float,3>()(0, i, 0) += clusbuf[j][i]/10;
+						cluster_flat_y.tensor<float,3>()(0, i, 0) += clusbuf[j][i]/35000;
 		//				printf("%f ",clusbuf[i][j]);
 
 					}
@@ -536,10 +551,30 @@ int clustersize_x = 0, clustersize_y = 0;
 				y_gen[count] = hit->localPosition().y();
 
 				// compute the residual
-				dy[count] = y_gen[count] - y_1dcnn[count];
+				//dy[count] = y_gen[count] - y_1dcnn[count];
 //			printf("Generic position: %f\n ",y_gen[count]*1e4);
 //			printf("1dcnn position: %f\n ",y_1dcnn[count]*1e4);
 //			printf("%i\n",count);
+				switch(clustersize_y){
+					case 1: 
+					clsize_1[count][1]=y_2dcnn[count];
+					break;
+					case 2: 
+					clsize_2[count][1]=y_2dcnn[count];
+					break;
+					case 3: 
+					clsize_3[count][1]=y_2dcnn[count];
+					break;
+					case 4: 
+					clsize_4[count][1]=y_2dcnn[count];
+					break;
+					case 5: 
+					clsize_5[count][1]=y_2dcnn[count];
+					break;
+					case 6: 
+					clsize_6[count][1]=y_2dcnn[count];
+					break;
+				}
 				count++;
 
 			}
@@ -549,6 +584,8 @@ int clustersize_x = 0, clustersize_y = 0;
 		//printf("Output from generic:\n");
 		for(int i=prev_count;i<count;i++){
 			fprintf(cnn_file,"%f %f\n", y_gen[i],y_1dcnn[i]);
+			fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][1],clsize_2[i][1],clsize_3[i][1],clsize_4[i][1],clsize_5[i][1],clsize_6[i][1]);		
+
 		}
 		//printf("Output from 1dcnn:\n");
 		//for(int i=prev_count;i<count;i++){

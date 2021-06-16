@@ -120,7 +120,7 @@ private:
 		float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
 		float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
 		float x_gen[MAXCLUSTER], x_1dcnn[MAXCLUSTER], dx[MAXCLUSTER]; 
-		int count; char path[100], infile1[300], infile2[300], infile3[300];
+		int count; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -128,11 +128,13 @@ private:
 		edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> PixelDigiSimLinkToken;
 		edm::EDGetTokenT<edm::SimTrackContainer> SimTrackContainerToken;
 		edm::EDGetTokenT<edm::SimVertexContainer> SimVertexContainerToken;
-		FILE *cnn_file, *gen_file, *sim_file;
+		FILE *cnn_file, *gen_file, *sim_file, *clustersize_x_file;
 		TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 		float micronsToCm = 1e-4;
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
 		int mid_x = 0, mid_y = 0;
+		float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
+		
 
 	//const bool applyVertexCut_;
 
@@ -210,6 +212,14 @@ private:
 				fClSimHitLx[i][j]=-999.0;
 				fClSimHitLy[i][j]=-999.0;
 			}
+			for(int j=0;j<2;j++){
+				clsize_1[i][j]=-999.0;
+				clsize_2[i][j]=-999.0;
+				clsize_3[i][j]=-999.0;
+				clsize_4[i][j]=-999.0;			
+				clsize_5[i][j]=-999.0;
+				clsize_6[i][j]=-999.0;
+			}
 			
 		}
 		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
@@ -222,6 +232,10 @@ private:
 
 		sprintf(infile3,"%s/cnn_MC_x.txt",path);
 		cnn_file = fopen(infile3, "w");
+
+		sprintf(infile4,"%s/cnn1d_MC_perclustersize_x.txt",path);
+		clustersize_x_file = fopen(infile3, "w");
+
 		
 	}
 
@@ -468,7 +482,9 @@ private:
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 				int clustersize_x = 0, clustersize_y = 0;
 				bool bigPixel=false;
+				int irow_sum = 0, icol_sum = 0;
 				int same_x = 500, same_y = 500; //random initial value
+
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset;
@@ -480,7 +496,8 @@ private:
 					if ((int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-
+					irow_sum+=irow;
+					icol_sum+=icol;
 					if(irow != same_x){
 						clustersize_x++;
 						same_x = irow;
@@ -492,10 +509,8 @@ private:
 				}
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
-				else mid_x = int(clustersize_x/2)-0.5;
-				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
-				else mid_y = int(clustersize_y/2)-0.5;
+				mid_x = round(irow_sum/cluster.size());
+				mid_y = round(icol_sum/cluster.size());
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
@@ -538,7 +553,7 @@ private:
 					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/10;
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/35000;
 					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
@@ -588,6 +603,26 @@ private:
 //			printf("Generic position: %f\n ",x_gen[count]*1e4);
 //			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
 //			printf("%i\n",count);
+            switch(clustersize_x){
+					case 1: 
+					clsize_1[count][0]=x_2dcnn[count];
+					break;
+					case 2: 
+					clsize_2[count][0]=x_2dcnn[count];
+					break;
+					case 3: 
+					clsize_3[count][0]=x_2dcnn[count];
+					break;
+					case 4: 
+					clsize_4[count][0]=x_2dcnn[count];
+					break;
+					case 5: 
+					clsize_5[count][0]=x_2dcnn[count];
+					break;
+					case 6: 
+					clsize_6[count][0]=x_2dcnn[count];
+					break;
+				}
             count++;
 
         }
@@ -612,6 +647,8 @@ private:
     	}
     	fprintf(sim_file,"\n");
     	fprintf(cnn_file,"%f %f\n", x_gen[i],x_1dcnn[i]);
+
+		fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
 
 }
