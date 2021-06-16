@@ -538,10 +538,13 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				}
 
 				//for testing purposes:
-				cluster_.tensor<float,4>()(0, 6,9, 0) = 2411;
-				cluster_.tensor<float,4>()(0, 6,10, 0) = 16824;
-				cluster_.tensor<float,4>()(0, 7,10, 0) = 5222;
-				cluster_.tensor<float,4>()(0, 7,11, 0) = 7933;
+				angles.tensor<float,2>()(0, 0) = -0.292443;
+				angles.tensor<float,2>()(0, 1) = 2.574565;
+				cluster_.tensor<float,4>()(0, 6,8, 0) = 12512;
+				cluster_.tensor<float,4>()(0, 6,9, 0) = 25579;
+				cluster_.tensor<float,4>()(0, 6,10, 0) = 16789;
+				cluster_.tensor<float,4>()(0, 6,11, 0) = 10469;
+				cluster_.tensor<float,4>()(0, 6,12, 0) = 10315;
 
 				/*
 				for (int i = 0; i < TXSIZE; i++) {
@@ -576,7 +579,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				// compute the residual
 				//dx[count] = x_gen[count] - x_2dcnn[count];
 				//dy[count] = y_gen[count] - y_2dcnn[count];
-			printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
+			//printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
 //			printf("1dcnn position: %f\n ",(x_2dcnn[count]-lp.y())*1e4);
 //			printf("%i\n",count);
 				switch(clustersize_x){
