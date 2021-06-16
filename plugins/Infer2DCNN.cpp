@@ -89,30 +89,30 @@ public:
 	static std::unique_ptr<CacheData> initializeGlobalCache(const edm::ParameterSet&);
 	static void globalEndJob(const CacheData*); // does it have to be static
 
-	private:
-		void beginJob();
-		void analyze(const edm::Event&, const edm::EventSetup&);
-		void endJob();
+private:
+	void beginJob();
+	void analyze(const edm::Event&, const edm::EventSetup&);
+	void endJob();
 
-		std::string inputTensorName_, anglesTensorName_;
-		std::string outputTensorName_x, outputTensorName_y;
+	std::string inputTensorName_, anglesTensorName_;
+	std::string outputTensorName_x, outputTensorName_y;
 	//std::string     fRootFileName;
-		tensorflow::Session* session_;
-		TFile *fFile; TTree *fTree;
-		static const int MAXCLUSTER = 50000;
-		float x_gen[MAXCLUSTER], x_2dcnn[MAXCLUSTER]; 
-		float y_gen[MAXCLUSTER], y_2dcnn[MAXCLUSTER]; 
-		float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
-		int count; char path[100], infile1[300], infile2[300], infile3[300];
-		edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
-		std::string     fRootFileName;
-		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
-		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
-		FILE *cnn_file, *clustersize_x_file, *clustersize_y_file, *res_gen_1cnn_file;
-		float micronsToCm = 1e-4;
+	tensorflow::Session* session_;
+	TFile *fFile; TTree *fTree;
+	static const int MAXCLUSTER = 50000;
+	float x_gen[MAXCLUSTER], x_2dcnn[MAXCLUSTER]; 
+	float y_gen[MAXCLUSTER], y_2dcnn[MAXCLUSTER]; 
+	float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
+	int count; char path[100], infile1[300], infile2[300], infile3[300];
+	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
+	std::string     fRootFileName;
+	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
+	edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
+	FILE *cnn_file, *clustersize_x_file, *clustersize_y_file, *res_gen_1cnn_file;
+	float micronsToCm = 1e-4;
 		//phase 1 sizes
-		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
-		int mid_x = 0, mid_y = 0;
+	float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
+	int mid_x = 0, mid_y = 0;
 
 	//const bool applyVertexCut_;
 
@@ -120,92 +120,92 @@ public:
 	//edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 	//edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
 	//edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
-	};
+};
 
-	std::unique_ptr<CacheData> Infer2DCNN::initializeGlobalCache(const edm::ParameterSet& config) 
-	{
+std::unique_ptr<CacheData> Infer2DCNN::initializeGlobalCache(const edm::ParameterSet& config) 
+{
 
 	// this method is supposed to create, initialize and return a CacheData instance
-		CacheData* cacheData = new CacheData();
+	CacheData* cacheData = new CacheData();
 
 	// load the graph def and save it
-		std::string graphPath_ = config.getParameter<std::string>("graphPath_");
-		cacheData->graphDef = tensorflow::loadGraphDef(graphPath_);
+	std::string graphPath_ = config.getParameter<std::string>("graphPath_");
+	cacheData->graphDef = tensorflow::loadGraphDef(graphPath_);
 
 	// set tensorflow log leven to warning
-		tensorflow::setLogging("2");
+	tensorflow::setLogging("2");
 	//init();
 
-		return std::unique_ptr<CacheData>(cacheData);
-	}
+	return std::unique_ptr<CacheData>(cacheData);
+}
 
-	void Infer2DCNN::globalEndJob(const CacheData* cacheData) {
+void Infer2DCNN::globalEndJob(const CacheData* cacheData) {
 	// reset the graphDef
-		if (cacheData->graphDef != nullptr) {
-			delete cacheData->graphDef;
-		}
-
+	if (cacheData->graphDef != nullptr) {
+		delete cacheData->graphDef;
 	}
 
-	void Infer2DCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+}
+
+void Infer2DCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 	// defining this function will lead to a *_cfi file being generated when compiling
-		edm::ParameterSetDescription desc;
-		desc.add<std::string>("graphPath_");
-		desc.add<std::string>("inputTensorName_");
-		desc.add<std::string>("anglesTensorName_");
-		desc.add<std::string>("outputTensorName_x");
-		desc.add<std::string>("outputTensorName_y");
-		descriptions.addWithDefaultLabel(desc);
-	}
+	edm::ParameterSetDescription desc;
+	desc.add<std::string>("graphPath_");
+	desc.add<std::string>("inputTensorName_");
+	desc.add<std::string>("anglesTensorName_");
+	desc.add<std::string>("outputTensorName_x");
+	desc.add<std::string>("outputTensorName_y");
+	descriptions.addWithDefaultLabel(desc);
+}
 
-	Infer2DCNN::Infer2DCNN(const edm::ParameterSet& config, const CacheData* cacheData)
-	: inputTensorName_(config.getParameter<std::string>("inputTensorName_")),
-	anglesTensorName_(config.getParameter<std::string>("anglesTensorName_")),
-	outputTensorName_x(config.getParameter<std::string>("outputTensorName_x")),
-	outputTensorName_y(config.getParameter<std::string>("outputTensorName_y")),
-	session_(tensorflow::createSession(cacheData->graphDef)),
+Infer2DCNN::Infer2DCNN(const edm::ParameterSet& config, const CacheData* cacheData)
+: inputTensorName_(config.getParameter<std::string>("inputTensorName_")),
+anglesTensorName_(config.getParameter<std::string>("anglesTensorName_")),
+outputTensorName_x(config.getParameter<std::string>("outputTensorName_x")),
+outputTensorName_y(config.getParameter<std::string>("outputTensorName_y")),
+session_(tensorflow::createSession(cacheData->graphDef)),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 //fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
-	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
-	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
-	fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_2dcnn.root"))) {
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
+fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
+fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_2dcnn.root"))) {
 
-		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
-		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
-		count = 0;
+	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
+	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+	count = 0;
 
 	//initializations
-		for(int i=0;i<MAXCLUSTER;i++){
-			x_2dcnn[i]=-999.0;
-			x_gen[i]=-999.0;
-			
+	for(int i=0;i<MAXCLUSTER;i++){
+		x_2dcnn[i]=-999.0;
+		x_gen[i]=-999.0;
 
-			y_2dcnn[i]=-999.0;
-			y_gen[i]=-999.0;
 
-			for(int j=0;j<2;j++){
-				clsize_1[i][j]=-999.0;
-				clsize_2[i][j]=-999.0;
-				clsize_3[i][j]=-999.0;
-				clsize_4[i][j]=-999.0;			
-				clsize_5[i][j]=-999.0;
-				clsize_6[i][j]=-999.0;
-			}
+		y_2dcnn[i]=-999.0;
+		y_gen[i]=-999.0;
+
+		for(int j=0;j<2;j++){
+			clsize_1[i][j]=-999.0;
+			clsize_2[i][j]=-999.0;
+			clsize_3[i][j]=-999.0;
+			clsize_4[i][j]=-999.0;			
+			clsize_5[i][j]=-999.0;
+			clsize_6[i][j]=-999.0;
 		}
-			
-			sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
-
-			sprintf(infile2,"%s/cnn2d_MC.txt",path);
-			cnn_file = fopen(infile2, "w");
-
-			sprintf(infile3,"%s/cnn2d_MC_perclustersize_x.txt",path);
-			clustersize_x_file = fopen(infile3, "w");
-
-			sprintf(infile1,"%s/cnn2d_MC_perclustersize_y.txt",path);
-			clustersize_y_file = fopen(infile1, "w");
 	}
 
-	void Infer2DCNN::beginJob() {
+	sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
+
+	sprintf(infile2,"%s/cnn2d_MC.txt",path);
+	cnn_file = fopen(infile2, "w");
+
+	sprintf(infile3,"%s/cnn2d_MC_perclustersize_x.txt",path);
+	clustersize_x_file = fopen(infile3, "w");
+
+	sprintf(infile1,"%s/cnn2d_MC_perclustersize_y.txt",path);
+	clustersize_y_file = fopen(infile1, "w");
+}
+
+void Infer2DCNN::beginJob() {
 	/*
 	printf("IN BEGINJOB");
 	fFile = TFile::Open(fRootFileName.c_str(), "RECREATE");
@@ -216,12 +216,12 @@ public:
 	fTree->Branch("x_gen",        x_gen,       "x_gen/F");
 	fTree->Branch("dx_2dcnn",       dx,       "dx_2dcnn/F");
 	*/
-	}
+}
 
-	void Infer2DCNN::endJob() {
+void Infer2DCNN::endJob() {
 	// close the session
-		tensorflow::closeSession(session_);
-				
+	tensorflow::closeSession(session_);
+
 		//fclose(gen_file);
 		//fclose(cnn_file);
 		//fclose(res_gen_1cnn_file);
@@ -234,17 +234,17 @@ public:
 	//delete fFile;
 	printf("IN ENDJOB");
 	*/
-	}
+}
 
-	void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 	
-		
-		if (cnn_file==NULL) {
-			printf("couldn't open cnn output file/n");
-			return ;
-		}
-		
+
+	if (cnn_file==NULL) {
+		printf("couldn't open cnn output file/n");
+		return ;
+	}
+
 	//	if (res_gen_1cnn_file==NULL) {
 		//	printf("couldn't open residual output file/n");
 		//	return ;
@@ -268,39 +268,39 @@ public:
 	//TH1F* res_x = new TH1F("h706","dx = x_gen - x_2dcnn (all sig)",120,-300,300);
 
 	//get the map
-		edm::Handle<reco::TrackCollection> tracks;
+	edm::Handle<reco::TrackCollection> tracks;
 	//event.getByToken(TrackToken, tracks);
 	//int nTk(0);
 
-		try {
-			event.getByToken(TrackToken, tracks);
-		}catch (cms::Exception &ex) {
+	try {
+		event.getByToken(TrackToken, tracks);
+	}catch (cms::Exception &ex) {
 	//if (fVerbose > 1) 
-			cout << "No Track collection with label " << fTrackCollectionLabel << endl;
-		}
-		if (tracks.isValid()) {
-			const std::vector<reco::Track> trackColl = *(tracks.product());
+		cout << "No Track collection with label " << fTrackCollectionLabel << endl;
+	}
+	if (tracks.isValid()) {
+		const std::vector<reco::Track> trackColl = *(tracks.product());
 		//nTk = trackColl.size();
 		//if (fVerbose > 1) 
 		//cout << "--> Track collection size: " << nTk << endl;
-		} else {
+	} else {
   	//if (fVerbose > 1)
-			cout << "--> No valid track collection" << endl;
-		}
-		if (!tracks.isValid()) {
-			cout << "track collection is not valid" <<endl;
-			return;
-		}
+		cout << "--> No valid track collection" << endl;
+	}
+	if (!tracks.isValid()) {
+		cout << "track collection is not valid" <<endl;
+		return;
+	}
 
 	//printf("Track is valid\n");
 	//printf("Track collection size: %d\n",tracks->size());
 	//stuff needed for template
-		float clusbuf[TXSIZE][TYSIZE];
+	float clusbuf[TXSIZE][TYSIZE];
 	//int mrow=TXSIZE,mcol=TYSIZE;
 	//static float xrec, yrec;
-		static int ix,iy;
-		int prev_count = count;
-		for (auto const& track : *tracks) {
+	static int ix,iy;
+	int prev_count = count;
+	for (auto const& track : *tracks) {
 		//if (applyVertexCut_ &&
 		//	(track.pt() < 0.75 || std::abs(track.dxy((*vertices)[0].position())) > 5 * track.dxyError()))
 		//	continue;
@@ -312,53 +312,53 @@ public:
 		//if (std::abs(d0) < 16 && std::abs(dz) < 50)
 		//crossesPixVol = true;
 
-			auto etatk = track.eta();
+		auto etatk = track.eta();
 
-			auto const& trajParams = track.extra()->trajParams();
-			assert(trajParams.size() == track.recHitsSize());
-			auto hb = track.recHitsBegin();
+		auto const& trajParams = track.extra()->trajParams();
+		assert(trajParams.size() == track.recHitsSize());
+		auto hb = track.recHitsBegin();
 
-			for (unsigned int h = 0; h < track.recHitsSize(); h++) {
-				auto hit = *(hb + h);
-				if (!hit->isValid())
-					continue;
-				auto id = hit->geographicalId();
+		for (unsigned int h = 0; h < track.recHitsSize(); h++) {
+			auto hit = *(hb + h);
+			if (!hit->isValid())
+				continue;
+			auto id = hit->geographicalId();
 
 			// check that we are in the pixel detector
-				auto subdetid = (id.subdetId());
+			auto subdetid = (id.subdetId());
 			//if (subdetid == PixelSubdetector::PixelBarrel)
 			//isBpixtrack = true;
 			//if (subdetid == PixelSubdetector::PixelEndcap)
 			//isFpixtrack = true;
-				if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
-					continue;
-				bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
+			if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
+				continue;
+			bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
 
 			// PXB_L4 IS IN THE OTHER WAY
 			// CAN BE XORed BUT LETS KEEP THINGS SIMPLE
 			//	bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
 			//((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
 
-				auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
-				if (!pixhit)
-					continue;
+			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
+			if (!pixhit)
+				continue;
 
 
 			//some initialization
-				for(int j=0; j<TXSIZE; ++j) {for(int i=0; i<TYSIZE; ++i) {clusbuf[j][i] = 0.;} } 
+			for(int j=0; j<TXSIZE; ++j) {for(int i=0; i<TYSIZE; ++i) {clusbuf[j][i] = 0.;} } 
 
 
 			// get the cluster
-					auto clustp = pixhit->cluster();
-				if (clustp.isNull())
-					continue;
-				auto const& cluster = *clustp;
-				const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
+				auto clustp = pixhit->cluster();
+			if (clustp.isNull())
+				continue;
+			auto const& cluster = *clustp;
+			const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
 
-				auto const& ltp = trajParams[h];
+			auto const& ltp = trajParams[h];
 
-				float cotAlpha=ltp.dxdz();
-				float cotBeta=ltp.dydz();
+			float cotAlpha=ltp.dxdz();
+			float cotBeta=ltp.dydz();
 //=======================================================================================
 			/*
 			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
@@ -424,42 +424,42 @@ public:
   // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
   // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
-				int row_offset = cluster.minPixelRow();
-				int col_offset = cluster.minPixelCol();
+			int row_offset = cluster.minPixelRow();
+			int col_offset = cluster.minPixelCol();
 //			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
 //			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
   // Store the coordinates of the center of the (0,0) pixel of the array that
   // gets passed to PixelTempReco1D
   // Will add these values to the output of  PixelTempReco1D
-				float tmp_x = float(row_offset) + 0.5f;
-				float tmp_y = float(col_offset) + 0.5f;
+			float tmp_x = float(row_offset) + 0.5f;
+			float tmp_y = float(col_offset) + 0.5f;
 //			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
 //			printf("cluster.size() = %i\n",cluster.size());
 
 				  // first compute matrix size
-				int mrow = 0, mcol = 0;
-				for (int i = 0; i != cluster.size(); ++i) {
-					auto pix = cluster.pixel(i);
-					int irow = int(pix.x);
-					int icol = int(pix.y);
-					mrow = std::max(mrow, irow);
-					mcol = std::max(mcol, icol);
-				}
-				mrow -= row_offset;
-				mrow += 1;
-				mrow = std::min(mrow, TXSIZE);
-				mcol -= col_offset;
-				mcol += 1;
-				mcol = std::min(mcol, TYSIZE);
-				assert(mrow > 0);
-				assert(mcol > 0);
+			int mrow = 0, mcol = 0;
+			for (int i = 0; i != cluster.size(); ++i) {
+				auto pix = cluster.pixel(i);
+				int irow = int(pix.x);
+				int icol = int(pix.y);
+				mrow = std::max(mrow, irow);
+				mcol = std::max(mcol, icol);
+			}
+			mrow -= row_offset;
+			mrow += 1;
+			mrow = std::min(mrow, TXSIZE);
+			mcol -= col_offset;
+			mcol += 1;
+			mcol = std::min(mcol, TYSIZE);
+			assert(mrow > 0);
+			assert(mcol > 0);
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-				int clustersize_x = 0, clustersize_y = 0;
-				bool bigPixel = false;
-				int irow_sum = 0, icol_sum = 0;
+			int clustersize_x = 0, clustersize_y = 0;
+			bool bigPixel = false;
+			int irow_sum = 0, icol_sum = 0;
 				int same_x = 500, same_y = 500; //random initial value
 
 				for (int i = 0; i < cluster.size(); ++i) {
@@ -531,10 +531,18 @@ public:
 				angles.tensor<float,2>()(0, 0) = cotAlpha;
 				angles.tensor<float,2>()(0, 1) = cotBeta;
 				for (int i = 0; i < TXSIZE; i++) {
-                                        for(int j = 0; j<TYSIZE; j++){ 
-					cluster_.tensor<float,4>()(0, i,j, 0) = 0;
+					for(int j = 0; j<TYSIZE; j++){ 
+						cluster_.tensor<float,4>()(0, i,j, 0) = 0;
 					} 
-                                       }
+				}
+
+				//for testing purposes:
+				cluster_.tensor<float,4>()(0, 6,9, 0) = 2411;
+				cluster_.tensor<float,4>()(0, 6,10, 0) = 16824;
+				cluster_.tensor<float,4>()(0, 7,10, 0) = 5222;
+				cluster_.tensor<float,4>()(0, 7,11, 0) = 7933;
+
+				/*
 				for (int i = 0; i < TXSIZE; i++) {
 					for (int j = 0; j < TYSIZE; j++){
 						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/35000;
@@ -543,9 +551,8 @@ public:
 					}
 				//	printf("\n");
 				}
-
-				// TODO: CENTER THE CLUSTER
-
+				*/
+				
 
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
@@ -555,7 +562,7 @@ public:
 				// convert microns to cms
 				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
-				//printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
+				printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
 
 				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
 				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
@@ -568,8 +575,8 @@ public:
 				// compute the residual
 				//dx[count] = x_gen[count] - x_2dcnn[count];
 				//dy[count] = y_gen[count] - y_2dcnn[count];
-//			printf("Generic position: %f\n ",x_gen[count]*1e4);
-//			printf("1dcnn position: %f\n ",x_2dcnn[count]*1e4);
+			printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
+//			printf("1dcnn position: %f\n ",(x_2dcnn[count]-lp.y())*1e4);
 //			printf("%i\n",count);
 				switch(clustersize_x){
 					case 1: 
@@ -625,7 +632,7 @@ public:
 			fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][1],clsize_2[i][1],clsize_3[i][1],clsize_4[i][1],clsize_5[i][1],clsize_6[i][1]);		
 
 		}
-	
+
 
 	}
 	DEFINE_FWK_MODULE(Infer2DCNN);
