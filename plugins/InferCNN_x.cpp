@@ -134,7 +134,8 @@ private:
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
 		int mid_x = 0, mid_y = 0;
 		float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
-		
+		//norm_x = 424455.402838 norm_y = 196253.784684
+		float NORM_X = 424455.402838, NORM_Y = 196253.784684;
 
 	//const bool applyVertexCut_;
 
@@ -553,25 +554,28 @@ private:
 					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/35000;
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/NORM_X;
+						cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
 					//printf("\n");
 				}
-				//printf("\n");
-			 //for (size_t i = 0; i < TXSIZE; i++) {
-               //                          printf("%f ", cluster_flat_x.tensor<float,3>()(0, i, 0));	
-		
-			//	}
-			//	printf("\n");
+				//for testing purposes:
+				angles.tensor<float,2>()(0, 0) = -0.201142;
+				angles.tensor<float,2>()(0, 1) = 6.538521;
+				cluster_.tensor<float,3>()(0, 5, 0) = 0.00982028;
+				cluster_.tensor<float,3>()(0, 6, 0) = 0.3596283;
 
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
+				printf("x = %f\n",x_2dcnn[count]);
+
 				x_1dcnn[count] = (x_1dcnn[count]+pixelsize_x*(mid_x))*micronsToCm; 
+
 			//	printf("cota = %f, cotb = %f, x_cnn = %f\n",cotAlpha,cotBeta,x_1dcnn[count]);
 				// go back to module coordinate system
 				x_1dcnn[count]+=lp.x(); 
@@ -638,6 +642,7 @@ private:
 	//		printf("%f\n", x_1dcnn[i]);
 	//	}
 	//	printf("dx residual:\n");
+	/*
     for(int i=prev_count;i<count;i++){
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
@@ -650,6 +655,7 @@ private:
 
 		fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
+    */
 
 }
 DEFINE_FWK_MODULE(InferCNN_x);
