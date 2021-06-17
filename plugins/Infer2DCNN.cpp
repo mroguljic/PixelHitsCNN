@@ -140,7 +140,8 @@ std::unique_ptr<CacheData> Infer2DCNN::initializeGlobalCache(const edm::Paramete
 }
 
 void Infer2DCNN::globalEndJob(const CacheData* cacheData) {
-	// reset the graphDef
+	// reset the graphDefi
+	printf("IN GLOBAL END JOB");
 	if (cacheData->graphDef != nullptr) {
 		delete cacheData->graphDef;
 	}
@@ -538,13 +539,14 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				}
 
 				//for testing purposes:
-				angles.tensor<float,2>()(0, 0) = -0.292443;
-				angles.tensor<float,2>()(0, 1) = 2.574565;
-				cluster_.tensor<float,4>()(0, 6,8, 0) = 12512;
-				cluster_.tensor<float,4>()(0, 6,9, 0) = 25579;
-				cluster_.tensor<float,4>()(0, 6,10, 0) = 16789;
-				cluster_.tensor<float,4>()(0, 6,11, 0) = 10469;
-				cluster_.tensor<float,4>()(0, 6,12, 0) = 10315;
+				angles.tensor<float,2>()(0, 0) = 0.127621;
+				angles.tensor<float,2>()(0, 1) = 2.108195;
+				cluster_.tensor<float,4>()(0, 5,8, 0) = 0.22866791;
+				cluster_.tensor<float,4>()(0, 6,9, 0) = 0.37628363;
+				cluster_.tensor<float,4>()(0, 6,10, 0) = 0.36362726;
+				cluster_.tensor<float,4>()(0, 6,11, 0) = 0.28769351;
+				cluster_.tensor<float,4>()(0, 7,11, 0) = 0.12388598;
+				cluster_.tensor<float,4>()(0, 7,12, 0) = 0.13960017;
 
 				/*
 				for (int i = 0; i < TXSIZE; i++) {

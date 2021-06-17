@@ -49,7 +49,7 @@ img_ext = "2dcnn_p1_jun14"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_train = (f['train_hits'][...]).astype(int)
+pix_train = (f['train_hits'][...])/35000
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
 x_train = f['x'][...] 
@@ -60,7 +60,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_test = (f['test_hits'][...]).astype(int)
+pix_test = (f['test_hits'][...])/35000
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
 x_test = f['x'][...]
@@ -194,7 +194,7 @@ ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
 
 # Fit data to model
 #dividing all inputs by 35k to keep it in a range
-history = model.fit([pix_train/35000, angles_train], [x_train, y_train],
+history = model.fit([pix_train, angles_train], [x_train, y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
@@ -207,7 +207,7 @@ plot_cnn_loss(history.history,"y",img_ext)
 print("training time ",time.clock()-train_time_s)
 
 start = time.clock()
-x_pred, y_pred = model.predict([pix_test/35000, angles_test], batch_size=9000)
+x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=9000)
 inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
