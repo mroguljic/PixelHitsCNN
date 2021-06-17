@@ -75,11 +75,12 @@ inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
-xpix_flat_train/=np.amax(xpix_flat_train)
-xpix_flat_test/=np.amax(xpix_flat_train)
+norm = np.amax(xpix_flat_train)
+xpix_flat_train/=norm
+xpix_flat_test/=norm
 
-ypix_flat_train/=np.amax(ypix_flat_train)
-ypix_flat_test/=np.amax(ypix_flat_train)
+ypix_flat_train/=norm
+ypix_flat_test/=norm
 
 
 # Model configuration
@@ -169,13 +170,13 @@ inference_time_x = time.clock() - start
 
 for cl in range(10):
 
-   print((xpix_flat_test[cl]).flatten())
+   print(xpix_flat_test[cl])
    print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
-   print('x_pred = %f\n'%(x_pred[cl]))
+   print('x_pred = %f, y_pred = %f\n'%(x_pred[cl]))
    print("\n")
 
 train_time_y = time.clock()
-
+'''
 #train flat y
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
@@ -277,5 +278,5 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-
+'''
 
