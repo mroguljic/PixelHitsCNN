@@ -218,6 +218,23 @@ for cl in range(10):
    print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
    print('x_pred = %f, y_pred = %f\n'%(x_pred[cl],y_pred[cl]))
    print("\n")
+
+model = tf.saved_model.load("data/graph_%s.pb"%(img_ext))
+
+start = time.clock()
+x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=9000)
+inference_time = time.clock() - start
+
+print("inference_time = ",inference_time)
+
+for cl in range(10):
+
+   print((pix_test[cl]).reshape((13,21)))
+   print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
+   print('x_pred = %f, y_pred = %f\n'%(x_pred[cl],y_pred[cl]))
+   print("\n")
+
+print("====================================================================================")
 '''
 residuals_x = x_pred - x_test
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
