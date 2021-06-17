@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_jun15"
+img_ext = "1dcnn_p1_jun17_test"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -75,10 +75,17 @@ inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
+xpix_flat_train/=np.amax(xpix_flat_train)
+xpix_flat_test/=np.amax(xpix_flat_train)
+
+ypix_flat_train/=np.amax(ypix_flat_train)
+ypix_flat_test/=np.amax(ypix_flat_train)
+
+
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
-n_epochs = 20
+n_epochs = 1
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -135,8 +142,8 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=False)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=False)
 
 callbacks = [
 EarlyStopping(patience=2),
@@ -146,20 +153,26 @@ ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([xpix_flat_train[:,:,np.newaxis]/35000,angles_train], [x_train],
+history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
 
-plot_dnn_loss(history.history,'x',img_ext)
+#plot_dnn_loss(history.history,'x',img_ext)
 
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
-x_pred = model.predict([xpix_flat_test[:,:,np.newaxis]/35000,angles_test], batch_size=9000)
+x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
 
+for cl in range(10):
+
+   print((xpix_flat_test[cl]).flatten())
+   print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
+   print('x_pred = %f\n'%(x_pred[cl]))
+   print("\n")
 
 train_time_y = time.clock()
 
@@ -225,7 +238,7 @@ ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
 ]
 
 # Fit data to model
-history = model.fit([ypix_flat_train[:,:,np.newaxis]/35000,angles_train], [y_train],
+history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs,
                 validation_split=validation_split,
@@ -237,7 +250,7 @@ plot_dnn_loss(history.history,'y',img_ext)
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-y_pred = model.predict([ypix_flat_test[:,:,np.newaxis]/35000,angles_test], batch_size=9000)
+y_pred = model.predict([ypix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
