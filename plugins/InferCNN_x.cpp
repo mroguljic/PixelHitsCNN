@@ -564,15 +564,15 @@ private:
 				//for testing purposes:
 				angles.tensor<float,2>()(0, 0) = -0.201142;
 				angles.tensor<float,2>()(0, 1) = 6.538521;
-				cluster_.tensor<float,3>()(0, 5, 0) = 0.00982028;
-				cluster_.tensor<float,3>()(0, 6, 0) = 0.3596283;
+				cluster_flat_x.tensor<float,3>()(0, 5, 0) = 0.00982028;
+				cluster_flat_x.tensor<float,3>()(0, 6, 0) = 0.3596283;
 
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
-				printf("x = %f\n",x_2dcnn[count]);
+				printf("x = %f\n",x_1dcnn[count]);
 
 				x_1dcnn[count] = (x_1dcnn[count]+pixelsize_x*(mid_x))*micronsToCm; 
 

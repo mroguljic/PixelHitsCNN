@@ -75,12 +75,12 @@ inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
-norm = np.amax(xpix_flat_train)
-xpix_flat_train/=norm
-xpix_flat_test/=norm
-
-ypix_flat_train/=norm
-ypix_flat_test/=norm
+norm_x = np.amax(xpix_flat_train)
+xpix_flat_train/=norm_x
+xpix_flat_test/=norm_x
+norm_y = np.amax(ypix_flat_train)
+ypix_flat_train/=norm_y
+ypix_flat_test/=norm_y
 
 
 # Model configuration
@@ -143,8 +143,8 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=False)
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=False)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 callbacks = [
 EarlyStopping(patience=2),
@@ -167,12 +167,12 @@ print("x training time for dnn",time.clock()-train_time_x)
 start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
-
+print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
 for cl in range(10):
 
    print(xpix_flat_test[cl])
    print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
-   print('x_pred = %f, y_pred = %f\n'%(x_pred[cl]))
+   print('x_pred = %f\n'%(x_pred[cl]))
    print("\n")
 
 train_time_y = time.clock()
