@@ -632,13 +632,14 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 		}
 //	printf("count = %i\n",count);
 		//fTree->Fill();
+		/*
 		for(int i=prev_count;i<count;i++){
 			fprintf(cnn_file,"%f %f %f %f\n", x_gen[i],y_gen[i],x_2dcnn[i],y_2dcnn[i]);
 			fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
 			fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][1],clsize_2[i][1],clsize_3[i][1],clsize_4[i][1],clsize_5[i][1],clsize_6[i][1]);		
 
 		}
-
+		*/
 
 	}
 	DEFINE_FWK_MODULE(Infer2DCNN);
