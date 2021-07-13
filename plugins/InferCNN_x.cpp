@@ -554,7 +554,7 @@ private:
 					cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
-						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j]/NORM_X;
+						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 						cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					//	printf("%i ",int(clusbuf[i][j]));
 

@@ -11,6 +11,7 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 
 graph_ext = "2dcnn_p1_jun29_test"
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
+thread = "single"
 
 # setup minimal options
 # options = VarParsing("python")
@@ -64,24 +65,42 @@ process.options = cms.untracked.PSet(allowUnscheduled=cms.untracked.bool(True),w
 
 
 # setup Infer2DCNN by loading the auto-generated cfi (see Infer2DCNN.fillDescriptions)
-process.load("TrackerStuff.PixelHitsCNN.infer2DCNN_cfi")
+if thread=="multi": 
+  process.load("TrackerStuff.PixelHitsCNN.infer2DCNN_cfi")
 
-process.infer2DCNN = cms.EDAnalyzer('Infer2DCNN',
- graphPath_ = cms.string(os.path.join(datadir, "graph_%s.pb"%(graph_ext))),
- #graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
- inputTensorName_ = cms.string("input_1"),
- anglesTensorName_ = cms.string("input_2"),
- #inputTensorName_y = cms.string("input_3"),
- #anglesTensorName_y = cms.string("input_4"),
- outputTensorName_x = cms.string("model/dense/BiasAdd"),
- outputTensorName_y = cms.string("Identity_1"),
-     #mightGet = cms.optional.untracked.vstring,
-#     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
- #    PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
-    # rootFileName                 = cms.untracked.string("x_1dcnn.root"),
-     #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
-     )
 
+  process.infer2DCNN = cms.EDAnalyzer('Infer2DCNN',
+   graphPath_ = cms.string(os.path.join(datadir, "graph_%s.pb"%(graph_ext))),
+   #graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
+   inputTensorName_ = cms.string("input_1"),
+   anglesTensorName_ = cms.string("input_2"),
+   #inputTensorName_y = cms.string("input_3"),
+   #anglesTensorName_y = cms.string("input_4"),
+   outputTensorName_x = cms.string("Identity"),
+   outputTensorName_y = cms.string("Identity_1"),
+       #mightGet = cms.optional.untracked.vstring,
+  #     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
+   #    PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+      # rootFileName                 = cms.untracked.string("x_1dcnn.root"),
+       #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
+       )
+else: 
+  process.load("TrackerStuff.PixelHitsCNN.infer2DCNN_single_cfi") 
+  process.infer2DCNN = cms.EDAnalyzer('Infer2DCNN_single',
+   graphPath_ = cms.string(os.path.join(datadir, "graph_%s.pb"%(graph_ext))),
+   #graphPath_y = cms.string(os.path.join(datadir, "graph_y_%s.pb"%(graph_ext))),
+   inputTensorName_ = cms.string("input_1"),
+   anglesTensorName_ = cms.string("input_2"),
+   #inputTensorName_y = cms.string("input_3"),
+   #anglesTensorName_y = cms.string("input_4"),
+   outputTensorName_x = cms.string("Identity"),
+   outputTensorName_y = cms.string("Identity_1"),
+       #mightGet = cms.optional.untracked.vstring,
+  #     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
+   #    PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),
+      # rootFileName                 = cms.untracked.string("x_1dcnn.root"),
+       #pixelRecHitLabel             = cms.untracked.InputTag('siPixelRecHits')
+       )
 
 # define what to run in the path
 process.raw2digi_step = cms.Path(process.RawToDigi)   
@@ -95,6 +114,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
  # process.TrackRefitter
 #)
 process.pixelCPECNN_step = cms.Path(process.infer2DCNN)
+
 
 # potentially for the det angle approach
 #process.schedule = cms.Schedule(
