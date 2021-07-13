@@ -531,13 +531,8 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
 				angles.tensor<float,2>()(0, 0) = cotAlpha;
 				angles.tensor<float,2>()(0, 1) = cotBeta;
-				for (int i = 0; i < TXSIZE; i++) {
-					for(int j = 0; j<TYSIZE; j++){ 
-						cluster_.tensor<float,4>()(0, i,j, 0) = clusbuf[i][j];
-						cluster_.tensor<float,4>()(0, i,j, 0) = 0;
-					} 
-				}
-
+				
+				/*
 				//for testing purposes:
 				angles.tensor<float,2>()(0, 0) = 0.127621;
 				angles.tensor<float,2>()(0, 1) = 2.108195;
@@ -547,34 +542,34 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				cluster_.tensor<float,4>()(0, 6,11, 0) = 0.28769351;
 				cluster_.tensor<float,4>()(0, 7,11, 0) = 0.12388598;
 				cluster_.tensor<float,4>()(0, 7,12, 0) = 0.13960017;
-
-				/*
+				*/
+				
 				for (int i = 0; i < TXSIZE; i++) {
 					for (int j = 0; j < TYSIZE; j++){
-						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j]/35000;
+						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];
 					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
 				//	printf("\n");
 				}
-				*/
+				
 				
 
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				std::vector<tensorflow::Tensor> output_y;
-				tensorflow::run(session_, {{inputTensorName_,cluster_}}, {outputTensorName_x}, &output_x);
-			//	tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_y}, &output_y);
+				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_x}, &output_x);
+				tensorflow::run(session_, {{inputTensorName_,cluster_}, {anglesTensorName_,angles}}, {outputTensorName_y}, &output_y);
 				// convert microns to cms
 				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
-			//	y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
-				printf("x = %f y = \n",x_2dcnn[count]);//,y_2dcnn[count]);
+				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
+			//	printf("x = %f y = \n",x_2dcnn[count]);//,y_2dcnn[count]);
 
 				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
-			//	y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
+				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
-			//	y_2dcnn[count]+=lp.y(); 
+				y_2dcnn[count]+=lp.y(); 
 				// get the generic position
 				x_gen[count] = hit->localPosition().x();
 				y_gen[count] = hit->localPosition().y();
@@ -632,14 +627,14 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 		}
 //	printf("count = %i\n",count);
 		//fTree->Fill();
-		/*
+		
 		for(int i=prev_count;i<count;i++){
 			fprintf(cnn_file,"%f %f %f %f\n", x_gen[i],y_gen[i],x_2dcnn[i],y_2dcnn[i]);
 			fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
 			fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][1],clsize_2[i][1],clsize_3[i][1],clsize_4[i][1],clsize_5[i][1],clsize_6[i][1]);		
 
 		}
-		*/
+		
 
 	}
 	DEFINE_FWK_MODULE(Infer2DCNN);

@@ -442,8 +442,9 @@ public:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-int clustersize_x = 0, clustersize_y = 0;
+			int clustersize_x = 0, clustersize_y = 0;
 					bool bigPixel=false;
+					int irow_sum = 0, icol_sum = 0;
 				int same_x = 500, same_y = 500; //random initial value
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -456,7 +457,8 @@ int clustersize_x = 0, clustersize_y = 0;
 					if ((int)pix.y % 52 == 51 ){
 						bigPixel=true; break; 
 					}
-
+					irow_sum+=irow;
+					icol_sum+=icol;
 					if(irow != same_x){
 						clustersize_x++;
 						same_x = irow;
@@ -468,10 +470,12 @@ int clustersize_x = 0, clustersize_y = 0;
 				}
 					if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
-				else mid_x = int(clustersize_x/2)-0.5;
-				if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
-				else mid_y = int(clustersize_y/2)-0.5;
+				mid_x = round(irow_sum/cluster.size());
+				mid_y = round(icol_sum/cluster.size());
+				//if(clustersize_x%2==0) mid_x = int(clustersize_x/2)-1;
+				//else mid_x = int(clustersize_x/2)-0.5;
+				//if(clustersize_y%2==0) mid_y = int(clustersize_y/2)-1;
+				//else mid_y = int(clustersize_y/2)-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
@@ -514,7 +518,7 @@ int clustersize_x = 0, clustersize_y = 0;
 					cluster_flat_y.tensor<float,2>()(0, i) = 0;
 					for (size_t j = 0; j < TXSIZE; j++){
             //1D projection in x
-						cluster_flat_y.tensor<float,2>()(0, i) += clusbuf[j][i]/10;
+						cluster_flat_y.tensor<float,2>()(0, i) += clusbuf[j][i];
 		//				printf("%f ",clusbuf[i][j]);
 
 					}
@@ -550,14 +554,7 @@ int clustersize_x = 0, clustersize_y = 0;
 		for(int i=prev_count;i<count;i++){
 			fprintf(cnn_file,"%f %f\n", y_gen[i],y_1dcnn[i]);
 		}
-		//printf("Output from 1dcnn:\n");
-		//for(int i=prev_count;i<count;i++){
-		//	fprintf(cnn_file,"%f\n", y_1dcnn[i]);
-		//}
-		//printf("dy residual:\n");
-		//for(int i=prev_count;i<count;i++){
-		//	fprintf(res_gen_1cnn_file,"%f\n", dy[i]);
-		//}
+		
 
 	}
 	DEFINE_FWK_MODULE(InferDNN_y);

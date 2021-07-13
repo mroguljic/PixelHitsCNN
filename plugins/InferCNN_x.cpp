@@ -555,24 +555,25 @@ private:
 					for (size_t j = 0; j < TYSIZE; j++){
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
-						cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
+					//	cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 					//	printf("%i ",int(clusbuf[i][j]));
 
 					}
 					//printf("\n");
 				}
 				//for testing purposes:
+				/*
 				angles.tensor<float,2>()(0, 0) = -0.201142;
 				angles.tensor<float,2>()(0, 1) = 6.538521;
 				cluster_flat_x.tensor<float,3>()(0, 5, 0) = 0.00982028;
 				cluster_flat_x.tensor<float,3>()(0, 6, 0) = 0.3596283;
-
+				*/
 				// define the output and run
 				std::vector<tensorflow::Tensor> output_x;
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
 				x_1dcnn[count] = output_x[0].matrix<float>()(0,0);
-				printf("x = %f\n",x_1dcnn[count]);
+				//printf("x = %f\n",x_1dcnn[count]);
 
 				x_1dcnn[count] = (x_1dcnn[count]+pixelsize_x*(mid_x))*micronsToCm; 
 
@@ -642,7 +643,7 @@ private:
 	//		printf("%f\n", x_1dcnn[i]);
 	//	}
 	//	printf("dx residual:\n");
-	/*
+	
     for(int i=prev_count;i<count;i++){
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
@@ -655,7 +656,7 @@ private:
 
 		fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
-    */
+    
 
 }
 DEFINE_FWK_MODULE(InferCNN_x);

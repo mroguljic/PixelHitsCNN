@@ -529,7 +529,7 @@ public:
 					cluster_flat_y.tensor<float,3>()(0, i, 0) = 0;
 					for (size_t j = 0; j < TXSIZE; j++){
             //1D projection in x
-						cluster_flat_y.tensor<float,3>()(0, i, 0) += clusbuf[j][i]/35000;
+						cluster_flat_y.tensor<float,3>()(0, i, 0) += clusbuf[j][i];
 		//				printf("%f ",clusbuf[i][j]);
 
 					}
@@ -587,14 +587,7 @@ public:
 			fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][1],clsize_2[i][1],clsize_3[i][1],clsize_4[i][1],clsize_5[i][1],clsize_6[i][1]);		
 
 		}
-		//printf("Output from 1dcnn:\n");
-		//for(int i=prev_count;i<count;i++){
-		//	fprintf(cnn_file,"%f\n", y_1dcnn[i]);
-		//}
-		//printf("dy residual:\n");
-		//for(int i=prev_count;i<count;i++){
-		//	fprintf(res_gen_1cnn_file,"%f\n", dy[i]);
-		//}
+	
 
 	}
 	DEFINE_FWK_MODULE(InferCNN_y);

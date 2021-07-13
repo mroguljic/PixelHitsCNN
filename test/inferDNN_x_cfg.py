@@ -9,7 +9,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-graph_ext = "dnn_p1_apr12"
+graph_ext = "dnn_p1_jul13"
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
 
 # setup minimal options
@@ -46,7 +46,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(5000))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(3000))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
