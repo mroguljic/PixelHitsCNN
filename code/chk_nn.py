@@ -25,7 +25,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "2dcnn_p1_jun29_test"
+img_ext = "2dcnn_p1_jul13_test"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -96,16 +96,15 @@ model = Model(inputs=[inputs],#angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']#,'mse']
               )
-'''
-cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
+
 
 callbacks = [
 EarlyStopping(patience=5),
@@ -123,9 +122,12 @@ history = model.fit([pix_train], #angles_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
+cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
-'''
+
 start = time.clock()
 x_pred = model.predict([pix_test], batch_size=9000)
 inference_time = time.clock() - start
