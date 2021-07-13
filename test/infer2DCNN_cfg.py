@@ -9,9 +9,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-graph_ext = "2dcnn_p1_jun29_test"
+graph_ext = "2dcnn_p1_jul13_test"
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
-thread = "single"
+thread = "multi"
 
 # setup minimal options
 # options = VarParsing("python")

@@ -1,5 +1,14 @@
 /*
  * Example plugin to demonstrate the direct multi-threaded inference on CNN with TensorFlow 2.
+************ HAS A BUG *****************
+----- Begin Fatal Exception 12-Jul-2021 23:15:14 CDT-----------------------
+An exception of category 'ConfigFileReadError' occurred while
+   [0] Processing the python configuration file named TrackerStuff/PixelHitsCNN/test/infer2DCNN_cfg.py
+Exception Message:
+python encountered the error: <type 'exceptions.ImportError'>
+No module named TrackerStuff.PixelHitsCNN.infer2DCNN_single_cfi
+----- End Fatal Exception -------------------------------------------------
+
  */
 
 #include <memory>
@@ -38,7 +47,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
