@@ -44,7 +44,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "dnn_p1_apr12"
+img_ext = "dnn_p1_jul13"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -123,8 +123,6 @@ model.compile(loss=loss_function,
               metrics=['mse','mse']
               )
 
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 callbacks = [
 EarlyStopping(patience=3),
@@ -139,6 +137,9 @@ history = model.fit([xpix_flat_train,angles_train], [x_train],
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
+
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
 
@@ -189,8 +190,6 @@ model.compile(loss=loss_function,
               metrics=['mse','mse']
               )
 
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 callbacks = [
 EarlyStopping(patience=3),
@@ -206,6 +205,8 @@ history = model.fit([ypix_flat_train,angles_train], [y_train],
                 validation_split=validation_split,
 		callbacks=callbacks)
 
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
 

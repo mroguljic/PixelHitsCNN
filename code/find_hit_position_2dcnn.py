@@ -45,11 +45,11 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "2dcnn_p1_jun14"
+img_ext = "2dcnn_p1_jul13"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_train = (f['train_hits'][...])/35000
+pix_train = (f['train_hits'][...])
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
 x_train = f['x'][...] 
@@ -60,7 +60,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_test = (f['test_hits'][...])/35000
+pix_test = (f['test_hits'][...])
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
 x_test = f['x'][...]
@@ -174,19 +174,17 @@ model = Model(inputs=[inputs,angles],
  # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse','mse']
               )
-'''
-cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
 
 callbacks = [
-EarlyStopping(patience=5),
+EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -200,24 +198,17 @@ history = model.fit([pix_train, angles_train], [x_train, y_train],
                 callbacks=callbacks,
                 validation_split=validation_split)
 
+cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
 plot_cnn_loss(history.history,"x",img_ext)
 plot_cnn_loss(history.history,"y",img_ext)
-'''
+
 # Generate generalization metrics
 print("training time ",time.clock()-train_time_s)
 
 start = time.clock()
 x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=9000)
-inference_time = time.clock() - start
-
-print("inference_time = ",inference_time)
-
-'''
-
-model = tf.saved_model.load("data/")
-
-start = time.clock()
-x_pred_saved, y_pred_saved = model.predict([pix_test, angles_test], batch_size=9000)
 inference_time = time.clock() - start
 
 print("inference_time = ",inference_time)
@@ -252,4 +243,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-'''
+

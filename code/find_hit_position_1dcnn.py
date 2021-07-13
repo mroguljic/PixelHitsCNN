@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "dec12"
 h5_ext = "phase1"
-img_ext = "1dcnn_p1_jun17_test"
+img_ext = "1dcnn_p1_jul13"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -74,19 +74,19 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-
+'''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
 xpix_flat_test/=norm_x
 norm_y = np.amax(ypix_flat_train)
 ypix_flat_train/=norm_y
 ypix_flat_test/=norm_y
-
+'''
 
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
-n_epochs = 1
+n_epochs = 15
 optimizer = Adam(lr=0.001)
 validation_split = 0.3
 
@@ -143,11 +143,8 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
-
 callbacks = [
-EarlyStopping(patience=2),
+EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -159,6 +156,9 @@ history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
                 epochs=n_epochs,
                 callbacks=callbacks,
                 validation_split=validation_split)
+
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 #plot_dnn_loss(history.history,'x',img_ext)
 
@@ -176,7 +176,7 @@ for cl in range(10):
    print("\n")
 
 train_time_y = time.clock()
-'''
+
 #train flat y
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
@@ -228,11 +228,10 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
 
 callbacks = [
-EarlyStopping(patience=2),
+EarlyStopping(patience=3),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -245,6 +244,8 @@ history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
                 validation_split=validation_split,
     callbacks=callbacks)
 
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
 
