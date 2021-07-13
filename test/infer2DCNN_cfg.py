@@ -9,7 +9,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-graph_ext = "2dcnn_p1_jun23_test"
+graph_ext = "2dcnn_p1_jun29_test"
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
 
 # setup minimal options
@@ -73,7 +73,7 @@ process.infer2DCNN = cms.EDAnalyzer('Infer2DCNN',
  anglesTensorName_ = cms.string("input_2"),
  #inputTensorName_y = cms.string("input_3"),
  #anglesTensorName_y = cms.string("input_4"),
- outputTensorName_x = cms.string("Identity"),
+ outputTensorName_x = cms.string("model/dense/BiasAdd"),
  outputTensorName_y = cms.string("Identity_1"),
      #mightGet = cms.optional.untracked.vstring,
 #     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
