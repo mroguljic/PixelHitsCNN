@@ -510,8 +510,8 @@ private:
 				}
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				mid_x = round(irow_sum/cluster.size());
-				mid_y = round(icol_sum/cluster.size());
+				mid_x = round(float(irow_sum)/float(cluster.size()));
+				mid_y = round(float(icol_sum)/float(cluster.size()));
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
