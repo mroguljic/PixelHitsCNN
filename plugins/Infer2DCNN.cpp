@@ -487,12 +487,12 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				}
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				mid_x = round(irow_sum/cluster.size());
-				mid_y = round(icol_sum/cluster.size());
-				//if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
-				//else mid_x = clustersize_x/2.-0.5;
-				//if(clustersize_y%2==0) mid_y = clustersize_y/2-1;
-				//else mid_y = clustersize_y/2.-0.5;
+				//mid_x = round(irow_sum/cluster.size());
+				//mid_y = round(icol_sum/cluster.size());
+				if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
+				else mid_x = clustersize_x/2.-0.5;
+				if(clustersize_y%2==0) mid_y = clustersize_y/2-1;
+				else mid_y = clustersize_y/2.-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
 				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
@@ -565,8 +565,8 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
 			//	printf("x = %f y = \n",x_2dcnn[count]);//,y_2dcnn[count]);
 
-				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x+0.5))*micronsToCm;
-				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y+0.5))*micronsToCm;
+				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
+				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
 				y_2dcnn[count]+=lp.y(); 
