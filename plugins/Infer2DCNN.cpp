@@ -484,10 +484,10 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 						clustersize_y++;
 						same_y = icol;
 					}
-				//printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+			//	printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 				}
 				if(bigPixel) continue;
-				//printf("clustersize_x = %i, clustersize_y = %i, irow_sum = %i, icol_sumcluster.size() = %i\n",clustersize_x,clustersize_y,cluster.size());
+			//	printf("clustersize_x = %i, clustersize_y = %i, cluster.size() = %i\n",clustersize_x,clustersize_y,cluster.size());
 				mid_x = round(float(irow_sum)/float(cluster.size()));
 				mid_y = round(float(icol_sum)/float(cluster.size()));
 				//if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
@@ -496,7 +496,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				//else mid_y = clustersize_y/2.-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
-				//printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
+			//	printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
