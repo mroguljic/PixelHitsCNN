@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
 
-img_ext = 'jun15'
+img_ext = 'jul15'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
@@ -26,7 +26,7 @@ def plot_residual(results, sim, label,algo):
 	plt.savefig('plots/%s_compare_%s.png'%(label,algo))
 	plt.close()
 	'''
-	bins = np.linspace(-500,500,100)
+	bins = np.linspace(-300,300,100)
 	residuals = np.zeros_like(results)+9999
 
 	for i in range(len(results)):
@@ -74,16 +74,16 @@ print(simhits_y.shape)
 
 residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
-#plot_residual(dnn_x,simhits_x,'x','dnn')
-#plot_residual(dnn_y,simhits_y,'y','dnn')
+residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
+residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
 residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
 residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
 residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
 residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
 
-
+'''
 #print clustersize wise residuals
-bins = np.linspace(-400,400,200)
+bins = np.linspace(-400,400,100)
 
 for label in ['x','y']:
 	for algo in ['1dcnn','2dcnn']:
@@ -140,3 +140,4 @@ for label in ['x','y']:
 		plt.close()
 
 		pp.close()
+'''
