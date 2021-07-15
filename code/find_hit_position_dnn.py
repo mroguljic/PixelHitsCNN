@@ -77,11 +77,11 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs = 20
 optimizer = Adam(lr=0.001)
-validation_split = 0.3
+validation_split = 0.2
 
 train_time_x = time.clock()
 #train flat x
@@ -125,7 +125,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=3),
+EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -192,7 +192,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=3),
+EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')

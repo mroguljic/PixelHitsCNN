@@ -84,11 +84,11 @@ ypix_flat_test/=norm_y
 '''
 
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs = 15
 optimizer = Adam(lr=0.001)
-validation_split = 0.3
+validation_split = 0.2
 
 train_time_x = time.clock()
 #train flat x
@@ -144,7 +144,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-EarlyStopping(patience=3),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -167,6 +167,7 @@ print("x training time for dnn",time.clock()-train_time_x)
 start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
+'''
 print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
 for cl in range(10):
 
@@ -174,7 +175,7 @@ for cl in range(10):
    print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
    print('x_pred = %f\n'%(x_pred[cl]))
    print("\n")
-
+'''
 train_time_y = time.clock()
 
 #train flat y
@@ -231,7 +232,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=3),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -279,5 +280,5 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-'''
+
 

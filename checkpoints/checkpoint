@@ -1,2 +1,2 @@
-model_checkpoint_path: "cp_2dcnn_p1_jul13_test.ckpt"
-all_model_checkpoint_paths: "cp_2dcnn_p1_jul13_test.ckpt"
+model_checkpoint_path: "cp_2dcnn_p1_jul13.ckpt"
+all_model_checkpoint_paths: "cp_2dcnn_p1_jul13.ckpt"
