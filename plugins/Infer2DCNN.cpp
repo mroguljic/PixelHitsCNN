@@ -486,16 +486,16 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 					}
 				}
 				if(bigPixel) continue;
-				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
-				//mid_x = round(irow_sum/cluster.size());
-				//mid_y = round(icol_sum/cluster.size());
-				if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
-				else mid_x = clustersize_x/2.-0.5;
-				if(clustersize_y%2==0) mid_y = clustersize_y/2-1;
-				else mid_y = clustersize_y/2.-0.5;
+				printf("clustersize_x = %i, clustersize_y = %i, cluster.size() = %i\n",clustersize_x,clustersize_y,cluster.size());
+				mid_x = round(irow_sum/cluster.size());
+				mid_y = round(icol_sum/cluster.size());
+				//if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
+				//else mid_x = clustersize_x/2.-0.5;
+				//if(clustersize_y%2==0) mid_y = clustersize_y/2-1;
+				//else mid_y = clustersize_y/2.-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
-				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
+				printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -547,10 +547,10 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				for (int i = 0; i < TXSIZE; i++) {
 					for (int j = 0; j < TYSIZE; j++){
 						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];
-					//	printf("%i ",int(clusbuf[i][j]));
+						printf("%i ",int(clusbuf[i][j]));
 
 					}
-				//	printf("\n");
+					printf("\n");
 				}
 				
 				
@@ -563,7 +563,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				// convert microns to cms
 				x_2dcnn[count] = output_x[0].matrix<float>()(0,0);
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
-			//	printf("x = %f y = \n",x_2dcnn[count]);//,y_2dcnn[count]);
+				printf("x = %f y = \n",x_2dcnn[count]);//,y_2dcnn[count]);
 
 				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*(mid_x))*micronsToCm;
 				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*(mid_y))*micronsToCm;
@@ -576,7 +576,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				// compute the residual
 				//dx[count] = x_gen[count] - x_2dcnn[count];
 				//dy[count] = y_gen[count] - y_2dcnn[count];
-			//printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
+			printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
 //			printf("1dcnn position: %f\n ",(x_2dcnn[count]-lp.y())*1e4);
 //			printf("%i\n",count);
 				switch(clustersize_x){

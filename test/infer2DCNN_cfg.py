@@ -47,7 +47,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(3000))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(5))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
