@@ -74,19 +74,21 @@ print(simhits_y.shape)
 
 residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
+'''
 residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
 residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
 residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
+
 residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
 residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
-
 '''
+
 #print clustersize wise residuals
 bins = np.linspace(-400,400,100)
 
 for label in ['x','y']:
-	for algo in ['1dcnn','2dcnn']:
+	for algo in ['1dcnn']:
 
 		pp = PdfPages('plots/CMSSW/per_clustersize/res_vs_csize_%s_%s_%s.pdf'%(algo,label,img_ext))
 		clustersize_res = np.genfromtxt("txt_files/cnn2d_MC_perclustersize_%s.txt"%label)
@@ -140,4 +142,3 @@ for label in ['x','y']:
 		plt.close()
 
 		pp.close()
-'''
