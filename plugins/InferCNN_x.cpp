@@ -484,7 +484,7 @@ private:
 				int clustersize_x = 0, clustersize_y = 0;
 				bool bigPixel=false;
 				int irow_sum = 0, icol_sum = 0;
-				int same_x = 500, same_y = 500; //random initial value
+				//int same_x = 500, same_y = 500; //random initial value
 
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -499,25 +499,16 @@ private:
 					}
 					irow_sum+=irow;
 					icol_sum+=icol;
-					if(irow != same_x){
-						clustersize_x++;
-						same_x = irow;
-					}
-					if(icol != same_y){
-						clustersize_y++;
-						same_y = icol;
-					}
+					
 				}
 				if(bigPixel) continue;
-				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
+				
 				mid_x = round(float(irow_sum)/float(cluster.size()));
 				mid_y = round(float(icol_sum)/float(cluster.size()));
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
-				if(clustersize_x==3) {
-				printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
-				printf("cotalpha = %f, cotbeta = %f\n",cotAlpha,cotBeta);
-				}
+
+				
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -530,9 +521,25 @@ private:
 					
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
- 				    if(clustersize_x==3) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
+ 				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 				}
+				//getting clustersizes
+				for (int i=0;i<TXSIZE;i++){	
+					for(int j=0;j<TYSIZE;j++){
+						if(clusbuf[i][j]!=0){clustersize_x++; break;}
+					}
+				}
+				for(int j=0;j<TYSIZE;j++){	
+					for (int i=0;i<TXSIZE;i++){
+						if(clusbuf[i][j]!=0){clustersize_y++; break;}
+					}
+				}
+				if(clustersize_x==3) {
+				printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
+				printf("cotalpha = %f, cotbeta = %f\n",cotAlpha,cotBeta);
+				}
+				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
 				LocalPoint trk_lp = ltp.position();
