@@ -657,7 +657,7 @@ private:
 	//		printf("%f\n", x_1dcnn[i]);
 	//	}
 	//	printf("dx residual:\n");
-	/*
+	
     for(int i=prev_count;i<count;i++){
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
@@ -670,7 +670,7 @@ private:
 
 		fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
-    */
+    
 
 }
 DEFINE_FWK_MODULE(InferCNN_x);
