@@ -53,44 +53,11 @@ def plot_residual(results, sim, label,algo):
 
 	return residuals 
 
+def plot_by_clustersize(residuals_x,residuals_y,algo,img_ext):
+	#print clustersize wise residuals
+	bins = np.linspace(-300,300,100)
 
-cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,1]
-cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,1]
-
-dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")[:,1]
-dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")[:,1]
-
-gen_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,0]
-gen_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,0]
-
-cnn2d = np.genfromtxt("txt_files/cnn2d_MC.txt")
-cnn2d_x = cnn2d[:,2]
-cnn2d_y = cnn2d[:,3]
-
-simhits = np.genfromtxt("txt_files/simhits_MC.txt")
-simhits_x = simhits[:,0:10]
-simhits_y = simhits[:,10:20]
-print(simhits_x.shape)
-print(simhits_y.shape)
-'''
-residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
-residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
-
-residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
-residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
-
-residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
-residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
-'''
-residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
-residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
-
-
-#print clustersize wise residuals
-bins = np.linspace(-300,300,100)
-
-for label in ['x','y']:
-	for algo in ['2dcnn']:
+	for label in ['x','y']:
 
 		pp = PdfPages('plots/CMSSW/per_clustersize/res_vs_csize_%s_%s_%s.pdf'%(algo,label,img_ext))
 		clustersize_res = np.genfromtxt("txt_files/cnn2d_MC_perclustersize_%s.txt"%label)
@@ -116,34 +83,71 @@ for label in ['x','y']:
 
 
 
-		plt.hist(cl1, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.hist(cl1, bins=bins, histtype='step', linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 1'%(algo,label))
 		pp.savefig()
 		plt.close()
 
-		plt.hist(cl2, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.hist(cl2, bins=bins, histtype='step',linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 2'%(algo,label))
 		pp.savefig()
 		plt.close()
 
-		plt.hist(cl3, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.hist(cl3, bins=bins, histtype='step', linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 3'%(algo,label))
 		pp.savefig()
 		plt.close()
 
-		plt.hist(cl4, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.hist(cl4, bins=bins, histtype='step', linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 4'%(algo,label))
 		pp.savefig()
 		plt.close()
 
-		plt.hist(cl5, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.hist(cl5, bins=bins, histtype='step', linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 5'%(algo,label))
 		pp.savefig()
 		plt.close()
 
-		plt.hist(cl6, bins=bins, histtype='step', density=True,linewidth=2)
+		plt.hist(cl6, bins=bins, histtype='step', linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 6'%(algo,label))
 		pp.savefig()
 		plt.close()
 
 		pp.close()
+
+cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,1]
+cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,1]
+
+dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")[:,1]
+dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")[:,1]
+
+gen_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,0]
+gen_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,0]
+
+cnn2d = np.genfromtxt("txt_files/cnn2d_MC.txt")
+cnn2d_x = cnn2d[:,2]
+cnn2d_y = cnn2d[:,3]
+
+simhits = np.genfromtxt("txt_files/simhits_MC.txt")
+simhits_x = simhits[:,0:10]
+simhits_y = simhits[:,10:20]
+print(simhits_x.shape)
+print(simhits_y.shape)
+
+residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
+residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
+
+plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
+
+#residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
+#residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
+
+residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
+residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
+
+residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
+residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
+
+plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
+
+
