@@ -514,7 +514,7 @@ private:
 				mid_y = round(float(icol_sum)/float(cluster.size()));
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
-				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
+				if(clustersize_x==1) printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -527,7 +527,7 @@ private:
 					
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
- //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+ 				    if(clustersize_x==1) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 				}
 //			printf("fails after filling buffer\n");
@@ -535,7 +535,7 @@ private:
 				LocalPoint trk_lp = ltp.position();
 				float trk_lp_x = trk_lp.x();
 				float trk_lp_y = trk_lp.y();
-
+				if(clustersize_x==1) printf("trk_lp_x = %f, trk_lp_y = %f\n",trk_lp_x,trk_lp_y);
 				Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
 				LocalPoint lp; 
 				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
@@ -556,10 +556,10 @@ private:
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 					//	cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-					//	printf("%i ",int(clusbuf[i][j]));
+					if(clustersize_x==1)	printf("%i ",int(clusbuf[i][j]));
 
 					}
-					//printf("\n");
+					if(clustersize_x==1) printf("\n");
 				}
 				//for testing purposes:
 				/*
@@ -604,9 +604,12 @@ private:
 
 				// compute the generic residual
 				//dx[count] = x_gen[count] - x_1dcnn[count];
-
-//			printf("Generic position: %f\n ",x_gen[count]*1e4);
-//			printf("1dcnn position: %f\n ",x_1dcnn[count]*1e4);
+            if(clustersize_x==1){
+			printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
+			printf("1dcnn position: %f\n ",(x_1dcnn[count]-lp.x())*1e4);
+			printf("simhit_x =");
+			for(int i=0; i<10; i++) printf(" %f", (fClSimHitLx[count][i]-lp.x())*1e4);
+			}
 //			printf("%i\n",count);
             switch(clustersize_x){
 					case 1: 
@@ -643,7 +646,7 @@ private:
 	//		printf("%f\n", x_1dcnn[i]);
 	//	}
 	//	printf("dx residual:\n");
-	
+	/*
     for(int i=prev_count;i<count;i++){
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
@@ -656,7 +659,7 @@ private:
 
 		fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
-    
+    */
 
 }
 DEFINE_FWK_MODULE(InferCNN_x);
