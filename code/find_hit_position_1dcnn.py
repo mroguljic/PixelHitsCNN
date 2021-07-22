@@ -74,6 +74,7 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
+print(angles_test.shape)
 '''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
@@ -82,6 +83,14 @@ norm_y = np.amax(ypix_flat_train)
 ypix_flat_train/=norm_y
 ypix_flat_test/=norm_y
 '''
+test_c = np.zeros((13,21))
+test_c[6,9]=4425
+test_c[6,10]=14403
+test_ang = np.array([-0.321207,-0.348136]).reshape((1,2))
+print(test_ang.shape)
+test_cx = test_c.sum(axis=1).reshape((1,13))
+print(test_cx.shape)
+test_cy = test_c.sum(axis=0).reshape((1,21))
 
 # Model configuration
 batch_size = 512
@@ -135,14 +144,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-
+'''
 callbacks = [
 EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -161,20 +170,22 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 #plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
-'''
-print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
-for cl in range(10):
+print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
 
-   print(xpix_flat_test[cl])
-   print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
-   print('x_pred = %f\n'%(x_pred[cl]))
-   print("\n")
+
+#print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
+for cl in range(80):
+   if(clustersize_x_test[cl]==1):
+   	print(xpix_flat_test[cl])
+   	print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
+   	print('x_pred = %f\n'%(x_pred[cl]))
+   	print("\n")
 '''
 train_time_y = time.clock()
 
@@ -258,6 +269,8 @@ inference_time_y = time.clock() - start
 
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 
+
+
 residuals_x = x_pred - x_test
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
 print(np.amin(residuals_x),np.amax(residuals_x))
@@ -278,7 +291,7 @@ print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
 plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
-plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
-plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
+#plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
+#plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
-
+'''

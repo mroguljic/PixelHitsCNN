@@ -427,14 +427,14 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 
 			int row_offset = cluster.minPixelRow();
 			int col_offset = cluster.minPixelCol();
-//			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
-//			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
+			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
   // Store the coordinates of the center of the (0,0) pixel of the array that
   // gets passed to PixelTempReco1D
   // Will add these values to the output of  PixelTempReco1D
 			float tmp_x = float(row_offset) + 0.5f;
 			float tmp_y = float(col_offset) + 0.5f;
-//			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
+			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
 //			printf("cluster.size() = %i\n",cluster.size());
 
@@ -487,7 +487,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 	//			printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 				}
 				if(bigPixel) continue;
-	//			printf("clustersize_x = %i, clustersize_y = %i, cluster.size() = %i\n",clustersize_x,clustersize_y,cluster.size());
+				printf("clustersize_x = %i, clustersize_y = %i, cluster.size() = %i\n",clustersize_x,clustersize_y,cluster.size());
 				mid_x = round(float(irow_sum)/float(cluster.size()));
 				mid_y = round(float(icol_sum)/float(cluster.size()));
 				//if(clustersize_x%2==0) mid_x = clustersize_x/2-1;
@@ -496,7 +496,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				//else mid_y = clustersize_y/2.-0.5;
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
-	//			printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
+				printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -509,7 +509,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 					
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
-    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+    printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
 				}
 //			printf("fails after filling buffer\n");
@@ -524,7 +524,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				auto const& topol = geomdetunit->specificTopology();
 				lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 
-	//		printf("lp.x() = %f, lp.y() = %f\n",lp.x(),lp.y());
+			printf("lp.x() = %f, lp.y() = %f\n",lp.x(),lp.y());
 				//===============================
 				// define a tensor and fill it with cluster projection
 				tensorflow::Tensor cluster_(tensorflow::DT_FLOAT, {1,TXSIZE,TYSIZE,1});
@@ -548,10 +548,10 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				for (int i = 0; i < TXSIZE; i++) {
 					for (int j = 0; j < TYSIZE; j++){
 						cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];
-	//					printf("%i ",int(clusbuf[i][j]));
+						printf("%i ",int(clusbuf[i][j]));
 
 					}
-	//				printf("\n");
+					printf("\n");
 				}
 				
 				
@@ -566,8 +566,8 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				y_2dcnn[count] = output_y[0].matrix<float>()(0,0);
 			//	printf("x = %f y = %f\n",x_2dcnn[count],y_2dcnn[count]);
 
-				x_2dcnn[count] = (x_2dcnn[count])*micronsToCm;
-				y_2dcnn[count] = (y_2dcnn[count])*micronsToCm;
+				x_2dcnn[count] = (x_2dcnn[count]+pixelsize_x*mid_x)*micronsToCm;
+				y_2dcnn[count] = (y_2dcnn[count]+pixelsize_y*mid_y)*micronsToCm;
 				printf("x = %f y = %f\n",x_2dcnn[count]*1e4,y_2dcnn[count]*1e4);
 				// go back to module coordinate system
 				x_2dcnn[count]+=lp.x();
@@ -578,7 +578,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				// compute the residual
 				//dx[count] = x_gen[count] - x_2dcnn[count];
 				//dy[count] = y_gen[count] - y_2dcnn[count];
-	//		printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
+			printf("Generic x = %f y = %f\n ",(x_gen[count]-lp.x())*1e4,(y_gen[count]-lp.y())*1e4);
 			//printf("----------------------------------------------------\n");
 //			printf("1dcnn position: %f\n ",(x_2dcnn[count]-lp.y())*1e4);
 //			printf("%i\n",count);
