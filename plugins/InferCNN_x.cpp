@@ -491,10 +491,10 @@ private:
 					int irow = int(pix.x) - row_offset;
 					int icol = int(pix.y) - col_offset;
 					//double pixels skip
-					if ((int)pix.x == 79){
+					if ((int)pix.x == 79 || (int)pix.x == 80){
 						bigPixel=true; break;
 					}
-					if ((int)pix.y % 52 == 51 ){
+					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
 					irow_sum+=irow;
