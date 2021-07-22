@@ -535,17 +535,17 @@ private:
 						if(clusbuf[i][j]!=0){clustersize_y++; break;}
 					}
 				}
-				if(clustersize_x==3) {
-				printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
-				printf("cotalpha = %f, cotbeta = %f\n",cotAlpha,cotBeta);
-				}
+				//if(clustersize_x==3) {
+				//printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
+				//printf("cotalpha = %f, cotbeta = %f\n",cotAlpha,cotBeta);
+				//}
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
 				LocalPoint trk_lp = ltp.position();
 				float trk_lp_x = trk_lp.x();
 				float trk_lp_y = trk_lp.y();
-				if(clustersize_x==3) printf("trk_lp_x = %f, trk_lp_y = %f\n",trk_lp_x,trk_lp_y);
+				//if(clustersize_x==3) printf("trk_lp_x = %f, trk_lp_y = %f\n",trk_lp_x,trk_lp_y);
 				Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
 				LocalPoint lp; 
 				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
@@ -566,10 +566,10 @@ private:
             //1D projection in x
 						cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 					//	cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-					if(clustersize_x==3)	printf("%i ",int(clusbuf[i][j]));
+					//printf("%i ",int(clusbuf[i][j]));
 
 					}
-					if(clustersize_x==3) printf("\n");
+					//printf("\n");
 				}
 				//for testing purposes:
 				/*
@@ -614,13 +614,13 @@ private:
 
 				// compute the generic residual
 				//dx[count] = x_gen[count] - x_1dcnn[count];
-            if(clustersize_x==3){
-			printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
-			printf("1dcnn position: %f\n ",(x_1dcnn[count]-lp.x())*1e4);
-			printf("simhit_x =");
-			for(int i=0; i<10; i++) printf(" %f", (fClSimHitLx[count][i]-lp.x())*1e4);
-			printf("\n");
-			}
+          //  if(clustersize_x==3){
+		//	printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
+		//	printf("1dcnn position: %f\n ",(x_1dcnn[count]-lp.x())*1e4);
+		//	printf("simhit_x =");
+		//	for(int i=0; i<10; i++) printf(" %f", (fClSimHitLx[count][i]-lp.x())*1e4);
+		//	printf("\n");
+		//	}
 //			printf("%i\n",count);
             switch(clustersize_x){
 					case 1: 

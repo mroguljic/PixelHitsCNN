@@ -474,14 +474,7 @@ public:
 					}
 					irow_sum+=irow;
 					icol_sum+=icol;
-					if(irow != same_x){
-						clustersize_x++;
-						same_x = irow;
-					}
-					if(icol != same_y){
-						clustersize_y++;
-						same_y = icol;
-					}
+					
 				}
 				if(bigPixel) continue;
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
@@ -504,6 +497,17 @@ public:
 					clusbuf[irow][icol] = float(pix.adc);
  //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
+				}
+				//getting clustersizes
+				for (int i=0;i<TXSIZE;i++){	
+					for(int j=0;j<TYSIZE;j++){
+						if(clusbuf[i][j]!=0){clustersize_x++; break;}
+					}
+				}
+				for(int j=0;j<TYSIZE;j++){	
+					for (int i=0;i<TXSIZE;i++){
+						if(clusbuf[i][j]!=0){clustersize_y++; break;}
+					}
 				}
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
