@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
 
-img_ext = 'jul15'
+img_ext = 'jul21'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
@@ -29,11 +29,12 @@ def plot_residual(results, sim, label,algo):
 	bins = np.linspace(-300,300,100)
 	residuals = np.zeros_like(results)+9999
 
-	for i in range(len(results)):
+	for i in range(len(sim)):
 		for j in range(SIMHITPERCLMAX):
 			if(abs(results[i]-sim[i][j])<residuals[i]):
 				residuals[i] = (results[i]-sim[i][j])*1e4
-	residuals = residuals[residuals<1000]
+	#print(residuals[residuals>1000])
+	#sresiduals = residuals[residuals<1000]
 	RMS = np.sqrt(np.mean(residuals*residuals))
 	mean, sigma = norm.fit(residuals)
 
@@ -71,24 +72,25 @@ simhits_x = simhits[:,0:10]
 simhits_y = simhits[:,10:20]
 print(simhits_x.shape)
 print(simhits_y.shape)
-
+'''
 residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
-'''
+
 residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
+
 residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
 residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
-
+'''
 residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
 residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
-'''
+
 
 #print clustersize wise residuals
-bins = np.linspace(-400,400,100)
+bins = np.linspace(-300,300,100)
 
 for label in ['x','y']:
-	for algo in ['1dcnn']:
+	for algo in ['2dcnn']:
 
 		pp = PdfPages('plots/CMSSW/per_clustersize/res_vs_csize_%s_%s_%s.pdf'%(algo,label,img_ext))
 		clustersize_res = np.genfromtxt("txt_files/cnn2d_MC_perclustersize_%s.txt"%label)
@@ -104,12 +106,15 @@ for label in ['x','y']:
 		if label=='x': residuals = residuals_x
 		else: residuals = residuals_y 
 
+		
 		cl1 = residuals[cl1!=-999.]
 		cl2 = residuals[cl2!=-999.]
 		cl3 = residuals[cl3!=-999.]
 		cl4 = residuals[cl4!=-999.]
 		cl5 = residuals[cl5!=-999.]
 		cl6 = residuals[cl6!=-999.]
+
+
 
 		plt.hist(cl1, bins=bins, histtype='step', density=True,linewidth=2)
 		plt.title('%s - residuals in %s, clustersize = 1'%(algo,label))
