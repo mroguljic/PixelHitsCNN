@@ -331,7 +331,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 			//isBpixtrack = true;
 			//if (subdetid == PixelSubdetector::PixelEndcap)
 			//isFpixtrack = true;
-			if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
+			if (subdetid != PixelSubdetector::PixelBarrel) //&& subdetid != PixelSubdetector::PixelEndcap)
 				continue;
 			bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
 
