@@ -111,12 +111,15 @@ def center_clusters(cluster_matrices):
 	for index in range(0,n_train):
 		if(index%100000==0):
 			print(index)
+
 #	for index in np.arange(10):
 #		print(cluster_matrices[index].reshape((13,21)).astype(int))
 		#many matrices are zero cus below thresholf
+
 		if(np.all(cluster_matrices[index]==0)):
 			n_empty+=1
 			continue
+		'''
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
 		#find connected components 
@@ -140,8 +143,9 @@ def center_clusters(cluster_matrices):
 						largest_idxs_x = cluster_idxs_x
 						largest_idxs_y = cluster_idxs_y
 		elif(n_clusters==1):
-			largest_idxs_x = np.argwhere(labels==1)[:,0]
-			largest_idxs_y = np.argwhere(labels==1)[:,1]
+		'''
+		largest_idxs_x = np.argwhere(labels==1)[:,0]
+		largest_idxs_y = np.argwhere(labels==1)[:,1]
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
