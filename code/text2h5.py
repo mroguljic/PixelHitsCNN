@@ -242,8 +242,8 @@ p1    = 0.711;
 p2    = 203.;
 p3    = 148.;	
 
-date = "dec12"
-filename = "phase1"
+date = "072821"
+filename = "p1_2018_irrad_L1"
 phase1 = True
 
 if(phase1):
@@ -254,7 +254,7 @@ if(phase1):
 
 #print("making train h5 file")
 
-train_out = open("templates/template_events_d58650.out", "r")
+train_out = open("templates/template_events_d83708.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
@@ -308,7 +308,7 @@ create_datasets(f,train_data,x_flat,y_flat,"train")
 
 #print("making test h5 file.")
 
-test_out = open("templates/template_events_d58606.out", "r")
+test_out = open("templates/template_events_d83709.out", "r")
 ##print("writing to file %i \n",i)
 lines = test_out.readlines()
 test_out.close()

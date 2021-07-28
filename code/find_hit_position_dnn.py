@@ -42,9 +42,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 
-h5_date = "dec12"
-h5_ext = "phase1"
-img_ext = "dnn_p1_jul13"
+h5_date = "072821"
+h5_ext = "p1_2018_irrad_L1"
+img_ext = "dnn_%s_jul28"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -77,7 +77,7 @@ angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
 n_epochs = 20
 optimizer = Adam(lr=0.001)
@@ -97,8 +97,8 @@ x = Activation("relu")(x)
 #x = BatchNormalization()(x)
 x = Dense(256)(x)
 x = Activation("relu")(x)
-x = Dense(512)(x)
-x = Activation("relu")(x)
+#x = Dense(512)(x)
+#x = Activation("relu")(x)
 x = Dense(256)(x)
 x = Activation("relu")(x)
 x = Dense(128)(x)
@@ -120,12 +120,12 @@ model.summary()
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
-              metrics=['mse','mse']
+              metrics=['mse']
               )
 
 
 callbacks = [
-EarlyStopping(patience=4),
+#EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -164,8 +164,8 @@ y = Activation("relu")(y)
 #y = BatchNormalization()(y)
 y = Dense(256)(y)
 y = Activation("relu")(y)
-y = Dense(512)(y)
-y = Activation("relu")(y)
+#y = Dense(512)(y)
+#y = Activation("relu")(y)
 y = Dense(256)(y)
 y = Activation("relu")(y)
 y = Dense(128)(y)
@@ -187,7 +187,7 @@ model.summary()
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
-              metrics=['mse','mse']
+              metrics=['mse']
               )
 
 

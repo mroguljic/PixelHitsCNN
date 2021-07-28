@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "dec12"
-h5_ext = "phase1"
-img_ext = "1dcnn_p1_jul13"
+h5_date = "072821"
+h5_ext = "p1_2018_irrad_L1"
+img_ext = "1dcnn_%s_jul28"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -82,7 +82,8 @@ xpix_flat_test/=norm_x
 norm_y = np.amax(ypix_flat_train)
 ypix_flat_train/=norm_y
 ypix_flat_test/=norm_y
-'''
+
+
 test_c = np.zeros((13,21))
 test_c[6,9]=4425
 test_c[6,10]=14403
@@ -91,11 +92,11 @@ print(test_ang.shape)
 test_cx = test_c.sum(axis=1).reshape((1,13))
 print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
-
+'''
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
-n_epochs = 15
+n_epochs = 20
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
@@ -144,14 +145,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 callbacks = [
 EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -170,7 +171,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 #plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -178,7 +179,7 @@ x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=
 inference_time_x = time.clock() - start
 print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
 
-
+'''
 #print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
 for cl in range(80):
    if(clustersize_x_test[cl]==1):
@@ -291,7 +292,7 @@ print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
 plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
-#plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
-#plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
+plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
+plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
-'''
+
