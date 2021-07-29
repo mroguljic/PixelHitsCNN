@@ -125,9 +125,12 @@ private:
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
+		edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> TrackerTopoToken;
+
 		edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> PixelDigiSimLinkToken;
 		edm::EDGetTokenT<edm::SimTrackContainer> SimTrackContainerToken;
 		edm::EDGetTokenT<edm::SimVertexContainer> SimVertexContainerToken;
+
 		FILE *cnn_file, *gen_file, *sim_file, *clustersize_x_file;
 		TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 		float micronsToCm = 1e-4;
@@ -199,6 +202,8 @@ private:
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+		TrackerTopoToken        = esConsumes <TrackerTopology, TrackerTopologyRcd>();
+
 		PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
 		SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
 		SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
@@ -268,13 +273,14 @@ private:
 			printf("couldn't open residual output file/n");
 			return ;
 		}
+		edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(TrackerTopoToken);
+	auto const& tkTpl = *tTopoHandle;
 		// get geometry
 	/*
 	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
 	assert(tracker.isValid());
 
-	edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(trackerTopoToken_);
-	auto const& tkTpl = *tTopoHandle;
+	
 
 	edm::Handle<reco::VertexCollection> vertices;
 	if (applyVertexCut_) {
@@ -354,8 +360,10 @@ private:
 			//isBpixtrack = true;
 			//if (subdetid == PixelSubdetector::PixelEndcap)
 			//isFpixtrack = true;
-				if (subdetid != PixelSubdetector::PixelBarrel)// && subdetid != PixelSubdetector::PixelEndcap)
-					continue;
+				if (subdetid != PixelSubdetector::PixelBarrel) //&& subdetid != PixelSubdetector::PixelEndcap)
+				continue;
+			if (tkTpl.pxbLayer(id) != 1) //only L1
+				continue;
 				bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
 
 			// PXB_L4 IS IN THE OTHER WAY
@@ -481,10 +489,8 @@ private:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-				int clustersize_x = 0, clustersize_y = 0;
+				
 				bool bigPixel=false;
-				int irow_sum = 0, icol_sum = 0;
-				//int same_x = 500, same_y = 500; //random initial value
 
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -497,12 +503,11 @@ private:
 					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-					irow_sum+=irow;
-					icol_sum+=icol;
+					
 					
 				}
 				if(bigPixel) continue;
-				
+				int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 				mid_x = round(float(irow_sum)/float(cluster.size()));
 				mid_y = round(float(icol_sum)/float(cluster.size()));
 				int offset_x = 6 - mid_x;
@@ -524,17 +529,7 @@ private:
  				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 				}
-				//getting clustersizes
-				for (int i=0;i<TXSIZE;i++){	
-					for(int j=0;j<TYSIZE;j++){
-						if(clusbuf[i][j]!=0){clustersize_x++; break;}
-					}
-				}
-				for(int j=0;j<TYSIZE;j++){	
-					for (int i=0;i<TXSIZE;i++){
-						if(clusbuf[i][j]!=0){clustersize_y++; break;}
-					}
-				}
+				
 				//if(clustersize_x==3) {
 				//printf("mid_x = %i, mid_y = %i\n",mid_x,mid_y);
 				//printf("cotalpha = %f, cotbeta = %f\n",cotAlpha,cotBeta);

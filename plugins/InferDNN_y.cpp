@@ -106,6 +106,7 @@ public:
 		std::string     fRootFileName;
 		edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 		edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
+		edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> TrackerTopoToken;
 		FILE *cnn_file, *gen_file, *res_gen_1cnn_file;
 		float micronsToCm = 1e-4;
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
@@ -166,6 +167,7 @@ public:
 
 		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+		TrackerTopoToken        = esConsumes <TrackerTopology, TrackerTopologyRcd>();
 		count = 0;
 
 	//initializations
@@ -234,13 +236,14 @@ public:
 			printf("couldn't open residual output file/n");
 			return ;
 		}
+		edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(TrackerTopoToken);
+	auto const& tkTpl = *tTopoHandle;
 		// get geometry
 	/*
 	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
 	assert(tracker.isValid());
 
-	edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(trackerTopoToken_);
-	auto const& tkTpl = *tTopoHandle;
+	
 
 	edm::Handle<reco::VertexCollection> vertices;
 	if (applyVertexCut_) {
@@ -315,8 +318,10 @@ public:
 			//isBpixtrack = true;
 			//if (subdetid == PixelSubdetector::PixelEndcap)
 			//isFpixtrack = true;
-				if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap)
-					continue;
+				if (subdetid != PixelSubdetector::PixelBarrel) //&& subdetid != PixelSubdetector::PixelEndcap)
+				continue;
+			if (tkTpl.pxbLayer(id) != 1) //only L1
+				continue;
 				bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
 
 			// PXB_L4 IS IN THE OTHER WAY
@@ -442,33 +447,24 @@ public:
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-			int clustersize_x = 0, clustersize_y = 0;
 					bool bigPixel=false;
-					int irow_sum = 0, icol_sum = 0;
-				int same_x = 500, same_y = 500; //random initial value
+
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset;
 					int icol = int(pix.y) - col_offset;
 					//double pixels skip
-					if ((int)pix.x == 79){
-					bigPixel=true; break;
+					if ((int)pix.x == 79 || (int)pix.x == 80){
+						bigPixel=true; break;
 					}
-					if ((int)pix.y % 52 == 51 ){
-						bigPixel=true; break; 
+					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
+						bigPixel=true; break;
 					}
-					irow_sum+=irow;
-					icol_sum+=icol;
-					if(irow != same_x){
-						clustersize_x++;
-						same_x = irow;
-					}
-					if(icol != same_y){
-						clustersize_y++;
-						same_y = icol;
-					}
+					
+					
 				}
 					if(bigPixel) continue;
+					int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 				mid_x = round(irow_sum/cluster.size());
 				mid_y = round(icol_sum/cluster.size());

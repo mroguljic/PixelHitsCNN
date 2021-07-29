@@ -464,10 +464,8 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 //			printf("mrow = %i, mcol = %i\n",mrow,mcol);
   //float clusbuf[mrow][mcol];
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
-			int clustersize_x = 0, clustersize_y = 0;
+			
 			bool bigPixel = false;
-			int irow_sum = 0, icol_sum = 0;
-				int same_x = 500, same_y = 500; //random initial value
 
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
@@ -480,12 +478,11 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-					irow_sum+=irow;
-					icol_sum+=icol;
 					
 	//			printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 				}
 				if(bigPixel) continue;
+				int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 				//printf("clustersize_x = %i, clustersize_y = %i, cluster.size() = %i\n",clustersize_x,clustersize_y,cluster.size());
 				mid_x = round(float(irow_sum)/float(cluster.size()));
 				mid_y = round(float(icol_sum)/float(cluster.size()));
@@ -511,17 +508,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     				//printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
 				}
-				//getting clustersizes
-				for (int i=0;i<TXSIZE;i++){	
-					for(int j=0;j<TYSIZE;j++){
-						if(clusbuf[i][j]!=0){clustersize_x++; break;}
-					}
-				}
-				for(int j=0;j<TYSIZE;j++){	
-					for (int i=0;i<TXSIZE;i++){
-						if(clusbuf[i][j]!=0){clustersize_y++; break;}
-					}
-				}
+				
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
 				LocalPoint trk_lp = ltp.position();
