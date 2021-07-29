@@ -9,7 +9,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-graph_ext = "dnn_p1_jul13"
+h5_ext = "p1_2018_irrad_L1"
+graph_ext = "2dcnn_%s_jul28"%h5_ext
+
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
 
 # setup minimal options
@@ -34,7 +36,8 @@ process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 # to get the conditions you need a GT
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # MC
-process.GlobalTag = GlobalTag(process.GlobalTag, '105X_upgrade2018_design_v3', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '105X_upgrade2018_design_v3', '') #phase-1 2018 unirradiated
+process.GlobalTag = GlobalTag(process.GlobalTag, '111X_upgrade2018_realistic_v3', '')
 # data
 #process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 # force Generic reco
@@ -46,13 +49,13 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(3000))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(4000))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
   # MC
  # fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/RunIIWinter19PFCalibDR/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-2018Conditions_ideal_105X_upgrade2018_design_v3-v2/130000/03400616-B7CF-2442-92F2-F0EF0CAD8E6F.root")
-fileNames=cms.untracked.vstring("file:MC_10000.root")  
+fileNames=cms.untracked.vstring("file:MC_5000_111X_upgrade2018_realistic_v3.root")  
 # data
   #fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
 )
