@@ -460,7 +460,8 @@ public:
 					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-					
+					irow_sum+=irow;
+					icol_sum+=icol;
 					
 					
 				}

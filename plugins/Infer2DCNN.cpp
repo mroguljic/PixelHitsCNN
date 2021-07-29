@@ -478,7 +478,8 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 						bigPixel=true; break;
 					}
-					
+					irow_sum+=irow;
+					icol_sum+=icol;
 	//			printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 				}
 				if(bigPixel) continue;
