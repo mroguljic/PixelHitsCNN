@@ -108,6 +108,7 @@ private:
 	std::string     fRootFileName;
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
 	edm::EDGetTokenT<reco::VertexCollection> VertexCollectionToken;
+	edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> TrackerTopoToken;
 	FILE *cnn_file, *clustersize_x_file, *clustersize_y_file, *res_gen_1cnn_file;
 	float micronsToCm = 1e-4;
 		//phase 1 sizes
@@ -173,6 +174,7 @@ fRootFileName(config.getUntrackedParameter<string>("rootFileName", string("x_2dc
 
 	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
 	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+	TrackerTopoToken        = esConsumes <TrackerTopology, TrackerTopologyRcd>();
 	count = 0;
 
 	//initializations
@@ -246,6 +248,9 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 		return ;
 	}
 
+	edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(TrackerTopoToken);
+	auto const& tkTpl = *tTopoHandle;
+
 	//	if (res_gen_1cnn_file==NULL) {
 		//	printf("couldn't open residual output file/n");
 		//	return ;
@@ -255,8 +260,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 	edm::ESHandle<TrackerGeometry> tracker = setup.getHandle(trackerGeomToken_);
 	assert(tracker.isValid());
 
-	edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(trackerTopoToken_);
-	auto const& tkTpl = *tTopoHandle;
+	
 
 	edm::Handle<reco::VertexCollection> vertices;
 	if (applyVertexCut_) {
@@ -333,7 +337,9 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 			//isFpixtrack = true;
 			if (subdetid != PixelSubdetector::PixelBarrel) //&& subdetid != PixelSubdetector::PixelEndcap)
 				continue;
-			bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
+			if (tkTpl.pxbLayer(id) != 1) //only L1
+				continue;
+			//bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
 
 			// PXB_L4 IS IN THE OTHER WAY
 			// CAN BE XORed BUT LETS KEEP THINGS SIMPLE
