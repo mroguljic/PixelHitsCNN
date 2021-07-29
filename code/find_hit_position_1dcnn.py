@@ -94,7 +94,7 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs = 20
 optimizer = Adam(lr=0.001)
@@ -107,12 +107,12 @@ inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
 x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
-x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Conv1D(128, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Conv1D(128, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
 x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x) 
@@ -126,7 +126,7 @@ x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(64)(x)
+x = Dense(128)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -177,9 +177,9 @@ print("x training time for dnn",time.clock()-train_time_x)
 start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
+'''
 print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
 
-'''
 #print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
 for cl in range(80):
    if(clustersize_x_test[cl]==1):
@@ -196,12 +196,12 @@ inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
 y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same")(y)
+y = Conv1D(128, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-y = Conv1D(64, kernel_size=3, padding="same")(y)
+y = Conv1D(128, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y) 
@@ -215,7 +215,7 @@ y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-y = Dense(64)(y)
+y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)

@@ -186,7 +186,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-#EarlyStopping(patience=4),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')

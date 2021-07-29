@@ -501,7 +501,7 @@ public:
 					clusbuf[irow][icol] = float(pix.adc);
  //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
-				
+				}			
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
 				LocalPoint trk_lp = ltp.position();

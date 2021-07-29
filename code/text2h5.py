@@ -6,7 +6,8 @@
 import numpy as np
 import h5py
 import numpy.random as rng
-from skimage.measure import label
+#from skimage.measure import label
+from scipy.ndimage.measurements import label
 np.seterr(all='raise')
 
 def extract_matrices(lines,cluster_matrices):
@@ -119,13 +120,15 @@ def center_clusters(cluster_matrices):
 		if(np.all(cluster_matrices[index]==0)):
 			n_empty+=1
 			continue
-		'''
+		
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
 		#find connected components 
-		labels = label(one_mat.clip(0,1))
+		labels,n_clusters = label(one_mat.clip(0,1))
+		#print(labels.dtype, labels.shape, labels)
 		#find no of clusters
-		n_clusters = np.amax(labels)
+		#n_clusters = np.amax(labels)
+		#print(n_clusters)
 		max_cluster_size=0
 		#if there is more than 1 cluster, the largest one is the main one
 		if(n_clusters>1):
@@ -143,9 +146,9 @@ def center_clusters(cluster_matrices):
 						largest_idxs_x = cluster_idxs_x
 						largest_idxs_y = cluster_idxs_y
 		elif(n_clusters==1):
-		'''
-		largest_idxs_x = np.argwhere(labels==1)[:,0]
-		largest_idxs_y = np.argwhere(labels==1)[:,1]
+		
+			largest_idxs_x = np.argwhere(labels==1)[:,0]
+			largest_idxs_y = np.argwhere(labels==1)[:,1]
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
@@ -307,7 +310,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")
@@ -363,4 +366,4 @@ f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
 
-
+'''
