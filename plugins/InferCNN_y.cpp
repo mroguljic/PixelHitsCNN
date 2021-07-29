@@ -464,6 +464,7 @@ public:
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 				
 				bool bigPixel=false;
+				int irow_sum = 0, icol_sum = 0;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset;

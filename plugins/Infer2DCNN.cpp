@@ -466,6 +466,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   //memset(clusbuf, 0, sizeof(float) * mrow * mcol);
 			
 			bool bigPixel = false;
+			int irow_sum = 0, icol_sum = 0;
 
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
