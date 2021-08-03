@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
 
-img_ext = 'jul21'
+img_ext = '080221'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
@@ -33,8 +33,8 @@ def plot_residual(results, sim, label,algo):
 		for j in range(SIMHITPERCLMAX):
 			if(abs(results[i]-sim[i][j])<residuals[i]):
 				residuals[i] = (results[i]-sim[i][j])*1e4
-	#print(residuals[residuals>1000])
-	#sresiduals = residuals[residuals<1000]
+	print(residuals[residuals>1000])
+	residuals = residuals[residuals<1000]
 	RMS = np.sqrt(np.mean(residuals*residuals))
 	mean, sigma = norm.fit(residuals)
 
@@ -118,8 +118,8 @@ def plot_by_clustersize(residuals_x,residuals_y,algo,img_ext):
 cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,1]
 cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,1]
 
-dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")[:,1]
-dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")[:,1]
+#dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")[:,1]
+#dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")[:,1]
 
 gen_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,0]
 gen_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,0]
@@ -137,7 +137,7 @@ print(simhits_y.shape)
 residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
 
-plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
+#plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 #residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
