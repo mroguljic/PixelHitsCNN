@@ -481,28 +481,28 @@ public:
 				}
 				if(bigPixel) continue;
 				int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
-				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
+		//		printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 				mid_x = round(irow_sum/cluster.size());
 				mid_y = round(icol_sum/cluster.size());
 				int offset_x = 6 - mid_x;
 				int offset_y = 10 - mid_y;
-				//printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
+		//		printf("offset_x = %i, offset_y = %i\n",offset_x,offset_y);
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 				for (int i = 0; i < cluster.size(); ++i) {
 					auto pix = cluster.pixel(i);
 					int irow = int(pix.x) - row_offset + offset_x;
 					int icol = int(pix.y) - col_offset + offset_y;
-					//printf("irow = %i, icol = %i\n",irow,icol);
-					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
+		//			printf("irow = %i, icol = %i\n",irow,icol);
+		//			printf("mrow = %i, mcol = %i\n",mrow,mcol);
     // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
     // Ignore them for the moment...
 				
 					if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 					clusbuf[irow][icol] = float(pix.adc);
- //   printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
+ 		//		        printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,irow,icol);
 
 				}			
-//			printf("fails after filling buffer\n");
+		//	printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
 				LocalPoint trk_lp = ltp.position();
 				float trk_lp_x = trk_lp.x();
@@ -513,7 +513,7 @@ public:
 				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
 				auto const& topol = geomdetunit->specificTopology();
 				lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
-		//	printf("fails after lp\n");
+		//	printf("TXSIZE = %i, TYSIZE = %i\n",TXSIZE,TYSIZE);
 				//===============================
 				// define a tensor and fill it with cluster projection
 				tensorflow::Tensor cluster_flat_y(tensorflow::DT_FLOAT, {1,TYSIZE,1});
@@ -527,10 +527,10 @@ public:
 					for (size_t j = 0; j < TXSIZE; j++){
             //1D projection in x
 						cluster_flat_y.tensor<float,3>()(0, i, 0) += clusbuf[j][i];
-		//				printf("%f ",clusbuf[i][j]);
+//						printf("%i %i %f ",int(i),int(j),clusbuf[i][j]);
 
 					}
-		//			printf("\n");
+//					printf("\n");
 				}
 
 				// TODO: CENTER THE CLUSTER
@@ -549,9 +549,9 @@ public:
 
 				// compute the residual
 				//dy[count] = y_gen[count] - y_1dcnn[count];
-//			printf("Generic position: %f\n ",y_gen[count]*1e4);
-//			printf("1dcnn position: %f\n ",y_1dcnn[count]*1e4);
-//			printf("%i\n",count);
+			//printf("Generic position: %f\n ",y_gen[count]*1e4);
+			//printf("1dcnn position: %f\n ",y_1dcnn[count]*1e4);
+			//printf("%i\n",count);
 				switch(clustersize_y){
 					case 1: 
 					clsize_1[count][1]=y_1dcnn[count];
