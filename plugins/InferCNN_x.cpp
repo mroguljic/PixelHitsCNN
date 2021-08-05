@@ -114,6 +114,7 @@ private:
 	std::string outputTensorName_;
 	//std::string     fRootFileName;
 	tensorflow::Session* session_x;
+	bool use_det_angles;
 	TFile *fFile; TTree *fTree;
 	static const int MAXCLUSTER = 100000;
 		static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
@@ -137,8 +138,7 @@ private:
 		float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
 		int mid_x = 0, mid_y = 0;
 		float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
-		//norm_x = 424455.402838 norm_y = 196253.784684
-		float NORM_X = 424455.402838, NORM_Y = 196253.784684;
+		
 
 	//const bool applyVertexCut_;
 
@@ -180,6 +180,7 @@ private:
 		desc.add<std::string>("inputTensorName_x");
 		desc.add<std::string>("anglesTensorName_x");
 		desc.add<std::string>("outputTensorName");
+		desc.add<bool>("use_det_angles");
 		desc.add<bool>("associatePixel");
 		desc.add<bool>("associateStrip");
 		desc.add<bool>("associateRecoTracks");
@@ -194,6 +195,7 @@ private:
 	anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
 	outputTensorName_(config.getParameter<std::string>("outputTensorName")),
 	session_x(tensorflow::createSession(cacheData->graphDef)),
+	use_det_angles(config.getParameter<bool>("use_det_angles")),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 //fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
 	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
@@ -389,8 +391,42 @@ private:
 
 				auto const& ltp = trajParams[h];
 
-				float cotAlpha=ltp.dxdz();
-				float cotBeta=ltp.dydz();
+			int row_offset = cluster.minPixelRow();
+	        int col_offset = cluster.minPixelCol();
+	         //printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+	         //printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
+			// Store the coordinates of the center of the (0,0) pixel of the array that
+			// gets passed to PixelTempReco1D
+			// Will add these values to the output of  PixelTempReco1D
+			float tmp_x = float(row_offset) + 0.5f;
+	        float tmp_y = float(col_offset) + 0.5f;
+
+			float cotAlpha=ltp.dxdz();
+			float cotBeta=ltp.dydz();
+
+			LocalPoint trk_lp = ltp.position();
+			float trk_lp_x = trk_lp.x();
+			float trk_lp_y = trk_lp.y();
+
+			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
+			LocalPoint lp; 
+			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+			auto const& topol = geomdetunit->specificTopology();
+			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+			if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
+
+
+			if(use_det_angles){
+					auto const& theOrigin = geomdetunit->surface().toLocal(GlobalPoint(0, 0, 0));
+					LocalPoint lp2 = topol.localPosition(
+      				MeasurementPoint(cluster.x(), cluster.y()));
+					auto gvx = lp2.x() - theOrigin.x();
+					auto gvy = lp2.y() - theOrigin.y();
+					auto gvz = -1.f /theOrigin.z();	
+					// calculate angles
+  					cotAlpha = gvx * gvz;
+  					cotBeta = gvy * gvz;
+			}
 //=======================================================================================
 			/*
 			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
@@ -456,15 +492,7 @@ private:
   // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
   // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
-				int row_offset = cluster.minPixelRow();
-				int col_offset = cluster.minPixelCol();
-//			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
-//			printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
-  // Store the coordinates of the center of the (0,0) pixel of the array that
-  // gets passed to PixelTempReco1D
-  // Will add these values to the output of  PixelTempReco1D
-				float tmp_x = float(row_offset) + 0.5f;
-				float tmp_y = float(col_offset) + 0.5f;
+				
 //			printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
 //			printf("cluster.size() = %i\n",cluster.size());
@@ -538,15 +566,7 @@ private:
 				//printf("clustersize_x = %i, clustersize_y = %i\n",clustersize_x,clustersize_y);
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
-				LocalPoint trk_lp = ltp.position();
-				float trk_lp_x = trk_lp.x();
-				float trk_lp_y = trk_lp.y();
-				//if(clustersize_x==3) printf("trk_lp_x = %f, trk_lp_y = %f\n",trk_lp_x,trk_lp_y);
-				Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
-				LocalPoint lp; 
-				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-				auto const& topol = geomdetunit->specificTopology();
-				lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+				
 		//	printf("fails after lp\n");
 				//===============================
 				// define a tensor and fill it with cluster projection
