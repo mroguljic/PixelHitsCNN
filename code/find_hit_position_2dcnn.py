@@ -81,7 +81,8 @@ f.close()
 # Model configuration
 batch_size = 512
 loss_function = 'mse'
-n_epochs = 25
+n_epochs_x = 15
+n_epochs_y = 25
 optimizer = Adam(lr=0.0005)
 validation_split = 0.2
 
@@ -143,6 +144,78 @@ x = Dropout(0.25)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
+
+model = Model(inputs=[inputs,angles],
+              outputs=[x_position]
+              )
+
+# Display a model summary
+model.summary()
+
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+
+# Compile the model
+model.compile(loss=loss_function,
+              optimizer=optimizer,
+              metrics=['mse']
+              )
+
+callbacks = [
+EarlyStopping(patience=7),
+ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
+                save_weights_only=True,
+                monitor='val_loss')
+]
+
+# Fit data to model
+history = model.fit([pix_train, angles_train], [x_train],
+                batch_size=batch_size,
+                epochs=n_epochs_x,
+                callbacks=callbacks,
+                validation_split=validation_split)
+
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+
+plot_dnn_loss(history.history,'x',img_ext)
+
+print("x training time for 2dcnn",time.clock()-train_time_x)
+
+start = time.clock()
+x_pred = model.predict([pix_test, angles_test], batch_size=9000)
+inference_time_x = time.clock() - start
+
+train_time_y = time.clock()
+
+#train flat y
+
+inputs = Input(shape=(13,21,1))
+angles = Input(shape=(2,))
+y = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(inputs)
+y = Activation("relu")(y)
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
+y = Dropout(0.25)(y)
+y = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y)
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
+y = Dropout(0.25)(y)
+'''
+#x = Conv2D(256, (3, 3), padding="same")(x)
+#x = Activation("relu")(x)
+#x = BatchNormalization(axis=-1)(x)
+#x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
+#x = Dropout(0.25)(x)
+'''
+y = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y)
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
+y = Dropout(0.25)(y)
+y_cnn = Flatten()(y)
+concat_inputs = concatenate([y_cnn,angles])
+
 y = Dense(32,kernel_regularizer='l2')(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
@@ -169,68 +242,60 @@ y = Dropout(0.25)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
 
+
 model = Model(inputs=[inputs,angles],
-              outputs=[x_position,y_position]
+              outputs=[y_position]
               )
 
- # Display a model summary
+# Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
-              metrics=['mse','mse']
+              metrics=['mse']
               )
 
 
-callbacks = [
 
-EarlyStopping(patience=5),
-ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
+callbacks = [
+EarlyStopping(patience=8),
+ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
 ]
 
 # Fit data to model
-#dividing all inputs by 35k to keep it in a range
-history = model.fit([pix_train, angles_train], [x_train, y_train],
+history = model.fit([pix_train, angles_train], [y_train],
                 batch_size=batch_size,
-                epochs=n_epochs,
-                callbacks=callbacks,
-                validation_split=validation_split)
+                epochs=n_epochs_y,
+                validation_split=validation_split,
+    callbacks=callbacks)
 
-cmsml.tensorflow.save_graph("data/graph_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
+cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
-plot_cnn_loss(history.history,"x",img_ext)
-plot_cnn_loss(history.history,"y",img_ext)
+plot_dnn_loss(history.history,'y',img_ext)
 
-# Generate generalization metrics
-print("training time ",time.clock()-train_time_s)
+print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
-x_pred, y_pred = model.predict([pix_test, angles_test], batch_size=9000)
-inference_time = time.clock() - start
+y_pred = model.predict([pix_test, angles_test], batch_size=9000)
+inference_time_y = time.clock() - start
 
-print("inference_time = ",inference_time)
-'''
-for cl in range(10):
+print("inference_time for 2dcnn= ",(inference_time_x+inference_time_y))
 
-   print((pix_test[cl]).reshape((13,21)))
-   print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
-   print('x_pred = %f, y_pred = %f\n'%(x_pred[cl],y_pred[cl]))
-   #print('x_pred_saved = %f, y_pred_saved = %f\n'%(x_pred_saved[cl],y_pred_saved[cl]))
-   print("\n")
 
-print("====================================================================================")
-'''
+
 residuals_x = x_pred - x_test
 RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
+print(np.amin(residuals_x),np.amax(residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
 RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
+print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
 
@@ -246,4 +311,3 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-
