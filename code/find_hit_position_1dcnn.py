@@ -122,7 +122,7 @@ x = Dropout(0.25)(x)
 
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
-x = Dense(64,kernel_regularizer='l2')(concat_inputs)
+x = Dense(32,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -130,7 +130,7 @@ x = Dense(64,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(64,kernel_regularizer='l2')(x)
+x = Dense(32,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -244,7 +244,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=5),
+#EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')

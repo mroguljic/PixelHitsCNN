@@ -79,7 +79,7 @@ f.close()
 
 
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs = 25
 optimizer = Adam(lr=0.0005)
@@ -109,7 +109,7 @@ x = Dropout(0.25)(x)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
 '''
-x = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(x)
+x = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
@@ -117,7 +117,7 @@ x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
-x = Dense(64,kernel_regularizer='l2')(concat_inputs)
+x = Dense(32,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -136,14 +136,14 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 '''
-x = Dense(64,kernel_regularizer='l2')(x)
+x = Dense(32,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
-y = Dense(64,kernel_regularizer='l2')(concat_inputs)
+y = Dense(32,kernel_regularizer='l2')(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -162,7 +162,7 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 '''
-y = Dense(64,kernel_regularizer='l2')(y)
+y = Dense(32,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -186,6 +186,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
+
 EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_%s.ckpt"%(img_ext),
                 save_weights_only=True,
