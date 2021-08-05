@@ -367,15 +367,17 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 			const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
 
 			auto const& ltp = trajParams[h];
+
 			int row_offset = cluster.minPixelRow();
-                         int col_offset = cluster.minPixelCol();
-                         //printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
-                         //printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
-   // Store the coordinates of the center of the (0,0) pixel of the array that
-   // gets passed to PixelTempReco1D
-   // Will add these values to the output of  PixelTempReco1D
-                         float tmp_x = float(row_offset) + 0.5f;
-                         float tmp_y = float(col_offset) + 0.5f;
+	        int col_offset = cluster.minPixelCol();
+	         //printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+	         //printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
+			// Store the coordinates of the center of the (0,0) pixel of the array that
+			// gets passed to PixelTempReco1D
+			// Will add these values to the output of  PixelTempReco1D
+			float tmp_x = float(row_offset) + 0.5f;
+	        float tmp_y = float(col_offset) + 0.5f;
+
 			float cotAlpha=ltp.dxdz();
 			float cotBeta=ltp.dydz();
 
