@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
 
-img_ext = '080221'
+img_ext = '080421_detangles'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
@@ -137,7 +137,7 @@ print(simhits_y.shape)
 residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
 
-#plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
+plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 #residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
