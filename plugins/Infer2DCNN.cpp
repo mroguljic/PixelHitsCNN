@@ -96,9 +96,10 @@ private:
 
 	std::string inputTensorName_, anglesTensorName_;
 	std::string outputTensorName_x, outputTensorName_y;
-	bool use_det_angles;
+	
 	//std::string     fRootFileName;
 	tensorflow::Session* session_;
+	bool use_det_angles;
 	TFile *fFile; TTree *fTree;
 	static const int MAXCLUSTER = 50000;
 	float x_gen[MAXCLUSTER], x_2dcnn[MAXCLUSTER]; 
@@ -158,7 +159,7 @@ void Infer2DCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 	desc.add<std::string>("anglesTensorName_");
 	desc.add<std::string>("outputTensorName_x");
 	desc.add<std::string>("outputTensorName_y");
-	desc.add<bool>("use_det_angles")
+	desc.add<bool>("use_det_angles");
 	descriptions.addWithDefaultLabel(desc);
 }
 
@@ -366,7 +367,15 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 			const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
 
 			auto const& ltp = trajParams[h];
-
+			int row_offset = cluster.minPixelRow();
+                         int col_offset = cluster.minPixelCol();
+                         //printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
+                         //printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
+   // Store the coordinates of the center of the (0,0) pixel of the array that
+   // gets passed to PixelTempReco1D
+   // Will add these values to the output of  PixelTempReco1D
+                         float tmp_x = float(row_offset) + 0.5f;
+                         float tmp_y = float(col_offset) + 0.5f;
 			float cotAlpha=ltp.dxdz();
 			float cotBeta=ltp.dydz();
 
@@ -384,8 +393,8 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 
 			if(use_det_angles){
 					auto const& theOrigin = geomdetunit->surface().toLocal(GlobalPoint(0, 0, 0));
-					LocalPoint lp2 = topol->localPosition(
-      				MeasurementPoint(cluster->x(), cluster->y()));
+					LocalPoint lp2 = topol.localPosition(
+      				MeasurementPoint(cluster.x(), cluster.y()));
 					auto gvx = lp2.x() - theOrigin.x();
 					auto gvy = lp2.y() - theOrigin.y();
 					auto gvz = -1.f /theOrigin.z();	
@@ -458,15 +467,6 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
   // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
-			int row_offset = cluster.minPixelRow();
-			int col_offset = cluster.minPixelCol();
-			//printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
-			//printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
-  // Store the coordinates of the center of the (0,0) pixel of the array that
-  // gets passed to PixelTempReco1D
-  // Will add these values to the output of  PixelTempReco1D
-			float tmp_x = float(row_offset) + 0.5f;
-			float tmp_y = float(col_offset) + 0.5f;
 			//printf("tmp_x = %f, tmp_y = %f\n", tmp_x,tmp_y);
 
 //			printf("cluster.size() = %i\n",cluster.size());
