@@ -233,10 +233,10 @@ private:
 		sprintf(infile2,"%s/simhits_MC.txt",path);
 		sim_file = fopen(infile2, "w");
 
-		sprintf(infile3,"%s/%s_MC_x.txt",path,cpe);
+		sprintf(infile3,"%s/%s_MC_x.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
-		sprintf(infile4,"%s/%s_MC_perclustersize_x.txt",path,cpe);
+		sprintf(infile4,"%s/%s_MC_perclustersize_x.txt",path,cpe.c_str());
 		clustersize_x_file = fopen(infile4, "w");
 
 		
@@ -457,9 +457,9 @@ private:
 			angles.tensor<float,2>()(0, 0) = cotAlpha;
 			angles.tensor<float,2>()(0, 1) = cotBeta;
 
-			for (size_t i = 0; i < TXSIZE; i++) {
+			for (int i = 0; i < TXSIZE; i++) {
 				cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
-				for (size_t j = 0; j < TYSIZE; j++){
+				for (int j = 0; j < TYSIZE; j++){
             //1D projection in x
 					cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
 					cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];

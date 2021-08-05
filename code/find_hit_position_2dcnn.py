@@ -82,11 +82,11 @@ f.close()
 batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
-n_epochs_y = 25
+n_epochs_y = 15
 optimizer = Adam(lr=0.0005)
 validation_split = 0.2
 
-train_time_s = time.clock()
+train_time_x = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
 
 
@@ -152,14 +152,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-
+'''
 callbacks = [
 EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -178,7 +178,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for 2dcnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -261,7 +261,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=8),
+EarlyStopping(patience=4),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')

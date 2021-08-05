@@ -110,7 +110,7 @@ private:
 	void analyze(const edm::Event&, const edm::EventSetup&);
 	void endJob();
 
-	std::string inputTensorName_y, inputTensorName_y, anglesTensorName_y, anglesTensorName_y;
+	std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y;
 	std::string outputTensorName_;
 	//std::string     fRootFileName;
 	tensorflow::Session* session_y;
