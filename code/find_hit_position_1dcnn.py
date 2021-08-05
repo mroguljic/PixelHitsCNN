@@ -96,7 +96,8 @@ test_cy = test_c.sum(axis=0).reshape((1,21))
 # Model configuration
 batch_size = 256
 loss_function = 'mse'
-n_epochs = 20
+n_epochs_x = 20
+n_epochs_y = 30
 optimizer = Adam(lr=0.0005)
 validation_split = 0.2
 
@@ -154,7 +155,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-EarlyStopping(patience=5),
+#EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -163,7 +164,7 @@ ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
 # Fit data to model
 history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
                 batch_size=batch_size,
-                epochs=n_epochs,
+                epochs=n_epochs_x,
                 callbacks=callbacks,
                 validation_split=validation_split)
 
@@ -253,7 +254,7 @@ ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
 # Fit data to model
 history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
                 batch_size=batch_size,
-                epochs=n_epochs,
+                epochs=n_epochs_y,
                 validation_split=validation_split,
     callbacks=callbacks)
 
