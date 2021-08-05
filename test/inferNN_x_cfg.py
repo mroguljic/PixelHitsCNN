@@ -12,8 +12,8 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 h5_ext = "p1_2018_irrad_L1"
 cpe = "cnn1d"
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_jul28"%h5_ext
-elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_jul28"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug4"%h5_ext
+elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug4"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 
 
@@ -82,7 +82,7 @@ process.inferNN_x = cms.EDAnalyzer('InferNN_x',
  #inputTensorName_y = cms.string("input_3"),
  #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),
- use_det_angles   = cms.bool(True),
+ use_det_angles   = cms.bool(False),
  cpe              = cms.string(cpe),
  associateRecoTracks = cms.bool(False),
  associateStrip = cms.bool(False),

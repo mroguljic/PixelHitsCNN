@@ -233,10 +233,10 @@ private:
 		sprintf(infile2,"%s/simhits_MC.txt",path);
 		sim_file = fopen(infile2, "w");
 
-		sprintf(infile3,"%s/%s_MC_x.txt",path,cpe.c_str());
+		sprintf(infile3,"%s/%s_MC_y.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
-		sprintf(infile4,"%s/%s_MC_perclustersize_x.txt",path,cpe.c_str());
+		sprintf(infile4,"%s/%s_MC_perclustersize_y.txt",path,cpe.c_str());
 		clustersize_y_file = fopen(infile4, "w");
 
 		
