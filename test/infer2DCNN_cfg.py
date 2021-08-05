@@ -83,6 +83,7 @@ if thread=="multi":
    #anglesTensorName_y = cms.string("input_4"),
    outputTensorName_x = cms.string("Identity"),
    outputTensorName_y = cms.string("Identity_1"),
+   use_det_angles     = cms.bool(True),
        #mightGet = cms.optional.untracked.vstring,
   #     trackCollectionLabel = cms.untracked.InputTag('generalTracks'),
    #    PrimaryVertexCollectionLabel = cms.untracked.InputTag('offlinePrimaryVertices'),

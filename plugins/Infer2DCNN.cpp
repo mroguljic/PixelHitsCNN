@@ -96,6 +96,7 @@ private:
 
 	std::string inputTensorName_, anglesTensorName_;
 	std::string outputTensorName_x, outputTensorName_y;
+	bool use_det_angles;
 	//std::string     fRootFileName;
 	tensorflow::Session* session_;
 	TFile *fFile; TTree *fTree;
@@ -157,6 +158,7 @@ void Infer2DCNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 	desc.add<std::string>("anglesTensorName_");
 	desc.add<std::string>("outputTensorName_x");
 	desc.add<std::string>("outputTensorName_y");
+	desc.add<bool>("use_det_angles")
 	descriptions.addWithDefaultLabel(desc);
 }
 
@@ -166,6 +168,7 @@ anglesTensorName_(config.getParameter<std::string>("anglesTensorName_")),
 outputTensorName_x(config.getParameter<std::string>("outputTensorName_x")),
 outputTensorName_y(config.getParameter<std::string>("outputTensorName_y")),
 session_(tensorflow::createSession(cacheData->graphDef)),
+use_det_angles(config.getParameter<bool>("use_det_angles")),
 //fVerbose(config.getUntrackedParameter<int>("verbose", 0)),
 //fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("ALCARECOTkAlMuonIsolated"))),
 fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
@@ -366,6 +369,30 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 
 			float cotAlpha=ltp.dxdz();
 			float cotBeta=ltp.dydz();
+
+			LocalPoint trk_lp = ltp.position();
+			float trk_lp_x = trk_lp.x();
+			float trk_lp_y = trk_lp.y();
+
+			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
+			LocalPoint lp; 
+			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+			auto const& topol = geomdetunit->specificTopology();
+			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+			if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
+
+
+			if(use_det_angles){
+					auto const& theOrigin = geomdetunit->surface().toLocal(GlobalPoint(0, 0, 0));
+					LocalPoint lp2 = topol->localPosition(
+      				MeasurementPoint(cluster->x(), cluster->y()));
+					auto gvx = lp2.x() - theOrigin.x();
+					auto gvy = lp2.y() - theOrigin.y();
+					auto gvz = -1.f /theOrigin.z();	
+					// calculate angles
+  					cotAlpha = gvx * gvz;
+  					cotBeta = gvy * gvz;
+			}
 //=======================================================================================
 			/*
 			printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
@@ -513,15 +540,7 @@ void Infer2DCNN::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 				
 //			printf("fails after filling buffer\n");
  			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
-				LocalPoint trk_lp = ltp.position();
-				float trk_lp_x = trk_lp.x();
-				float trk_lp_y = trk_lp.y();
-
-				Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
-				LocalPoint lp; 
-				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-				auto const& topol = geomdetunit->specificTopology();
-				lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+				
 
 				//printf("lp.x() = %f, lp.y() = %f\n",lp.x(),lp.y());
 				//===============================
