@@ -231,8 +231,12 @@ gain_frac     = 0.08;
 readout_noise = 350.;
 
 #--- Variables we can change, but we start with good default values
-vcal = 47.0;	
-vcaloffst = 60.0;
+#vcal = 47.0;	
+#vcaloffst = 60.0;
+
+# For phase 1 BPIX L1
+vcal        = 50.   # L1:   49.6 +- 2.6
+vcaloffst = 670. # L1:   -670 +- 220
 
 #--- PhaseII - initial guess
 threshold = 1000; # threshold in e-
@@ -244,17 +248,25 @@ dualslope = 4;
 #--- Constants (could be made variables later)
 gain  = 3.19;
 ped   = 16.46;
-p0    = 0.01218;
-p1    = 0.711;
-p2    = 203.;
-p3    = 148.;	
+#p0    = 0.01218;
+#p1    = 0.711;
+#p2    = 203.;
+#p3    = 148.;	
 
-date = "072821"
-filename = "p1_2018_irrad_L1"
+# BPIX Phase 1
+
+p0 = 0.00171
+p1 = 0.711
+p2 = 203.
+p3 = 148.
+
+date = "081621"
+filename = "p1_2018_irrad_BPIXL1"
 phase1 = True
 
 if(phase1):
-	threshold = 2000; # threshold in e-
+	#threshold = 2000; # threshold in e-
+	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
 
 #=====train files===== 
@@ -310,7 +322,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-'''
+
 #====== test files ========
 
 #print("making test h5 file.")
@@ -366,4 +378,4 @@ f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
 
-'''
+
