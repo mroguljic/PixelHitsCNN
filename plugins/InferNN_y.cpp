@@ -478,13 +478,13 @@ private:
 			y_nn[count] = output_y[0].matrix<float>()(0,0);
 				//printf("x = %f\n",y_nn[count]);
 
-			y_nn[count] = (y_nn[count]+pixelsize_x*(mid_x))*micronsToCm; 
+			y_nn[count] = (y_nn[count]+pixelsize_y*(mid_y))*micronsToCm; 
 
 			//	printf("cota = %f, cotb = %f, y_nn = %f\n",cotAlpha,cotBeta,y_nn[count]);
 				// go back to module coordinate system
-			y_nn[count]+=lp.x(); 
+			y_nn[count]+=lp.y(); 
 				// get the generic position
-			y_gen[count] = hit->localPosition().x();
+			y_gen[count] = hit->localPosition().y();
 				//get sim hits
 			vec_simhits_assoc.clear();
 			vec_simhits_assoc = associate->associateHit(*pixhit);
@@ -509,7 +509,7 @@ private:
 		//	printf("simhit_x =");
 	
 //			printf("%i\n",count);
-            switch(clustersize_x){
+            switch(clustersize_y){
             	case 1: 
             	clsize_1[count][0]=y_nn[count];
             	break;

@@ -534,7 +534,7 @@ private:
         }
     }
 
-
+    printf("count = %i\n",prev_count+count);
     for(int i=prev_count;i<count;i++){
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
