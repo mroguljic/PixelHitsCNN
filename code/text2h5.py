@@ -69,7 +69,8 @@ def convert_pav_to_cms():
 
 	return cota,cotb,x_position,y_position
 
-def apply_noise(cluster_matrices,fe_type):
+
+def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 	#add 2 types of noise
 
 	if(fe_type==1): #linear gain
@@ -85,27 +86,38 @@ def apply_noise(cluster_matrices,fe_type):
 	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
 			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
-			if index<30: print("hits = ",hits)
+			
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
-			if index<30: 
-				print("noise_1 = ",noise_1)
-				print("noise_2 = ",noise_2)
+			noise_3 = rng.normal(loc=0.,scale=1.,size=len(hits))
+			
 			adc = ((p3+p2*np.tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)).astype(int)).astype(float)
 			hits = (((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))).astype(float) - vcaloffst + noise_2*readout_noise)
-			if index<30: print("hits = ",hits)
+			#https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L572
+			#https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L610
+			qsmear = 1+noise_3*common_noise_frac
+			hits*=qsmear
 			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
 		print("applied tanh gain")
 
 	return cluster_matrices
 
-def apply_threshold(cluster_matrices,threshold):
-	#NEED TO CHANGE 2 LEVEL
-	#if n_elec < 1000 -> 0
-	below_threshold_i = cluster_matrices < threshold
+def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac):
+	#https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L584-L610
+	below_threshold_i = cluster_matrices < 200.
 	cluster_matrices[below_threshold_i] = 0
+	for index in np.arange(len(cluster_matrices)):
+		hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+		gaussnoise_1 = rng.normal(loc=0.,scale=1.,size=len(hits))
+		hits+=gaussnoise_1*noise
+		gaussnoise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
+		threshold_noisy = threshold*(1+gaussnoise_2*threshold_noise_frac)
+		below_threshold_i = hits < threshold_noisy
+		hits[below_threshold_i] = 0.
+		cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
+
 	#cluster_matrices=(cluster_matrices/10.).astype(int)
-	print("applied threshold")
+	print("applied noise and threshold")
 	return cluster_matrices
 
 
@@ -234,6 +246,9 @@ def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
 fe_type = 1
 gain_frac     = 0.08;
 readout_noise = 350.;
+noise = 250.;
+common_noise_frac = 0.08
+threshold_noise_frac = 0.073
 
 #--- Variables we can change, but we start with good default values
 #vcal = 47.0;	
@@ -265,7 +280,7 @@ p1 = 0.711
 p2 = 203.
 p3 = 148.
 
-date = "081621"
+date = "082321"
 filename = "p1_2018_irrad_BPIXL1"
 phase1 = True
 
@@ -363,14 +378,17 @@ cota,cotb,x_position,y_position = convert_pav_to_cms()
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
 print("multiplied all elements by 10")
-#print(test_data[0].reshape((21,13)).astype(int))
+for i in range(30):
+	print("======== Cluster %i ========\n"%i)
+	print(test_data[i].reshape((21,13)).astype(int))
 
-test_data = apply_threshold(test_data,threshold)
+test_data = apply_noise_threshold(test_data,threshold,noise,threshold_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
-test_data = apply_noise(test_data,fe_type)
+test_data = apply_gain(test_data,fe_type,common_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
-#test_data = apply_threshold(test_data,threshold)
-#print(test_data[0].reshape((21,13)).astype(int))
+for i in range(30):
+	print("======== Modified Cluster %i ========\n"%i)
+	print(test_data[i].reshape((21,13)).astype(int))
 
 #test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
 #print(test_data[0].reshape((21,13)))
