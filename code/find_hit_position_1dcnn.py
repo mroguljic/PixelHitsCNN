@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "072821"
-h5_ext = "p1_2018_irrad_L1"
-img_ext = "1dcnn_%s_aug4"%h5_ext
+h5_date = "081621"
+h5_ext = "p1_2018_irrad_BPIXL1"
+img_ext = "1dcnn_%s_aug17"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -74,7 +74,10 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-print(angles_test.shape)
+print(angles_train.shape)
+print(xpix_flat_test[:30])
+print(ypix_flat_test[:30])
+print("clustersize of 1: ",len(np.argwhere(clustersize_y_train==1)))
 '''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
@@ -94,11 +97,11 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 256
+batch_size = 128
 loss_function = 'mse'
 n_epochs_x = 20
 n_epochs_y = 30
-optimizer = Adam(lr=0.0005)
+optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
 train_time_x = time.clock()
@@ -106,13 +109,14 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+x = Conv1D(100, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 x = Activation("relu")(x)
-x = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
+x = Conv1D(100, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
+'''
 x = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
@@ -120,18 +124,18 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
-
+'''
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
-x = Dense(32,kernel_regularizer='l2')(concat_inputs)
+x = Dense(200,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(64,kernel_regularizer='l2')(x)
+x = Dense(300,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(32,kernel_regularizer='l2')(x)
+x = Dense(200,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -171,13 +175,21 @@ history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
-#plot_dnn_loss(history.history,'x',img_ext)
+plot_dnn_loss(history.history,'x',img_ext)
 
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
+residuals_x = x_pred - x_test
+RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
+print(np.amin(residuals_x),np.amax(residuals_x))
+print("RMS_x = %f\n"%(RMS_x))
+mean_x, sigma_x = norm.fit(residuals_x)
+print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
+plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
+
 '''
 print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
 
@@ -189,41 +201,44 @@ for cl in range(80):
    	print('x_pred = %f\n'%(x_pred[cl]))
    	print("\n")
 '''
+
+'''
+
 train_time_y = time.clock()
 
 #train flat y
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
-y = Dropout(0.25)(y)
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
+#y = Dropout(0.25)(y)
 y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y)
+y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
 y = Activation("relu")(y) 
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
-y = Dropout(0.25)(y)
+#y = Dropout(0.25)(y)
 
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
-y = Dense(64,kernel_regularizer='l2')(concat_inputs)
+y = Dense(16,kernel_regularizer='l2')(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(64,kernel_regularizer='l2')(y)
+#y = Dropout(0.25)(y)
+y = Dense(32,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(64,kernel_regularizer='l2')(y)
+#y = Dropout(0.25)(y)
+y = Dense(16,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
+#y = Dropout(0.25)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
 
@@ -273,20 +288,20 @@ print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 
 
 
-residuals_x = x_pred - x_test
-RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
-print(np.amin(residuals_x),np.amax(residuals_x))
-print("RMS_x = %f\n"%(RMS_x))
+#residuals_x = x_pred - x_test
+#RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
+#print(np.amin(residuals_x),np.amax(residuals_x))
+#print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
 RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
 
-mean_x, sigma_x = norm.fit(residuals_x)
-print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
+#mean_x, sigma_x = norm.fit(residuals_x)
+#print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
-plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
+#plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
@@ -295,5 +310,5 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-
+'''
 

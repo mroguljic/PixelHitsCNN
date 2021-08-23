@@ -85,10 +85,15 @@ def apply_noise(cluster_matrices,fe_type):
 	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
 			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+			if index<30: print("hits = ",hits)
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
+			if index<30: 
+				print("noise_1 = ",noise_1)
+				print("noise_2 = ",noise_2)
 			adc = ((p3+p2*np.tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)).astype(int)).astype(float)
 			hits = (((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))).astype(float) - vcaloffst + noise_2*readout_noise)
+			if index<30: print("hits = ",hits)
 			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
 		print("applied tanh gain")
 
@@ -268,7 +273,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -322,7 +327,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")
@@ -350,32 +355,34 @@ clustersize_y = np.zeros((n_test,1))
 
 
 extract_matrices(lines,test_data)
-##print(test_data[0].reshape((21,13)))
+print(test_data[0].reshape((21,13)).astype(int))
 cota,cotb,x_position,y_position = convert_pav_to_cms()
 ##print(x_position_pav[0],y_position_pav[0])
 ##print(x_position[0],y_position[0])
 
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
-#print("multiplied all elements by 10")
-##print(test_data[0].reshape((21,13)))
+print("multiplied all elements by 10")
+#print(test_data[0].reshape((21,13)).astype(int))
 
-test_data = apply_noise(test_data,fe_type)
-##print(test_data[0].reshape((21,13)))
 test_data = apply_threshold(test_data,threshold)
-##print(test_data[0].reshape((21,13)))
+#print(test_data[0].reshape((21,13)).astype(int))
+test_data = apply_noise(test_data,fe_type)
+#print(test_data[0].reshape((21,13)).astype(int))
+#test_data = apply_threshold(test_data,threshold)
+#print(test_data[0].reshape((21,13)).astype(int))
 
-test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
-##print(test_data[0].reshape((21,13)))
-##print(x_position[0],y_position[0])
-x_flat = np.zeros((len(test_data),13))
-y_flat = np.zeros((len(test_data),21))
+#test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
+#print(test_data[0].reshape((21,13)))
+#print(x_position[0],y_position[0])
+x_flat = np.zeros((len(test_data),13).astype(int))
+y_flat = np.zeros((len(test_data),21).astype(int))
 project_matrices_xy(test_data)
-##print(x_flat[0],y_flat[0])
-##print(clustersize_x[0],clustersize_y[0])
+#print(x_flat[0],y_flat[0])
+#print(clustersize_x[0],clustersize_y[0])
 
-f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
+#f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
-create_datasets(f,test_data,x_flat,y_flat,"test")
+#create_datasets(f,test_data,x_flat,y_flat,"test")
 
 
