@@ -140,32 +140,36 @@ def center_clusters(cluster_matrices):
 		
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
+		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
 		labels,n_clusters = label(one_mat.clip(0,1))
 		#print(labels.dtype, labels.shape, labels)
-		#find no of clusters
-		#n_clusters = np.amax(labels)
-		#print(n_clusters)
+	
 		max_cluster_size=0
-		#if there is more than 1 cluster, the largest one is the main one
+		#if there is more than 1 cluster, the one with largest seed is the main one
 		if(n_clusters>1):
+			print("There are %i clusters"%n_clusters)
 			for i in range(1,n_clusters+1):
 				cluster_idxs_x = np.argwhere(labels==i)[:,0]
 				cluster_idxs_y = np.argwhere(labels==i)[:,1]
-				cluster_size = len(cluster_idxs_x)
-				if cluster_size>max_cluster_size:
-					max_cluster_size = cluster_size
-					largest_idxs_x = cluster_idxs_x
-					largest_idxs_y = cluster_idxs_y
+				if seed_index in np.argwhere(labels==i): break
+				#cluster_size = len(cluster_idxs_x)
+				#if cluster_size>max_cluster_size:
+					#max_cluster_size = cluster_size
+			largest_idxs_x = cluster_idxs_x
+			largest_idxs_y = cluster_idxs_y
+			'''
 				#if there are 2 clusters of the same size then the largest hit is the main one
 				elif cluster_size==max_cluster_size: #eg. 2 clusters of size 2
 					if(np.amax(one_mat[largest_idxs_x,largest_idxs_y])<np.amax(one_mat[cluster_idxs_x,cluster_idxs_y])):
 						largest_idxs_x = cluster_idxs_x
 						largest_idxs_y = cluster_idxs_y
+			'''
 		elif(n_clusters==1):
 		
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
+
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
