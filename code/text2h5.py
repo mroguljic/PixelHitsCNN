@@ -89,7 +89,7 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 			
 			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
 			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
-			noise_3 = rng.normal(loc=0.,scale=1.,size=len(hits))
+			noise_3 = rng.normal(loc=0.,scale=1.,size=1)
 			
 			adc = ((p3+p2*np.tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)).astype(int)).astype(float)
 			hits = (((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))).astype(float) - vcaloffst + noise_2*readout_noise)
@@ -143,7 +143,7 @@ def center_clusters(cluster_matrices):
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
 		labels,n_clusters = label(one_mat.clip(0,1))
-		if(index<30): print(labels.dtype, labels.shape, labels)
+		#if(index<30): print(labels.dtype, labels.shape, labels)
 	
 		max_cluster_size=0
 		#if there is more than 1 cluster, the one with largest seed is the main one
@@ -154,7 +154,7 @@ def center_clusters(cluster_matrices):
 				cluster_idxs_x = np.argwhere(labels==i)[:,0]
 				cluster_idxs_y = np.argwhere(labels==i)[:,1]
 				if seed_index in np.argwhere(labels==i): 
-					if(index<30): print("inside break ",seed_index)
+					#if(index<30): print("inside break ",seed_index)
 					break
 				#cluster_size = len(cluster_idxs_x)
 				#if cluster_size>max_cluster_size:
@@ -173,15 +173,15 @@ def center_clusters(cluster_matrices):
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
 		
-		if(index<30): 
-			print("i = %i"%i)
-			print("one_mat before deletion")
-			print(one_mat)
+		#if(index<30): 
+		#	print("i = %i"%i)
+		#	print("one_mat before deletion")
+		#	print(one_mat)
 		one_mat[labels!=i] = 0.
-		if(index<30): 
+		#if(index<30): 
 			
-			print("one_mat AFTER deletion")
-			print(one_mat)
+		#	print("one_mat AFTER deletion")
+		#	print(one_mat)
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
@@ -304,7 +304,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
+
 #=====train files===== 
 
 #print("making train h5 file")
@@ -341,10 +341,10 @@ train_data = 10*train_data
 #print("multiplied all elements by 10")
 #print(train_data[0].reshape((13,21)))
 
-train_data = apply_noise(train_data,fe_type)
-#print(train_data[0].reshape((13,21)))
-train_data = apply_threshold(train_data,threshold)
-#print(train_data[0].reshape((13,21)))
+train_data = apply_noise_threshold(train_data,threshold,noise,threshold_noise_frac)
+#print(test_data[0].reshape((21,13)).astype(int))
+train_data = apply_gain(train_data,fe_type,common_noise_frac)
+#print(test_data[0].reshape((21,13)).astype(int))
 
 train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= center_clusters(train_data)
 #print(train_data[0].reshape((13,21)))
@@ -358,7 +358,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-'''
+
 #====== test files ========
 
 #print("making test h5 file.")
@@ -394,9 +394,9 @@ cota,cotb,x_position,y_position = convert_pav_to_cms()
 #n_elec were scaled down by 10 so multiply
 test_data = 10*test_data
 print("multiplied all elements by 10")
-for i in range(30):
-	print("======== Cluster %i ========\n"%i)
-	print(test_data[i].reshape((21,13)).astype(int))
+#for i in range(30):
+#	print("======== Cluster %i ========\n"%i)
+#	print(test_data[i].reshape((21,13)).astype(int))
 
 test_data = apply_noise_threshold(test_data,threshold,noise,threshold_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
@@ -407,9 +407,9 @@ test_data = apply_gain(test_data,fe_type,common_noise_frac)
 #	print(test_data[i].reshape((21,13)).astype(int))
 
 test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
-for i in range(30):
-        print("======== Modified Cluster %i ========\n"%i)
-        print(test_data[i].reshape((21,13)).astype(int))
+#for i in range(30):
+#        print("======== Modified Cluster %i ========\n"%i)
+#        print(test_data[i].reshape((21,13)).astype(int))
 #print(test_data[0].reshape((21,13)))
 #print(x_position[0],y_position[0])
 x_flat = np.zeros((len(test_data),13))
@@ -418,8 +418,8 @@ project_matrices_xy(test_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
 
-#f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
+f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
-#create_datasets(f,test_data,x_flat,y_flat,"test")
+create_datasets(f,test_data,x_flat,y_flat,"test")
 
 
