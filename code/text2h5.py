@@ -143,7 +143,7 @@ def center_clusters(cluster_matrices):
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
 		labels,n_clusters = label(one_mat.clip(0,1))
-		#print(labels.dtype, labels.shape, labels)
+		if(index<30): print(labels.dtype, labels.shape, labels)
 	
 		max_cluster_size=0
 		#if there is more than 1 cluster, the one with largest seed is the main one
@@ -153,7 +153,9 @@ def center_clusters(cluster_matrices):
 			for i in range(1,n_clusters+1):
 				cluster_idxs_x = np.argwhere(labels==i)[:,0]
 				cluster_idxs_y = np.argwhere(labels==i)[:,1]
-				if seed_index in np.argwhere(labels==i): break
+				if seed_index in np.argwhere(labels==i): 
+					if(index<30): print("inside break ",seed_index)
+					break
 				#cluster_size = len(cluster_idxs_x)
 				#if cluster_size>max_cluster_size:
 					#max_cluster_size = cluster_size
@@ -170,8 +172,16 @@ def center_clusters(cluster_matrices):
 			i = 1
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
-
+		
+		if(index<30): 
+			print("i = %i"%i)
+			print("one_mat before deletion")
+			print(one_mat)
 		one_mat[labels!=i] = 0.
+		if(index<30): 
+			
+			print("one_mat AFTER deletion")
+			print(one_mat)
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
