@@ -147,6 +147,7 @@ def center_clusters(cluster_matrices):
 	
 		max_cluster_size=0
 		#if there is more than 1 cluster, the one with largest seed is the main one
+
 		if(n_clusters>1):
 			print("There are %i clusters"%n_clusters)
 			for i in range(1,n_clusters+1):
@@ -166,10 +167,11 @@ def center_clusters(cluster_matrices):
 						largest_idxs_y = cluster_idxs_y
 			'''
 		elif(n_clusters==1):
-		
+			i = 1
 			largest_idxs_x = np.argwhere(labels==1)[:,0]
 			largest_idxs_y = np.argwhere(labels==1)[:,1]
 
+		one_mat[labels!=i] = 0.
 		#find clustersize
 		clustersize_x[j] = int(len(np.unique(largest_idxs_x)))
 		clustersize_y[j] = int(len(np.unique(largest_idxs_y)))
