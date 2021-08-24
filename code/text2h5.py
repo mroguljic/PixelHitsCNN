@@ -386,7 +386,7 @@ clustersize_y = np.zeros((n_test,1))
 
 
 extract_matrices(lines,test_data)
-print(test_data[0].reshape((21,13)).astype(int))
+#print(test_data[0].reshape((21,13)).astype(int))
 cota,cotb,x_position,y_position = convert_pav_to_cms()
 ##print(x_position_pav[0],y_position_pav[0])
 ##print(x_position[0],y_position[0])

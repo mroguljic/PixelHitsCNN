@@ -109,9 +109,9 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Conv1D(100, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 x = Activation("relu")(x)
-x = Conv1D(100, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
+x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
@@ -127,18 +127,18 @@ x = Dropout(0.25)(x)
 '''
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
-x = Dense(200,kernel_regularizer='l2')(concat_inputs)
+x = Dense(16,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-x = Dropout(0.25)(x)
-x = Dense(300,kernel_regularizer='l2')(x)
+#x = Dropout(0.25)(x)
+x = Dense(32,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-x = Dropout(0.25)(x)
-x = Dense(200,kernel_regularizer='l2')(x)
+#x = Dropout(0.25)(x)
+x = Dense(16,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-x = Dropout(0.25)(x)
+#x = Dropout(0.25)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
@@ -202,7 +202,7 @@ for cl in range(80):
    	print("\n")
 '''
 
-'''
+
 
 train_time_y = time.clock()
 
@@ -210,19 +210,19 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 y = Activation("relu")(y)
 y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
-#y = Dropout(0.25)(y)
-y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y) 
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling1D(pool_size=2,padding='same')(y)
+y = Dropout(0.25)(y)
+#y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+#y = Activation("relu")(y)
+#y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+#y = Activation("relu")(y) 
+#y = BatchNormalization(axis=-1)(y)
+#y = MaxPooling1D(pool_size=2,padding='same')(y)
 #y = Dropout(0.25)(y)
 
 y_cnn = Flatten()(y)
@@ -271,7 +271,7 @@ history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs_y,
                 validation_split=validation_split,
-    callbacks=callbacks)
+                callbacks=callbacks)
 
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
@@ -287,21 +287,11 @@ inference_time_y = time.clock() - start
 print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 
 
-
-#residuals_x = x_pred - x_test
-#RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
-#print(np.amin(residuals_x),np.amax(residuals_x))
-#print("RMS_x = %f\n"%(RMS_x))
 residuals_y = y_pred - y_test
 RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
-
-#mean_x, sigma_x = norm.fit(residuals_x)
-#print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
-
-#plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
@@ -310,5 +300,5 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-'''
+
 
