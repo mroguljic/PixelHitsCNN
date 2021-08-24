@@ -148,7 +148,7 @@ def center_clusters(cluster_matrices):
 		max_cluster_size=0
 		#if there is more than 1 cluster, the one with largest seed is the main one
 		if(n_clusters>1):
-			print("There are %i clusters"%n_clusters)
+		#	print("There are %i clusters"%n_clusters)
 			for i in range(1,n_clusters+1):
 				cluster_idxs_x = np.argwhere(labels==i)[:,0]
 				cluster_idxs_y = np.argwhere(labels==i)[:,1]
@@ -390,15 +390,18 @@ test_data = apply_noise_threshold(test_data,threshold,noise,threshold_noise_frac
 #print(test_data[0].reshape((21,13)).astype(int))
 test_data = apply_gain(test_data,fe_type,common_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
-for i in range(30):
-	print("======== Modified Cluster %i ========\n"%i)
-	print(test_data[i].reshape((21,13)).astype(int))
+#for i in range(30):
+#	print("======== Modified Cluster %i ========\n"%i)
+#	print(test_data[i].reshape((21,13)).astype(int))
 
-#test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
+test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
+for i in range(30):
+        print("======== Modified Cluster %i ========\n"%i)
+        print(test_data[i].reshape((21,13)).astype(int))
 #print(test_data[0].reshape((21,13)))
 #print(x_position[0],y_position[0])
-x_flat = np.zeros((len(test_data),13).astype(int))
-y_flat = np.zeros((len(test_data),21).astype(int))
+x_flat = np.zeros((len(test_data),13))
+y_flat = np.zeros((len(test_data),21))
 project_matrices_xy(test_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
