@@ -85,19 +85,36 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 	elif(fe_type==2): #tanh gain
 	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
-			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+
+			nonzero_idx = np.nonzero(cluster_matrices[index])
+			hits = cluster_matrices[index][nonzero_idx]
+			noise_1,noise_2 = [],[]
+
+			for i in range(13):
+
+				noise_1_t = rng.normal(loc=0.,scale=1.,size=21) #generate a matrix with 21 elements from a gaussian dist with mu = 0 and sig = 1
+				noise_2_t = rng.normal(loc=0.,scale=1.,size=21)
+				noise_1.append(noise_1_t)
+				noise_2.append(noise_2_t)
+
+			noise_1 = np.array(noise_1).reshape((13,21))
+			noise_2 = np.array(noise_2).reshape((13,21))
+
+			noise_1 = noise_1[nonzero_idx]
+			noise_2 = noise_2[nonzero_idx]
 			
-			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
-			noise_3 = rng.normal(loc=0.,scale=1.,size=1)
 			
 			adc = ((p3+p2*np.tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)).astype(int)).astype(float)
 			hits = (((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))).astype(float) - vcaloffst + noise_2*readout_noise)
+
+			#signal = ((float)((1.+gain_frac*ygauss[i])*(vcal*gain*(adc-ped))) - vcaloffst + zgauss[i]*readout_noise)/qscale
 			#https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L572
 			#https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L610
-			qsmear = 1+noise_3*common_noise_frac
+			noise_3 = rng.normal(loc=0.,scale=1.,size=1)
+			qsmear = 1.+noise_3*common_noise_frac
 			hits*=qsmear
-			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
+			cluster_matrices[index][nonzero_idx]=hits
+
 		print("applied tanh gain")
 
 	return cluster_matrices
@@ -107,21 +124,35 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 	below_threshold_i = cluster_matrices < 200.
 	cluster_matrices[below_threshold_i] = 0
 	for index in np.arange(len(cluster_matrices)):
-		hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
-		gaussnoise_1 = rng.normal(loc=0.,scale=1.,size=len(hits))
-		hits+=gaussnoise_1*noise
-		gaussnoise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
-		threshold_noisy = threshold*(1+gaussnoise_2*threshold_noise_frac)
+
+		nonzero_idx = np.nonzero(cluster_matrices[index])
+		hits = cluster_matrices[index][nonzero_idx]
+		for i in range(13):
+
+				noise_1_t = rng.normal(loc=0.,scale=1.,size=21) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+				noise_2_t = rng.normal(loc=0.,scale=1.,size=21)
+				noise_1.append(noise_1_t)
+				noise_2.append(noise_2_t)
+
+			noise_1 = np.array(noise_1).reshape((13,21))
+			noise_2 = np.array(noise_2).reshape((13,21))
+
+			noise_1 = noise_1[nonzero_idx]
+			noise_2 = noise_2[nonzero_idx]
+		
+		
+		hits+=noise_1*noise
+		threshold_noisy = threshold*(1+noise_2*threshold_noise_frac)
 		below_threshold_i = hits < threshold_noisy
 		hits[below_threshold_i] = 0.
-		cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
+		cluster_matrices[index][nonzero_idx]=hits
 
 	#cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied noise and threshold")
 	return cluster_matrices
 
 
-def center_clusters(cluster_matrices):
+def center_clusters(cluster_matrices,threshold):
 	
 	n_train=len(cluster_matrices)
 	j, n_empty = 0,0
@@ -134,15 +165,14 @@ def center_clusters(cluster_matrices):
 #		print(cluster_matrices[index].reshape((13,21)).astype(int))
 		#many matrices are zero cus below thresholf
 
-		if(np.all(cluster_matrices[index]==0)):
-			n_empty+=1
-			continue
+		
 		
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
+		#find largest hit (=seed)
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
-		labels,n_clusters = label(one_mat.clip(0,1))
+		labels,n_clusters = label(one_mat.clip(0,1),connectivity=2)
 		#if(index<30): print(labels.dtype, labels.shape, labels)
 	
 		max_cluster_size=0
@@ -177,7 +207,12 @@ def center_clusters(cluster_matrices):
 		#	print("i = %i"%i)
 		#	print("one_mat before deletion")
 		#	print(one_mat)
-		one_mat[labels!=i] = 0.
+		one_mat[labels!=i] = 0. #delete everything but the main cluster
+		one_mat[one_mat<threshold] = 0. #https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L694
+
+		if(np.all(cluster_matrices[index]==0)):
+			n_empty+=1
+			continue
 		#if(index<30): 
 			
 		#	print("one_mat AFTER deletion")
@@ -291,12 +326,12 @@ ped   = 16.46;
 
 # BPIX Phase 1
 
-p0 = 0.00171
+p0 = 0.01218
 p1 = 0.711
 p2 = 203.
 p3 = 148.
 
-date = "082321"
+date = "082521"
 filename = "p1_2018_irrad_BPIXL1"
 phase1 = True
 
@@ -304,7 +339,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -346,7 +381,7 @@ train_data = apply_noise_threshold(train_data,threshold,noise,threshold_noise_fr
 train_data = apply_gain(train_data,fe_type,common_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
 
-train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= center_clusters(train_data)
+train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= center_clusters(train_data,threshold)
 #print(train_data[0].reshape((13,21)))
 #print(x_position[0],y_position[0])
 x_flat = np.zeros((len(train_data),13))
@@ -358,7 +393,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")
@@ -406,7 +441,7 @@ test_data = apply_gain(test_data,fe_type,common_noise_frac)
 #	print("======== Modified Cluster %i ========\n"%i)
 #	print(test_data[i].reshape((21,13)).astype(int))
 
-test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data)
+test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data,threshold)
 #for i in range(30):
 #        print("======== Modified Cluster %i ========\n"%i)
 #        print(test_data[i].reshape((21,13)).astype(int))
