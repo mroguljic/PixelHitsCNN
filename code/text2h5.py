@@ -85,9 +85,9 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 	elif(fe_type==2): #tanh gain
 	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
-
-			nonzero_idx = np.nonzero(cluster_matrices[index])
-			hits = cluster_matrices[index][nonzero_idx]
+			one_mat = cluster_matrices[index].reshape((13,21))
+			nonzero_idx = np.nonzero(one_mat)
+			hits = one_mat[nonzero_idx]
 			noise_1,noise_2 = [],[]
 
 			for i in range(13):
@@ -113,8 +113,8 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 			noise_3 = rng.normal(loc=0.,scale=1.,size=1)
 			qsmear = 1.+noise_3*common_noise_frac
 			hits*=qsmear
-			cluster_matrices[index][nonzero_idx]=hits
-
+			one_mat[nonzero_idx]=hits
+			cluster_matrices[index] = one_mat[:,:,np.newaxis]
 		print("applied tanh gain")
 
 	return cluster_matrices
@@ -124,9 +124,10 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 	below_threshold_i = cluster_matrices < 200.
 	cluster_matrices[below_threshold_i] = 0
 	for index in np.arange(len(cluster_matrices)):
-
-		nonzero_idx = np.nonzero(cluster_matrices[index])
-		hits = cluster_matrices[index][nonzero_idx]
+		
+		one_mat = cluster_matrices[index].reshape((13,21))
+		nonzero_idx = np.nonzero(one_mat)
+		hits = one_mat[nonzero_idx]
 		for i in range(13):
 
 			noise_1_t = rng.normal(loc=0.,scale=1.,size=21) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
@@ -144,8 +145,9 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 		threshold_noisy = threshold*(1+noise_2*threshold_noise_frac)
 		below_threshold_i = hits < threshold_noisy
 		hits[below_threshold_i] = 0.
-		cluster_matrices[index][nonzero_idx]=hits
-
+		
+		one_mat[nonzero_idx]=hits
+		cluster_matrices[index]=one_mat[:,:,np.newaxis]
 	#cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied noise and threshold")
 	return cluster_matrices
@@ -163,7 +165,9 @@ def center_clusters(cluster_matrices,threshold):
 #	for index in np.arange(10):
 #		print(cluster_matrices[index].reshape((13,21)).astype(int))
 		#many matrices are zero cus below thresholf
-
+		if(np.all(cluster_matrices[index]==0)):
+			n_empty+=1
+			continue
 		
 		
 		#find clusters
