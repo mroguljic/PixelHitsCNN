@@ -43,9 +43,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 
-h5_date = "072821"
-h5_ext = "p1_2018_irrad_L1"
-img_ext = "2dcnn_%s_aug4"%h5_ext
+h5_date = "082321"
+h5_ext = "p1_2018_irrad_BPIXL1"
+img_ext = "2dcnn_%s_aug23"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -79,7 +79,7 @@ f.close()
 
 
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
@@ -118,7 +118,7 @@ x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
-x = Dense(32,kernel_regularizer='l2')(concat_inputs)
+x = Dense(64,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -137,7 +137,7 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 '''
-x = Dense(32,kernel_regularizer='l2')(x)
+x = Dense(64,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -152,16 +152,16 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 callbacks = [
-EarlyStopping(patience=7),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -178,12 +178,22 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for 2dcnn",time.clock()-train_time_x)
 
 start = time.clock()
 x_pred = model.predict([pix_test, angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
+
+residuals_x = x_pred - x_test
+RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
+print(np.amin(residuals_x),np.amax(residuals_x))
+print("RMS_x = %f\n"%(RMS_x))
+
+mean_x, sigma_x = norm.fit(residuals_x)
+print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
+
+plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 
 train_time_y = time.clock()
 
@@ -216,7 +226,7 @@ y = Dropout(0.25)(y)
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 
-y = Dense(32,kernel_regularizer='l2')(concat_inputs)
+y = Dense(64,kernel_regularizer='l2')(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -235,7 +245,7 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 '''
-y = Dense(32,kernel_regularizer='l2')(y)
+y = Dense(64,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -261,7 +271,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=4),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -289,20 +299,11 @@ print("inference_time for 2dcnn= ",(inference_time_x+inference_time_y))
 
 
 
-residuals_x = x_pred - x_test
-RMS_x = np.sqrt(np.mean(residuals_x*residuals_x))
-print(np.amin(residuals_x),np.amax(residuals_x))
-print("RMS_x = %f\n"%(RMS_x))
+
 residuals_y = y_pred - y_test
 RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
 print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
-
-
-mean_x, sigma_x = norm.fit(residuals_x)
-print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
-
-plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 
 mean_y, sigma_y = norm.fit(residuals_y)
 print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
