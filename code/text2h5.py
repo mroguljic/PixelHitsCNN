@@ -129,17 +129,16 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 		hits = cluster_matrices[index][nonzero_idx]
 		for i in range(13):
 
-				noise_1_t = rng.normal(loc=0.,scale=1.,size=21) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
-				noise_2_t = rng.normal(loc=0.,scale=1.,size=21)
-				noise_1.append(noise_1_t)
-				noise_2.append(noise_2_t)
+			noise_1_t = rng.normal(loc=0.,scale=1.,size=21) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2_t = rng.normal(loc=0.,scale=1.,size=21)
+			noise_1.append(noise_1_t)
+			noise_2.append(noise_2_t)
 
-			noise_1 = np.array(noise_1).reshape((13,21))
-			noise_2 = np.array(noise_2).reshape((13,21))
+		noise_1 = np.array(noise_1).reshape((13,21))
+		noise_2 = np.array(noise_2).reshape((13,21))
 
-			noise_1 = noise_1[nonzero_idx]
-			noise_2 = noise_2[nonzero_idx]
-		
+		noise_1 = noise_1[nonzero_idx]
+		noise_2 = noise_2[nonzero_idx]
 		
 		hits+=noise_1*noise
 		threshold_noisy = threshold*(1+noise_2*threshold_noise_frac)
