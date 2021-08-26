@@ -336,7 +336,7 @@ p2 = 203.
 p3 = 148.
 
 date = "082521"
-filename = "p1_2018_irrad_BPIXL1_t2000"
+filename = "p1_2018_irrad_BPIXL1_t4000"
 phase1 = True
 
 if(phase1):
