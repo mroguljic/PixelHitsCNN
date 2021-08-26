@@ -111,9 +111,9 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 y = Activation("relu")(y)
-y = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
