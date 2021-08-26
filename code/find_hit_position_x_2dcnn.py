@@ -44,7 +44,7 @@ import cmsml
 
 
 h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1"
+h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
 img_ext = "2dcnn_%s_aug23"%h5_ext
 
 # Load data
@@ -93,12 +93,12 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,21,1))
 angles = Input(shape=(2,))
-x = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(inputs)
+x = Conv2D(64, (3, 3), padding="same")(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv2D(128, (3, 3), padding="same",kernel_regularizer='l2')(x)
+x = Conv2D(128, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
@@ -110,7 +110,7 @@ x = Dropout(0.25)(x)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
 '''
-x = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(x)
+x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
@@ -118,11 +118,11 @@ x = Dropout(0.25)(x)
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
-x = Dense(64,kernel_regularizer='l2')(concat_inputs)
+x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(128,kernel_regularizer='l2')(x)
+x = Dense(128)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -137,7 +137,7 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 '''
-x = Dense(64,kernel_regularizer='l2')(x)
+x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)

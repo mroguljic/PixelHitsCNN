@@ -44,8 +44,8 @@ import cmsml
 
 
 h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "2dcnn_%s_aug23"%h5_ext
+h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
+img_ext = "2dcnn_%s_aug26"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -83,7 +83,7 @@ batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
-optimizer = Adam(lr=0.0001)
+optimizer = Adam(lr=0.0002)
 validation_split = 0.2
 
 
@@ -93,12 +93,12 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(13,21,1))
 angles = Input(shape=(2,))
-y = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(inputs)
+y = Conv2D(64, (3, 3), padding="same")(inputs)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
 y = Dropout(0.25)(y)
-y = Conv2D(128, (3, 3), padding="same",kernel_regularizer='l2')(y)
+y = Conv2D(128, (3, 3), padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
@@ -110,7 +110,7 @@ y = Dropout(0.25)(y)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
 '''
-y = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(y)
+y = Conv2D(64, (3, 3), padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
@@ -118,11 +118,11 @@ y = Dropout(0.25)(y)
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 
-y = Dense(64,kernel_regularizer='l2')(concat_inputs)
+y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-y = Dense(128,kernel_regularizer='l2')(y)
+y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -137,7 +137,7 @@ y = Dropout(0.25)(y)
 #y = BatchNormalization()(y)
 #y = Dropout(0.25)(y)
 '''
-y = Dense(64,kernel_regularizer='l2')(y)
+y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)

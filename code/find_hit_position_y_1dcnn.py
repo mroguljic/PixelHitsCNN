@@ -42,8 +42,8 @@ from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "1dcnn_%s_aug17"%h5_ext
+h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
+img_ext = "1dcnn_%s_aug26"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -113,18 +113,18 @@ inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
 y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-#y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-#y = Activation("relu")(y)
-#y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-#y = Activation("relu")(y) 
-#y = BatchNormalization(axis=-1)(y)
-#y = MaxPooling1D(pool_size=2,padding='same')(y)
-#y = Dropout(0.25)(y)
+y = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y)
+y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y) 
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling1D(pool_size=2,padding='same')(y)
+y = Dropout(0.25)(y)
 
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])

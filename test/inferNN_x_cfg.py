@@ -9,10 +9,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-h5_ext = "p1_2018_irrad_L1"
+h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
 cpe = "cnn1d"
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug4"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug26"%h5_ext
 elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug4"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 
@@ -50,7 +50,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(500))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(200))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
@@ -83,7 +83,7 @@ process.inferNN_x = cms.EDAnalyzer('InferNN_x',
  #inputTensorName_y = cms.string("input_3"),
  #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),
- use_det_angles   = cms.bool(False),
+ use_det_angles   = cms.bool(True),
  cpe              = cms.string(cpe),
  associateRecoTracks = cms.bool(False),
  associateStrip = cms.bool(False),
