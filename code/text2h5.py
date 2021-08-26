@@ -273,6 +273,9 @@ def center_clusters(cluster_matrices,threshold):
 				one_mat=np.roll(one_mat,-shift,axis=1)
 				y_position[j]-=pixelsize_y[index]*shift
 
+		#normalize inputs
+		xmax, xmin = one_mat.max(), one_mat.min()
+		one_mat = (one_mat-xmin)/(xmax-xmin)
 		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 		j+=1
 
@@ -346,7 +349,7 @@ p2 = 203.
 p3 = 148.
 
 date = "082521"
-filename = "p1_2018_irrad_BPIXL1_t3000"
+filename = "p1_2018_irrad_BPIXL1_t3000_normalized"
 phase1 = True
 
 if(phase1):
