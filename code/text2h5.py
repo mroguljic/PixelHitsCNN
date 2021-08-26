@@ -128,6 +128,7 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 		one_mat = cluster_matrices[index].reshape((13,21))
 		nonzero_idx = np.nonzero(one_mat)
 		hits = one_mat[nonzero_idx]
+		noise_1,noise_2 = [],[]
 		for i in range(13):
 
 			noise_1_t = rng.normal(loc=0.,scale=1.,size=21) #generate a matrix with 21x13 elements from a gaussian dist with mu = 0 and sig = 1
@@ -175,7 +176,7 @@ def center_clusters(cluster_matrices,threshold):
 		#find largest hit (=seed)
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
-		labels,n_clusters = label(one_mat.clip(0,1),connectivity=2)
+		labels,n_clusters = label(one_mat.clip(0,1),structure=np.ones((3,3)))
 		#if(index<30): print(labels.dtype, labels.shape, labels)
 	
 		max_cluster_size=0
@@ -335,14 +336,14 @@ p2 = 203.
 p3 = 148.
 
 date = "082521"
-filename = "p1_2018_irrad_BPIXL1"
+filename = "p1_2018_irrad_BPIXL1_t2000"
 phase1 = True
 
 if(phase1):
-	#threshold = 2000; # threshold in e-
-	threshold = 3000; # BPIX L1 Phase1
+	threshold = 2000; # threshold in e-
+	#threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
+
 #=====train files===== 
 
 #print("making train h5 file")
@@ -396,7 +397,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-'''
+
 #====== test files ========
 
 #print("making test h5 file.")
@@ -455,7 +456,9 @@ y_flat = np.zeros((len(test_data),21))
 project_matrices_xy(test_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
-
+#for i in range(30):
+#       print("======== Modified Cluster %i ========\n"%i)
+#       print(test_data[i].reshape((21,13)).astype(int))
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")

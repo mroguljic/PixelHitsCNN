@@ -43,7 +43,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 
-h5_date = "082321"
+h5_date = "082521"
 h5_ext = "p1_2018_irrad_BPIXL1"
 img_ext = "2dcnn_%s_aug23"%h5_ext
 
@@ -79,11 +79,11 @@ f.close()
 
 
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
-optimizer = Adam(lr=0.0005)
+optimizer = Adam(lr=0.0001)
 validation_split = 0.2
 
 train_time_x = time.clock()
@@ -93,12 +93,12 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,21,1))
 angles = Input(shape=(2,))
-x = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(inputs)
+x = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(inputs)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(x)
+x = Conv2D(128, (3, 3), padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
@@ -110,7 +110,7 @@ x = Dropout(0.25)(x)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
 '''
-x = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(x)
+x = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
@@ -122,7 +122,7 @@ x = Dense(64,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(64,kernel_regularizer='l2')(x)
+x = Dense(128,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -194,7 +194,8 @@ mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
 plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
-
+plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
+'''
 train_time_y = time.clock()
 
 #train flat y
@@ -226,7 +227,7 @@ y = Dropout(0.25)(y)
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 
-y = Dense(64,kernel_regularizer='l2')(concat_inputs)
+y = Dense(32,kernel_regularizer='l2')(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -240,12 +241,12 @@ y = Dropout(0.25)(y)
 #y = BatchNormalization()(y)
 #y = Dropout(0.25)(y)
 
-y = Dense(128)(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
+#y = Dense(128)(y)
+#y = Activation("relu")(y)
+#y = BatchNormalization()(y)
+#y = Dropout(0.25)(y)
 '''
-y = Dense(64,kernel_regularizer='l2')(y)
+y = Dense(32,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -312,3 +313,4 @@ plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
+'''

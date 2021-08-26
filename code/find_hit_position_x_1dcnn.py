@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "081621"
+h5_date = "082521"
 h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "1dcnn_%s_aug17"%h5_ext
+img_ext = "1dcnn_%s_aug23"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -74,6 +74,7 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
+
 print(angles_train.shape)
 print(xpix_flat_test[:30])
 print(ypix_flat_test[:30])
@@ -97,11 +98,11 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 128
+batch_size = 512
 loss_function = 'mse'
-n_epochs_x = 20
-n_epochs_y = 30
-optimizer = Adam(lr=0.001)
+n_epochs_x = 15
+n_epochs_y = 20
+optimizer = Adam(lr=0.0001)
 validation_split = 0.2
 
 train_time_x = time.clock()
@@ -109,36 +110,36 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+x = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 x = Activation("relu")(x)
-x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
+x = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
 x = Dropout(0.25)(x)
-'''
-x = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
-x = Activation("relu")(x)
-x = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
-x = Activation("relu")(x) 
-x = BatchNormalization(axis=-1)(x)
-x = MaxPooling1D(pool_size=2,padding='same')(x)
-x = Dropout(0.25)(x)
-'''
+
+#x = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
+#x = Activation("relu")(x)
+#x = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(x)
+#x = Activation("relu")(x) 
+#x = BatchNormalization(axis=-1)(x)
+#x = MaxPooling1D(pool_size=2,padding='same')(x)
+#x = Dropout(0.25)(x)
+
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
-x = Dense(16,kernel_regularizer='l2')(concat_inputs)
+x = Dense(64,kernel_regularizer='l2')(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-#x = Dropout(0.25)(x)
-x = Dense(32,kernel_regularizer='l2')(x)
+x = Dropout(0.25)(x)
+x = Dense(128,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-#x = Dropout(0.25)(x)
-x = Dense(16,kernel_regularizer='l2')(x)
+x = Dropout(0.25)(x)
+x = Dense(64,kernel_regularizer='l2')(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
-#x = Dropout(0.25)(x)
+x = Dropout(0.25)(x)
 x = Dense(1)(x)
 x_position = Activation("linear", name="x")(x)
 
@@ -159,7 +160,7 @@ model.compile(loss=loss_function,
               )
 
 callbacks = [
-#EarlyStopping(patience=7),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -189,7 +190,7 @@ print("RMS_x = %f\n"%(RMS_x))
 mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
-
+plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 '''
 print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
 
@@ -200,7 +201,7 @@ for cl in range(80):
    	print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
    	print('x_pred = %f\n'%(x_pred[cl]))
    	print("\n")
-'''
+
 
 
 
@@ -212,33 +213,33 @@ inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
 y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
 y = Activation("relu")(y)
-y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-#y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-#y = Activation("relu")(y)
-#y = Conv1D(16, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-#y = Activation("relu")(y) 
-#y = BatchNormalization(axis=-1)(y)
-#y = MaxPooling1D(pool_size=2,padding='same')(y)
-#y = Dropout(0.25)(y)
+y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y)
+y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Activation("relu")(y) 
+y = BatchNormalization(axis=-1)(y)
+y = MaxPooling1D(pool_size=2,padding='same')(y)
+y = Dropout(0.25)(y)
 
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
-y = Dense(16,kernel_regularizer='l2')(concat_inputs)
+y = Dense(64,kernel_regularizer='l2')(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-#y = Dropout(0.25)(y)
-y = Dense(32,kernel_regularizer='l2')(y)
+y = Dropout(0.25)(y)
+y = Dense(64,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-#y = Dropout(0.25)(y)
-y = Dense(16,kernel_regularizer='l2')(y)
+y = Dropout(0.25)(y)
+y = Dense(64,kernel_regularizer='l2')(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
-#y = Dropout(0.25)(y)
+y = Dropout(0.25)(y)
 y = Dense(1)(y)
 y_position = Activation("linear", name="y")(y)
 
@@ -260,7 +261,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-#EarlyStopping(patience=5),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
                 monitor='val_loss')
@@ -298,7 +299,7 @@ print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
 plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
 
-plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
+#plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-
+'''
 
