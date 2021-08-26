@@ -85,9 +85,13 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 	elif(fe_type==2): #tanh gain
 	#NEED TO CHANGE
 		for index in np.arange(len(cluster_matrices)):
-			one_mat = cluster_matrices[index].reshape((13,21))
-			nonzero_idx = np.nonzero(one_mat)
-			hits = one_mat[nonzero_idx]
+			#one_mat = cluster_matrices[index].reshape((13,21))
+			#nonzero_idx = np.nonzero(one_mat)
+			#hits = one_mat[nonzero_idx]
+			hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+			noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21 elements from a gaussian dist with mu = 0 and sig = 1
+			noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
+			'''
 			noise_1,noise_2 = [],[]
 
 			for i in range(13):
@@ -102,7 +106,7 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 
 			noise_1 = noise_1[nonzero_idx]
 			noise_2 = noise_2[nonzero_idx]
-			
+			'''
 			
 			adc = ((p3+p2*np.tanh(p0*(hits+ vcaloffst)/(7.0*vcal) - p1)).astype(int)).astype(float)
 			hits = (((1.+gain_frac*noise_1)*(vcal*gain*(adc-ped))).astype(float) - vcaloffst + noise_2*readout_noise)
@@ -113,8 +117,9 @@ def apply_gain(cluster_matrices,fe_type,common_noise_frac):
 			noise_3 = rng.normal(loc=0.,scale=1.,size=1)
 			qsmear = 1.+noise_3*common_noise_frac
 			hits*=qsmear
-			one_mat[nonzero_idx]=hits
-			cluster_matrices[index] = one_mat[:,:,np.newaxis]
+			cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
+			#one_mat[nonzero_idx]=hits
+			#cluster_matrices[index] = one_mat[:,:,np.newaxis]
 		print("applied tanh gain")
 
 	return cluster_matrices
@@ -123,8 +128,13 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 	#https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L584-L610
 	below_threshold_i = cluster_matrices < 200.
 	cluster_matrices[below_threshold_i] = 0
+
 	for index in np.arange(len(cluster_matrices)):
-		
+
+		hits = cluster_matrices[index][np.nonzero(cluster_matrices[index])]
+		noise_1 = rng.normal(loc=0.,scale=1.,size=len(hits)) #generate a matrix with 21 elements from a gaussian dist with mu = 0 and sig = 1
+		noise_2 = rng.normal(loc=0.,scale=1.,size=len(hits))
+		'''
 		one_mat = cluster_matrices[index].reshape((13,21))
 		nonzero_idx = np.nonzero(one_mat)
 		hits = one_mat[nonzero_idx]
@@ -141,14 +151,15 @@ def apply_noise_threshold(cluster_matrices,threshold,noise,threshold_noise_frac)
 
 		noise_1 = noise_1[nonzero_idx]
 		noise_2 = noise_2[nonzero_idx]
-		
+		'''
 		hits+=noise_1*noise
 		threshold_noisy = threshold*(1+noise_2*threshold_noise_frac)
 		below_threshold_i = hits < threshold_noisy
 		hits[below_threshold_i] = 0.
-		
-		one_mat[nonzero_idx]=hits
-		cluster_matrices[index]=one_mat[:,:,np.newaxis]
+		cluster_matrices[index][np.nonzero(cluster_matrices[index])]=hits
+
+		#one_mat[nonzero_idx]=hits
+		#cluster_matrices[index]=one_mat[:,:,np.newaxis]
 	#cluster_matrices=(cluster_matrices/10.).astype(int)
 	print("applied noise and threshold")
 	return cluster_matrices
@@ -160,19 +171,22 @@ def center_clusters(cluster_matrices,threshold):
 	j, n_empty = 0,0
 	#cluster_matrices_new=np.zeros((n_train,13,21,1))
 	for index in range(0,n_train):
-		if(index%100000==0):
-			print(index)
+		#if(index%100000==0):
+		#	print(index)
 
 #	for index in np.arange(10):
 #		print(cluster_matrices[index].reshape((13,21)).astype(int))
 		#many matrices are zero cus below thresholf
-		if(np.all(cluster_matrices[index]==0)):
-			n_empty+=1
-			continue
+		
 		
 		
 		#find clusters
 		one_mat = cluster_matrices[index].reshape((13,21))
+		one_mat[one_mat<threshold] = 0. #https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L694
+
+		if(np.all(one_mat==0)):
+			n_empty+=1
+			continue
 		#find largest hit (=seed)
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
@@ -212,11 +226,7 @@ def center_clusters(cluster_matrices,threshold):
 		#	print("one_mat before deletion")
 		#	print(one_mat)
 		one_mat[labels!=i] = 0. #delete everything but the main cluster
-		one_mat[one_mat<threshold] = 0. #https://github.com/SanjanaSekhar/PixelTemplateProduction/blob/master/src/gen_zp_template.cc#L694
-
-		if(np.all(cluster_matrices[index]==0)):
-			n_empty+=1
-			continue
+	
 		#if(index<30): 
 			
 		#	print("one_mat AFTER deletion")
@@ -336,12 +346,12 @@ p2 = 203.
 p3 = 148.
 
 date = "082521"
-filename = "p1_2018_irrad_BPIXL1_t4000"
+filename = "p1_2018_irrad_BPIXL1_t3000"
 phase1 = True
 
 if(phase1):
-	threshold = 2000; # threshold in e-
-	#threshold = 3000; # BPIX L1 Phase1
+	#threshold = 2000; # threshold in e-
+	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
 
 #=====train files===== 
