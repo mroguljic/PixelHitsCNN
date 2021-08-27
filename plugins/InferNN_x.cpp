@@ -409,6 +409,7 @@ private:
 			mcol = std::min(mcol, TYSIZE);
 			assert(mrow > 0);
 			assert(mcol > 0);
+			float cluster_max = 0., cluster_min = 100000000.;
 
 			bool bigPixel=false;
 			int irow_sum = 0, icol_sum = 0;
@@ -425,6 +426,8 @@ private:
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
+				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
+				if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
 			if(bigPixel) continue;
@@ -444,7 +447,8 @@ private:
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
-				clusbuf[irow][icol] = float(pix.adc);
+				//normalized value
+				clusbuf[irow][icol] = (float(pix.adc)-cluster_min)/(cluster_max-cluster_min);
  				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 			}
@@ -535,7 +539,7 @@ private:
         }
     }
 
-    printf("count = %i\n",prev_count+count);
+    printf("count = %i\n",count);
     for(int i=prev_count;i<count;i++){
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
