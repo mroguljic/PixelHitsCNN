@@ -117,7 +117,7 @@ private:
 	bool use_det_angles;
 	std::string cpe;
 	TFile *fFile; TTree *fTree;
-	static const int MAXCLUSTER = 100000;
+	static const int MAXCLUSTER = 50000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
 	float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
 	float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
@@ -228,17 +228,25 @@ private:
 		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
 
 		sprintf(infile1,"generic_MC_x.txt");
-	//	gen_file = fopen(infile1, "w");
+		gen_file = fopen(infile1, "w");
 
-		sprintf(infile2,"%s/simhits_MC.txt",path);
+		sprintf(infile2,"%s/simhits_MC_x.txt",path);
 		sim_file = fopen(infile2, "w");
 
+		if(use_det_angles){
+		sprintf(infile3,"%s/%s_MC_x_detangles.txt",path,cpe.c_str());
+		nn_file = fopen(infile3, "w");
+
+		sprintf(infile4,"%s/%s_MC_perclustersize_x_detangles.txt",path,cpe.c_str());
+		clustersize_x_file = fopen(infile4, "w");
+		}
+		else{
 		sprintf(infile3,"%s/%s_MC_x.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_x.txt",path,cpe.c_str());
 		clustersize_x_file = fopen(infile4, "w");
-
+		}
 		
 	}
 
@@ -299,7 +307,7 @@ private:
 			return;
 		}
 
-		float clusbuf[TXSIZE][TYSIZE];
+		float clusbuf[TXSIZE][TYSIZE] clusbuf_x[TXSIZE], clusbuf_y[TYSIZE];
 
 		static int ix,iy;
 		int prev_count = count;
@@ -332,8 +340,13 @@ private:
 
 
 			//some initialization
-			for(int j=0; j<TXSIZE; ++j) {for(int i=0; i<TYSIZE; ++i) {clusbuf[j][i] = 0.;} } 
-
+			for(int j=0; j<TXSIZE; ++j) {
+				for(int i=0; i<TYSIZE; ++i) {
+				clusbuf[j][i] = 0.;
+				clusbuf_y[i] = 0.;
+				} 
+				clusbuf_x[j] = 0.;
+			} 
 
 			// get the cluster
 				auto clustp = pixhit->cluster();
@@ -409,7 +422,7 @@ private:
 			mcol = std::min(mcol, TYSIZE);
 			assert(mrow > 0);
 			assert(mcol > 0);
-			float cluster_max = 0., cluster_min = 100000000.;
+			float cluster_max = 0., cluster_min = 1e8;
 
 			bool bigPixel=false;
 			int irow_sum = 0, icol_sum = 0;
@@ -449,11 +462,22 @@ private:
 
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 				//normalized value
+				if(cluster_max!=cluster_min)
 				clusbuf[irow][icol] = (float(pix.adc)-cluster_min)/(cluster_max-cluster_min);
+				else clusbuf[irow][icol] = 1.;
  				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 			}
-
+			cluster_max = 0., cluster_min = 1e8;
+			for(int i = 0,i < TXSIZE; i++){
+				for(int j = 0; j < TYSIZE; j++){
+					clusbuf_x[i] += clusbuf[i][j];
+				}
+				if(clusbuf_x[i] > cluster_max) cluster_max = clusbuf_x[i] ; 
+				if(clusbuf_x[i] < cluster_min) cluster_min = clusbuf_x[i] ;
+			}
+			//normalize 1d inputs
+			for(int i = 0, i < TXSIZE; i++) clusbuf_x[i] = (clusbuf_x[i]-cluster_min)/(cluster_max-cluster_min);
 				//===============================
 				// define a tensor and fill it with cluster projection
 			tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
@@ -467,7 +491,7 @@ private:
 				cluster_flat_x.tensor<float,3>()(0, i, 0) = 0;
 				for (int j = 0; j < TYSIZE; j++){
             //1D projection in x
-					cluster_flat_x.tensor<float,3>()(0, i, 0) += clusbuf[i][j];
+					cluster_flat_x.tensor<float,3>()(0, i, 0) = clusbuf_x[i];
 					cluster_.tensor<float,4>()(0, i, j, 0) = clusbuf[i][j];
 					
 					//printf("%i ",int(clusbuf[i][j]));
@@ -552,11 +576,12 @@ private:
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
     	}
-    	for(int j=0; j<SIMHITPERCLMAX;j++){
-    		fprintf(sim_file,"%f ", fClSimHitLy[i][j]);
-    	}
+    	//for(int j=0; j<SIMHITPERCLMAX;j++){
+    	//	fprintf(sim_file,"%f ", fClSimHitLy[i][j]);
+    	//}
     	fprintf(sim_file,"\n");
-    	fprintf(nn_file,"%f %f\n", x_gen[i],x_nn[i]);
+    	fprintf(nn_file,"%f\n", x_nn[i]);
+    	fprintf(gen_file,"%f\n", x_gen[i]);
 
     	fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
