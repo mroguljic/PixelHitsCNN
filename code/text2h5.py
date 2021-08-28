@@ -273,9 +273,7 @@ def center_clusters(cluster_matrices,threshold):
 				one_mat=np.roll(one_mat,-shift,axis=1)
 				y_position[j]-=pixelsize_y[index]*shift
 
-		#normalize inputs
-		xmax, xmin = one_mat.max(), one_mat.min()
-		one_mat = (one_mat-xmin)/(xmax-xmin)
+		
 		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 		j+=1
 
@@ -298,7 +296,19 @@ def project_matrices_xy(cluster_matrices):
 
 
 def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
-	#IS IT BETTER TO SPECIFIY DTYPES?
+
+	#normalize inputs
+	for index in len(cluster_matrices):
+
+		max_c, min_c = cluster_matrices[index].max(), cluster_matrices[index].min()
+		cluster_matrices[index] = (cluster_matrices[index]-min_c)/(max_c-min_c)
+
+		max_c, min_c = x_flat[index].max(), x_flat[index].min()
+		x_flat[index] = (x_flat[index]-min_c)/(max_c-min_c)		
+
+		max_c, min_c = y_flat[index].max(), y_flat[index].min()
+		y_flat[index] = (y_flat[index]-min_c)/(max_c-min_c)
+
 	clusters_dset = f.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
 	x_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
 	y_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
@@ -348,8 +358,8 @@ p1 = 0.711
 p2 = 203.
 p3 = 148.
 
-date = "082521"
-filename = "p1_2018_irrad_BPIXL1_t3000_normalized"
+date = "082821"
+filename = "p1_2018_irrad_BPIXL1"
 phase1 = True
 
 if(phase1):
