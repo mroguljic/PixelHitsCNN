@@ -50,7 +50,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(200))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(2))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
@@ -83,7 +83,7 @@ process.inferNN_x = cms.EDAnalyzer('InferNN_x',
  #inputTensorName_y = cms.string("input_3"),
  #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),
- use_det_angles   = cms.bool(True),
+ use_det_angles   = cms.bool(False),
  cpe              = cms.string(cpe),
  associateRecoTracks = cms.bool(False),
  associateStrip = cms.bool(False),

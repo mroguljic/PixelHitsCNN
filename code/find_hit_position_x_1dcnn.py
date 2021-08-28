@@ -42,7 +42,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1_t3000"
+h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
 img_ext = "1dcnn_%s_aug26"%h5_ext
 
 # Load data
@@ -75,10 +75,14 @@ inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
-print(angles_train.shape)
-print(xpix_flat_test[:30])
-print(ypix_flat_test[:30])
-print("clustersize of 1: ",len(np.argwhere(clustersize_x_train==1)))
+#print(angles_train.shape)
+#print(xpix_flat_test[:30])
+#print(ypix_flat_test[:30])
+#print("clustersize of 1: ",len(np.argwhere(clustersize_x_train==1)))
+for i in range(50):
+	if clustersize_x_train[i]==1:
+		print(xpix_flat_train[i])
+	
 '''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
@@ -104,7 +108,7 @@ n_epochs_x = 15
 n_epochs_y = 20
 optimizer = Adam(lr=0.0001)
 validation_split = 0.2
-
+'''
 train_time_x = time.clock()
 #train flat x
 
@@ -191,7 +195,7 @@ mean_x, sigma_x = norm.fit(residuals_x)
 print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
-'''
+
 print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
 
 #print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))

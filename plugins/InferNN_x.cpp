@@ -431,6 +431,7 @@ private:
 
 			}
 			if(bigPixel) continue;
+			printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
 			mid_y = round(float(icol_sum)/float(cluster.size()));
@@ -481,8 +482,15 @@ private:
 			else tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
 			x_nn[count] = output_x[0].matrix<float>()(0,0);
-				//printf("x = %f\n",x_nn[count]);
-
+				
+			//printf("x_nn[%i] = %f\n",count,x_nn[count]);
+			if(isnan(x_nn[count])){
+			for(int i=0;i<TXSIZE;i++){
+				for(int j=0;j<TYSIZE;j++)
+					printf("%i ",int(clusbuf[i][j]));
+				printf("\n");
+			}
+			printf("\n");}
 			x_nn[count] = (x_nn[count]+pixelsize_x*(mid_x))*micronsToCm; 
 
 			//	printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);
