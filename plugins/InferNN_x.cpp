@@ -307,7 +307,7 @@ private:
 			return;
 		}
 
-		float clusbuf[TXSIZE][TYSIZE] clusbuf_x[TXSIZE], clusbuf_y[TYSIZE];
+		float clusbuf[TXSIZE][TYSIZE], clusbuf_x[TXSIZE];
 
 		static int ix,iy;
 		int prev_count = count;
@@ -343,7 +343,7 @@ private:
 			for(int j=0; j<TXSIZE; ++j) {
 				for(int i=0; i<TYSIZE; ++i) {
 				clusbuf[j][i] = 0.;
-				clusbuf_y[i] = 0.;
+				//clusbuf_y[i] = 0.;
 				} 
 				clusbuf_x[j] = 0.;
 			} 
@@ -469,7 +469,7 @@ private:
 
 			}
 			cluster_max = 0., cluster_min = 1e8;
-			for(int i = 0,i < TXSIZE; i++){
+			for(int i = 0;i < TXSIZE; i++){
 				for(int j = 0; j < TYSIZE; j++){
 					clusbuf_x[i] += clusbuf[i][j];
 				}
@@ -477,7 +477,7 @@ private:
 				if(clusbuf_x[i] < cluster_min) cluster_min = clusbuf_x[i] ;
 			}
 			//normalize 1d inputs
-			for(int i = 0, i < TXSIZE; i++) clusbuf_x[i] = (clusbuf_x[i]-cluster_min)/(cluster_max-cluster_min);
+			for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = (clusbuf_x[i]-cluster_min)/(cluster_max-cluster_min);
 				//===============================
 				// define a tensor and fill it with cluster projection
 			tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});

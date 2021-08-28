@@ -171,8 +171,8 @@ def center_clusters(cluster_matrices,threshold):
 	j, n_empty = 0,0
 	#cluster_matrices_new=np.zeros((n_train,13,21,1))
 	for index in range(0,n_train):
-		#if(index%100000==0):
-		#	print(index)
+		if(index%100000==0):
+			print(index)
 
 #	for index in np.arange(10):
 #		print(cluster_matrices[index].reshape((13,21)).astype(int))
@@ -298,7 +298,7 @@ def project_matrices_xy(cluster_matrices):
 def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
 
 	#normalize inputs
-	for index in len(cluster_matrices):
+	for index in range(len(cluster_matrices)):
 
 		max_c, min_c = cluster_matrices[index].max(), cluster_matrices[index].min()
 		cluster_matrices[index] = (cluster_matrices[index]-min_c)/(max_c-min_c)

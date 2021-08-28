@@ -238,14 +238,14 @@ private:
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_y_detangles.txt",path,cpe.c_str());
-		clustersize_x_file = fopen(infile4, "w");
+		clustersize_y_file = fopen(infile4, "w");
 		}
 		else{
 		sprintf(infile3,"%s/%s_MC_y.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_y.txt",path,cpe.c_str());
-		clustersize_x_file = fopen(infile4, "w");
+		clustersize_y_file = fopen(infile4, "w");
 		}
 
 		
@@ -308,7 +308,7 @@ private:
 			return;
 		}
 
-		float clusbuf[TXSIZE][TYSIZE] clusbuf_x[TXSIZE], clusbuf_y[TYSIZE];
+		float clusbuf[TXSIZE][TYSIZE], clusbuf_y[TYSIZE];
 
 		static int ix,iy;
 		int prev_count = count;
@@ -346,7 +346,7 @@ private:
 				clusbuf[j][i] = 0.;
 				clusbuf_y[i] = 0.;
 				} 
-				clusbuf_x[j] = 0.;
+				//clusbuf_x[j] = 0.;
 			} 
 
 
@@ -470,7 +470,7 @@ private:
 
 			}
 			cluster_max = 0., cluster_min = 1e8;
-			for(int i = 0,i < TYSIZE; i++){
+			for(int i = 0;i < TYSIZE; i++){
 				for(int j = 0; j < TXSIZE; j++){
 					clusbuf_y[i] += clusbuf[j][i];
 				}
@@ -478,7 +478,7 @@ private:
 				if(clusbuf_y[i] < cluster_min) cluster_min = clusbuf_y[i] ;
 			}
 			//normalize 1d inputs
-			for(int i = 0, i < TYIZE; i++) clusbuf_y[i] = (clusbuf_y[i]-cluster_min)/(cluster_max-cluster_min);
+			for(int i = 0; i < TYSIZE; i++) clusbuf_y[i] = (clusbuf_y[i]-cluster_min)/(cluster_max-cluster_min);
 
 				//===============================
 				// define a tensor and fill it with cluster projection
