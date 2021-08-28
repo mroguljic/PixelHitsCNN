@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
-img_ext = "1dcnn_%s_aug26"%h5_ext
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1"
+img_ext = "1dcnn_%s_aug28"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -108,7 +108,7 @@ n_epochs_x = 15
 n_epochs_y = 20
 optimizer = Adam(lr=0.0001)
 validation_split = 0.2
-'''
+
 train_time_x = time.clock()
 #train flat x
 
@@ -196,114 +196,4 @@ print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 
-print("prediction for test cluster: ", model.predict([test_cx[:,:,np.newaxis],test_ang], batch_size=1))
-
-#print("norm_x = %f norm_y = %f\n"%(norm_x,norm_y))
-for cl in range(80):
-   if(clustersize_x_test[cl]==1):
-   	print(xpix_flat_test[cl])
-   	print('x_label = %f, y_label = %f, cota = %f, cotb = %f\n'%(x_test[cl],y_test[cl], cota_test[cl],cotb_test[cl]))
-   	print('x_pred = %f\n'%(x_pred[cl]))
-   	print("\n")
-
-
-
-
-train_time_y = time.clock()
-
-#train flat y
-
-inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
-angles = Input(shape=(2,))
-y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
-y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling1D(pool_size=2,padding='same')(y)
-y = Dropout(0.25)(y)
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = Conv1D(32, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y) 
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling1D(pool_size=2,padding='same')(y)
-y = Dropout(0.25)(y)
-
-y_cnn = Flatten()(y)
-concat_inputs = concatenate([y_cnn,angles])
-y = Dense(64,kernel_regularizer='l2')(concat_inputs)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(64,kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(64,kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(1)(y)
-y_position = Activation("linear", name="y")(y)
-
-model = Model(inputs=[inputs,angles],
-              outputs=[y_position]
-              )
-
-# Display a model summary
-model.summary()
-
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
-
-# Compile the model
-model.compile(loss=loss_function,
-              optimizer=optimizer,
-              metrics=['mse']
-              )
-
-
-
-callbacks = [
-EarlyStopping(patience=5),
-ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
-                save_weights_only=True,
-                monitor='val_loss')
-]
-
-# Fit data to model
-history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
-                batch_size=batch_size,
-                epochs=n_epochs_y,
-                validation_split=validation_split,
-                callbacks=callbacks)
-
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
-
-plot_dnn_loss(history.history,'y',img_ext)
-
-print("y training time for dnn",time.clock()-train_time_y)
-
-start = time.clock()
-y_pred = model.predict([ypix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
-inference_time_y = time.clock() - start
-
-print("inference_time for dnn= ",(inference_time_x+inference_time_y))
-
-
-residuals_y = y_pred - y_test
-RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
-print(np.amin(residuals_y),np.amax(residuals_y))
-print("RMS_y = %f\n"%(RMS_y))
-
-
-mean_y, sigma_y = norm.fit(residuals_y)
-print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
-
-plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
-
-#plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
-plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-'''
 

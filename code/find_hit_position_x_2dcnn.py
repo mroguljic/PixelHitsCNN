@@ -43,9 +43,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
 
-h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
-img_ext = "2dcnn_%s_aug23"%h5_ext
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1"
+img_ext = "2dcnn_%s_aug28"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -195,122 +195,3 @@ print("mean_x = %0.2f, sigma_x = %0.2f"%(mean_x,sigma_x))
 
 plot_residuals(residuals_x,mean_x,sigma_x,RMS_x,'x',img_ext)
 plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
-'''
-train_time_y = time.clock()
-
-#train flat y
-
-inputs = Input(shape=(13,21,1))
-angles = Input(shape=(2,))
-y = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(inputs)
-y = Activation("relu")(y)
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
-y = Dropout(0.25)(y)
-y = Conv2D(64, (3, 3), padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
-y = Dropout(0.25)(y)
-'''
-#x = Conv2D(256, (3, 3), padding="same")(x)
-#x = Activation("relu")(x)
-#x = BatchNormalization(axis=-1)(x)
-#x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
-#x = Dropout(0.25)(x)
-'''
-y = Conv2D(32, (3, 3), padding="same",kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
-y = Dropout(0.25)(y)
-y_cnn = Flatten()(y)
-concat_inputs = concatenate([y_cnn,angles])
-
-y = Dense(32,kernel_regularizer='l2')(concat_inputs)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(64,kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-'''
-#y = Dense(256)(y)
-#y = Activation("relu")(y)
-#y = BatchNormalization()(y)
-#y = Dropout(0.25)(y)
-
-#y = Dense(128)(y)
-#y = Activation("relu")(y)
-#y = BatchNormalization()(y)
-#y = Dropout(0.25)(y)
-'''
-y = Dense(32,kernel_regularizer='l2')(y)
-y = Activation("relu")(y)
-y = BatchNormalization()(y)
-y = Dropout(0.25)(y)
-y = Dense(1)(y)
-y_position = Activation("linear", name="y")(y)
-
-
-model = Model(inputs=[inputs,angles],
-              outputs=[y_position]
-              )
-
-# Display a model summary
-model.summary()
-
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
-
-# Compile the model
-model.compile(loss=loss_function,
-              optimizer=optimizer,
-              metrics=['mse']
-              )
-
-
-
-callbacks = [
-EarlyStopping(patience=5),
-ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
-                save_weights_only=True,
-                monitor='val_loss')
-]
-
-# Fit data to model
-history = model.fit([pix_train, angles_train], [y_train],
-                batch_size=batch_size,
-                epochs=n_epochs_y,
-                validation_split=validation_split,
-    callbacks=callbacks)
-
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
-cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
-
-plot_dnn_loss(history.history,'y',img_ext)
-
-print("y training time for dnn",time.clock()-train_time_y)
-
-start = time.clock()
-y_pred = model.predict([pix_test, angles_test], batch_size=9000)
-inference_time_y = time.clock() - start
-
-print("inference_time for 2dcnn= ",(inference_time_x+inference_time_y))
-
-
-
-
-residuals_y = y_pred - y_test
-RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
-print(np.amin(residuals_y),np.amax(residuals_y))
-print("RMS_y = %f\n"%(RMS_y))
-
-mean_y, sigma_y = norm.fit(residuals_y)
-print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
-
-plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
-
-plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
-plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
-'''

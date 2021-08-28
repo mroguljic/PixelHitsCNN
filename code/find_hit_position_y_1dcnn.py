@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "082521"
-h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
-img_ext = "1dcnn_%s_aug26"%h5_ext
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1"
+img_ext = "1dcnn_%s_aug28"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
