@@ -116,6 +116,7 @@ private:
 	tensorflow::Session* session_x;
 	bool use_det_angles;
 	std::string cpe;
+	bool use_generic;
 	TFile *fFile; TTree *fTree;
 	static const int MAXCLUSTER = 50000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
@@ -177,6 +178,7 @@ private:
 		desc.add<std::string>("outputTensorName");
 		desc.add<bool>("use_det_angles");
 		desc.add<std::string>("cpe");
+		desc.add<bool>("use_generic");
 		desc.add<bool>("associatePixel");
 		desc.add<bool>("associateStrip");
 		desc.add<bool>("associateRecoTracks");
@@ -193,6 +195,7 @@ private:
 	session_x(tensorflow::createSession(cacheData->graphDef)),
 	use_det_angles(config.getParameter<bool>("use_det_angles")),
 	cpe(config.getParameter<std::string>("cpe")),
+	use_generic(config.getParameter<bool>("use_generic")),
 	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 	trackerHitAssociatorConfig_(config, consumesCollector()) {
@@ -226,9 +229,14 @@ private:
 			
 		}
 		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
-
-		sprintf(infile1,"generic_MC_x.txt");
+		if(use_generic){
+		sprintf(infile1,"%s/generic_MC_x.txt",path);
 		gen_file = fopen(infile1, "w");
+		}
+		else{
+		sprintf(infile1,"%s/template_MC_x.txt",path);
+		gen_file = fopen(infile1, "w");
+		}
 
 		sprintf(infile2,"%s/simhits_MC_x.txt",path);
 		sim_file = fopen(infile2, "w");
@@ -444,7 +452,7 @@ private:
 
 			}
 			if(bigPixel) continue;
-			printf("max = %f, min = %f\n",cluster_max,cluster_min);
+			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
 			mid_y = round(float(icol_sum)/float(cluster.size()));
@@ -508,13 +516,13 @@ private:
 			x_nn[count] = output_x[0].matrix<float>()(0,0);
 				
 			//printf("x_nn[%i] = %f\n",count,x_nn[count]);
-			if(isnan(x_nn[count])){
-			for(int i=0;i<TXSIZE;i++){
-				for(int j=0;j<TYSIZE;j++)
-					printf("%i ",int(clusbuf[i][j]));
-				printf("\n");
-			}
-			printf("\n");}
+			//if(isnan(x_nn[count])){
+			//for(int i=0;i<TXSIZE;i++){
+			//	for(int j=0;j<TYSIZE;j++)
+			//		printf("%i ",int(clusbuf[i][j]));
+			//	printf("\n");
+			//}
+			//printf("\n");}
 			x_nn[count] = (x_nn[count]+pixelsize_x*(mid_x))*micronsToCm; 
 
 			//	printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);

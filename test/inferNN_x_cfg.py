@@ -9,13 +9,17 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-h5_ext = "p1_2018_irrad_BPIXL1_t3000_normalized"
-cpe = "cnn1d"
+h5_ext = "p1_2018_irrad_BPIXL1"
+cpe = "cnn2d"
+n_events = 200
+use_generic = False
+use_det_angles = False
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug26"%h5_ext
-elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug4"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug28"%h5_ext
+elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug28"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 
+print("n_events = %i, use_generic = %i, use_det_angles = %i, cpe = %s"%(n_events,use_generic,use_det_angles,cpe))
 
 datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/data"
 
@@ -43,14 +47,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '
 #process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 # force Generic reco
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
-process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
+if use_generic: process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
 
 # minimal configuration
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(2))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(n_events))
 process.source = cms.Source("PoolSource",
   # data
   #fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/data/Run2018C/SingleMuon/RAW/v1/000/320/040/00000/407FB3FD-A78E-E811-B816-FA163E120D15.root")
@@ -83,8 +87,9 @@ process.inferNN_x = cms.EDAnalyzer('InferNN_x',
  #inputTensorName_y = cms.string("input_3"),
  #anglesTensorName_y = cms.string("input_4"),
  outputTensorName = cms.string("Identity"),
- use_det_angles   = cms.bool(False),
+ use_det_angles   = cms.bool(use_det_angles),
  cpe              = cms.string(cpe),
+ use_generic = cms.bool(use_generic),
  associateRecoTracks = cms.bool(False),
  associateStrip = cms.bool(False),
  associatePixel = cms.bool(True),

@@ -116,6 +116,7 @@ private:
 	tensorflow::Session* session_y;
 	bool use_det_angles;
 	std::string cpe;
+	bool use_generic;
 	TFile *fFile; TTree *fTree;
 	static const int MAXCLUSTER = 50000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
@@ -177,6 +178,7 @@ private:
 		desc.add<std::string>("outputTensorName");
 		desc.add<bool>("use_det_angles");
 		desc.add<std::string>("cpe");
+		desc.add<bool>("use_generic");
 		desc.add<bool>("associatePixel");
 		desc.add<bool>("associateStrip");
 		desc.add<bool>("associateRecoTracks");
@@ -193,6 +195,7 @@ private:
 	session_y(tensorflow::createSession(cacheData->graphDef)),
 	use_det_angles(config.getParameter<bool>("use_det_angles")),
 	cpe(config.getParameter<std::string>("cpe")),
+	use_generic(config.getParameter<bool>("use_generic")),
 	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 	trackerHitAssociatorConfig_(config, consumesCollector()) {
@@ -226,9 +229,14 @@ private:
 			
 		}
 		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
-
-		sprintf(infile1,"generic_MC_y.txt");
+		if(use_generic){
+		sprintf(infile1,"%s/generic_MC_y.txt",path);
 		gen_file = fopen(infile1, "w");
+		}
+		else{
+		sprintf(infile1,"%s/template_MC_y.txt",path);
+		gen_file = fopen(infile1, "w");
+		}
 
 		sprintf(infile2,"%s/simhits_MC_y.txt",path);
 		sim_file = fopen(infile2, "w");
