@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
 
-img_ext = '080421_detangles'
+img_ext = '082621'
 SIMHITPERCLMAX = 10
 
 def plot_residual(results, sim, label,algo):
@@ -27,14 +27,21 @@ def plot_residual(results, sim, label,algo):
 	plt.close()
 	'''
 	bins = np.linspace(-300,300,100)
-	residuals = np.zeros_like(results)+9999
+	residuals = np.zeros_like(results)+99999.
 
-	for i in range(len(sim)):
+	for i in range(len(results)):
 		for j in range(SIMHITPERCLMAX):
 			if(abs(results[i]-sim[i][j])<residuals[i]):
-				residuals[i] = (results[i]-sim[i][j])*1e4
-	print(residuals[residuals>1000])
-	residuals = residuals[residuals<1000]
+				#if i==16049: 
+				#	print("idx 16049: ",results[i], sim[i][j],abs(results[i]-sim[i][j]),residuals[i])
+				residuals[i] = (results[i]-sim[i][j])
+
+			#else: print("abs(results[i]-sim[i][j])<residuals[i]",results[i])
+	residuals*=1e4
+	print("====== %s %s ======"%(algo,label))
+	#print("no of residuals >1000: ",len(np.argwhere(residuals>1000)))
+	#print(np.argwhere(residuals>1000),residuals[residuals>1000])
+	#residuals = residuals[residuals<1000]
 	RMS = np.sqrt(np.mean(residuals*residuals))
 	mean, sigma = norm.fit(residuals)
 
@@ -115,29 +122,37 @@ def plot_by_clustersize(residuals_x,residuals_y,algo,img_ext):
 
 		pp.close()
 
-cnn1d_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,1]
-cnn1d_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,1]
+cnn1d_x = np.genfromtxt("txt_files/cnn1d_MC_x.txt")
+cnn1d_y = np.genfromtxt("txt_files/cnn1d_MC_y.txt")
 
-#dnn_x = np.genfromtxt("txt_files/dnn_MC_x.txt")[:,1]
-#dnn_y = np.genfromtxt("txt_files/dnn_MC_y.txt")[:,1]
+cnn1d_x_det = np.genfromtxt("txt_files/cnn1d_MC_x_detangles.txt")
+cnn1d_y_det = np.genfromtxt("txt_files/cnn1d_MC_y_detangles.txt")
 
-gen_x = np.genfromtxt("txt_files/cnn_MC_x.txt")[:,0]
-gen_y = np.genfromtxt("txt_files/cnn_MC_y.txt")[:,0]
+cnn2d_x = np.genfromtxt("txt_files/cnn2d_MC_x.txt")
+cnn2d_y = np.genfromtxt("txt_files/cnn2d_MC_y.txt")
 
-cnn2d = np.genfromtxt("txt_files/cnn2d_MC.txt")
-cnn2d_x = cnn2d[:,2]
-cnn2d_y = cnn2d[:,3]
+cnn2d_x_det = np.genfromtxt("txt_files/cnn2d_MC_x_detangles.txt")
+cnn2d_y_det = np.genfromtxt("txt_files/cnn2d_MC_y_detangles.txt")
 
-simhits = np.genfromtxt("txt_files/simhits_MC.txt")
-simhits_x = simhits[:,0:10]
-simhits_y = simhits[:,10:20]
-print(simhits_x.shape)
-print(simhits_y.shape)
+#gen_x_det = np.genfromtxt("txt_files/gen_MC_x_detangles_TTBar.txt")[:,0]
+#gen_y_det = np.genfromtxt("txt_files/gen_MC_y_detangles_TTBar.txt")[:,0]
+
+gen_x = np.genfromtxt("txt_files/generic_MC_x.txt")
+gen_y = np.genfromtxt("txt_files/generic_MC_y.txt")
+
+simhits_x = np.genfromtxt("txt_files/simhits_MC_x.txt")
+simhits_y = np.genfromtxt("txt_files/simhits_MC_y.txt")
+
+print("gen_x shape = ",gen_x.shape)
+print("simhits_x shape = ",simhits_x.shape)
+print("cnn1d_x shape = ",cnn1d_x.shape)
 
 residuals_x = plot_residual(cnn1d_x,simhits_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
 
-plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
+residuals_x = plot_residual(cnn1d_x_det,simhits_x,'x','1dcnn_detangles')
+residuals_y = plot_residual(cnn1d_y_det,simhits_y,'y','1dcnn_detangles')
+#plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 #residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
@@ -145,9 +160,15 @@ plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 residuals_x = plot_residual(gen_x,simhits_x,'x','gen')
 residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
 
+#residuals_x = plot_residual(gen_x_det,simhits_x,'x','gen_detangles')
+#residuals_y = plot_residual(gen_y_det,simhits_y,'y','gen_detangles')
+
 residuals_x = plot_residual(cnn2d_x,simhits_x,'x','2dcnn')
 residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
 
-plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
+residuals_x = plot_residual(cnn2d_x_det,simhits_x,'x','2dcnn_detangles')
+residuals_y = plot_residual(cnn2d_y_det,simhits_y,'y','2dcnn_detangles')
+
+#plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
 
 
