@@ -101,7 +101,7 @@ batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 20
 n_epochs_y = 20
-optimizer = Adam(lr=0.0001)
+optimizer = Adam(lr=0.0002)
 validation_split = 0.2
 
 

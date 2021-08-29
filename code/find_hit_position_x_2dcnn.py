@@ -98,7 +98,7 @@ x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
-x = Conv2D(128, (3, 3), padding="same")(x)
+x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
@@ -109,12 +109,13 @@ x = Dropout(0.25)(x)
 #x = BatchNormalization(axis=-1)(x)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
-'''
+
 x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
+'''
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 
