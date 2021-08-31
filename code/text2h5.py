@@ -359,7 +359,7 @@ p2 = 203.
 p3 = 148.
 
 date = "082821"
-filename = "p1_2018_irrad_BPIXL1"
+filename = "p1_2018_irrad_BPIXL1_file2"
 phase1 = True
 
 if(phase1):
@@ -371,7 +371,7 @@ if(phase1):
 
 #print("making train h5 file")
 
-train_out = open("templates/template_events_d83708.out", "r")
+train_out = open("templates/template_events_d83710.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
@@ -420,7 +420,7 @@ project_matrices_xy(train_data)
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")
@@ -486,4 +486,4 @@ f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
 
-
+'''

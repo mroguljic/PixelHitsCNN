@@ -44,7 +44,7 @@ import cmsml
 
 
 h5_date = "082821"
-h5_ext = "p1_2018_irrad_BPIXL1"
+h5_ext = "p1_2018_irrad_BPIXL1_t4000"
 img_ext = "2dcnn_%s_aug28"%h5_ext
 
 # Load data
@@ -79,7 +79,7 @@ f.close()
 
 
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
@@ -109,13 +109,13 @@ x = Dropout(0.25)(x)
 #x = BatchNormalization(axis=-1)(x)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
-
+'''
 x = Conv2D(64, (3, 3), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 x = Dropout(0.25)(x)
-'''
+
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
 

@@ -548,7 +548,7 @@ private:
 				++iSimHit;
 
             } // end sim hit loop
-				
+		if(iSimHit==0) printf("iSimHit = 0 for count = %i\n",count);		
 		//	printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
 		//	printf("nn position: %f\n ",(x_nn[count]-lp.x())*1e4);
 		//	printf("simhit_x =");

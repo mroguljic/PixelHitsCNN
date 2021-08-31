@@ -97,7 +97,7 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 512
+batch_size = 256
 loss_function = 'mse'
 n_epochs_x = 20
 n_epochs_y = 20

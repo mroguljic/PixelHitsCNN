@@ -1,2 +1,2 @@
-model_checkpoint_path: "cp_x2dcnn_p1_2018_irrad_BPIXL1_aug28.ckpt"
-all_model_checkpoint_paths: "cp_x2dcnn_p1_2018_irrad_BPIXL1_aug28.ckpt"
+model_checkpoint_path: "cp_x2dcnn_p1_2018_irrad_BPIXL1_t4000_aug28.ckpt"
+all_model_checkpoint_paths: "cp_x2dcnn_p1_2018_irrad_BPIXL1_t4000_aug28.ckpt"
