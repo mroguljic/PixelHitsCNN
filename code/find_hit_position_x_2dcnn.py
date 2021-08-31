@@ -45,7 +45,7 @@ import cmsml
 
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1_t4000"
-img_ext = "2dcnn_%s_aug28"%h5_ext
+img_ext = "2dcnn_%s_aug31"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -56,7 +56,7 @@ x_train = f['x'][...]
 y_train = f['y'][...]
 clustersize_x_train = f['clustersize_x'][...]
 clustersize_y_train = f['clustersize_y'][...]
-angles_train = np.hstack((cota_train,cotb_train))
+#angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
 f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -70,6 +70,20 @@ clustersize_y_test = f['clustersize_y'][...]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1_file2"
+
+# Load data
+f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+pix_train = np.vstack((pix_train,f['train_hits'][:3000000]))
+cota_train = np.vstack((cota_train,f['cota'][:3000000]))
+cotb_train = np.vstack((cotb_train,f['cotb'][:3000000]))
+x_train = np.vstack((x_train,f['x'][:3000000])) 
+y_train = np.vstack((y_train,f['y'][:3000000]))
+clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:3000000]))
+clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:3000000]))
+
+angles_train = np.hstack((cota_train,cotb_train))
 
 #print("max train = ",np.amax(pix_train))
 #print("max test = ",np.amax(pix_test))

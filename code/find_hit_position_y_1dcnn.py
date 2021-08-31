@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "1dcnn_%s_aug28"%h5_ext
+img_ext = "1dcnn_%s_aug31"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -55,9 +55,9 @@ x_train = f['x'][...]
 y_train = f['y'][...]
 clustersize_x_train = f['clustersize_x'][...]
 clustersize_y_train = f['clustersize_y'][...]
-inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-angles_train = np.hstack((cota_train,cotb_train))
+#inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+#inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+#angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 #print(inputs_x_train[0])
 
@@ -74,6 +74,26 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
+
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1_file2"
+
+# Load data
+f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+xpix_flat_train = np.vstack((xpix_flat_train,f['train_x_flat'][:3000000]))
+ypix_flat_train = np.vstack((ypix_flat_train,f['train_y_flat'][:3000000]))
+cota_train = np.vstack((cota_train,f['cota'][:3000000]))
+cotb_train = np.vstack((cotb_train,f['cotb'][:3000000]))
+x_train = np.vstack((x_train,f['x'][:3000000])) 
+y_train = np.vstack((y_train,f['y'][:3000000]))
+clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:3000000]))
+clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:3000000]))
+
+inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+angles_train = np.hstack((cota_train,cotb_train))
+f.close()
+
 print(angles_train.shape)
 print(xpix_flat_test[:30])
 print(ypix_flat_test[:30])
