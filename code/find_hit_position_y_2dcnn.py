@@ -44,7 +44,7 @@ import cmsml
 
 
 h5_date = "082821"
-h5_ext = "p1_2018_irrad_BPIXL1_t4000"
+h5_ext = "p1_2018_irrad_BPIXL1"
 img_ext = "2dcnn_%s_aug31"%h5_ext
 
 # Load data
@@ -94,12 +94,12 @@ angles_train = np.hstack((cota_train,cotb_train))
 
 
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
 optimizer = Adam(lr=0.0001)
-validation_split = 0.2
+validation_split = 0.3
 
 
 train_time_y = time.clock()
@@ -119,18 +119,18 @@ y = BatchNormalization(axis=-1)(y)
 y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
 y = Dropout(0.25)(y)
 
-y = Conv2D(64, (3, 3), padding="same")(y)
+y = Conv2D(64, (2, 2), padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
 y = Dropout(0.25)(y)
-
-y = Conv2D(64, (3, 3), padding="same")(y)
+'''
+y = Conv2D(64, (2, 2), padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling2D(pool_size=(2, 2),padding='same')(y)
 y = Dropout(0.25)(y)
-
+'''
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 
@@ -182,6 +182,7 @@ callbacks = [
 EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
+		save_best_only=True,
                 monitor='val_loss')
 ]
 
@@ -190,7 +191,7 @@ history = model.fit([pix_train, angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs_y,
                 validation_split=validation_split,
-    callbacks=callbacks)
+ 	  	callbacks=callbacks)
 
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)

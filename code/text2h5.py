@@ -359,12 +359,12 @@ p2 = 203.
 p3 = 148.
 
 date = "082821"
-filename = "p1_2018_irrad_BPIXL1_file2"
+filename = "p1_2018_irrad_BPIXL1_t4000_file2"
 phase1 = True
 
 if(phase1):
 	#threshold = 2000; # threshold in e-
-	threshold = 3000; # BPIX L1 Phase1
+	threshold = 4000; # BPIX L1 Phase1
 	fe_type = 2
 
 #=====train files===== 

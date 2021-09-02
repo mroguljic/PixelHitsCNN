@@ -44,7 +44,7 @@ import cmsml
 
 
 h5_date = "082821"
-h5_ext = "p1_2018_irrad_BPIXL1_t4000"
+h5_ext = "p1_2018_irrad_BPIXL1"
 img_ext = "2dcnn_%s_aug31"%h5_ext
 
 # Load data
@@ -93,12 +93,12 @@ angles_train = np.hstack((cota_train,cotb_train))
 
 
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
 optimizer = Adam(lr=0.0001)
-validation_split = 0.2
+validation_split = 0.3
 
 train_time_x = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
@@ -124,7 +124,7 @@ x = Dropout(0.25)(x)
 #x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)
 #x = Dropout(0.25)(x)
 '''
-x = Conv2D(64, (3, 3), padding="same")(x)
+x = Conv2D(64, (2, 2), padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling2D(pool_size=(2, 2),padding='same')(x)

@@ -80,14 +80,14 @@ h5_ext = "p1_2018_irrad_BPIXL1_file2"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-xpix_flat_train = np.vstack((xpix_flat_train,f['train_x_flat'][:3000000]))
-ypix_flat_train = np.vstack((ypix_flat_train,f['train_y_flat'][:3000000]))
-cota_train = np.vstack((cota_train,f['cota'][:3000000]))
-cotb_train = np.vstack((cotb_train,f['cotb'][:3000000]))
-x_train = np.vstack((x_train,f['x'][:3000000])) 
-y_train = np.vstack((y_train,f['y'][:3000000]))
-clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:3000000]))
-clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:3000000]))
+xpix_flat_train = np.vstack((xpix_flat_train,f['train_x_flat'][...]))
+ypix_flat_train = np.vstack((ypix_flat_train,f['train_y_flat'][...]))
+cota_train = np.vstack((cota_train,f['cota'][...]))
+cotb_train = np.vstack((cotb_train,f['cotb'][...]))
+x_train = np.vstack((x_train,f['x'][...])) 
+y_train = np.vstack((y_train,f['y'][...]))
+clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][...]))
+clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][...]))
 
 inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
@@ -117,12 +117,12 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 256
+batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 20
-n_epochs_y = 20
+n_epochs_y = 30
 optimizer = Adam(lr=0.0002)
-validation_split = 0.2
+validation_split = 0.3
 
 
 train_time_y = time.clock()
@@ -131,16 +131,16 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(inputs)
+y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
-y = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-y = Conv1D(128, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(64, kernel_size=2, padding="same")(y)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same",kernel_regularizer='l2')(y)
+y = Conv1D(64, kernel_size=2, padding="same")(y)
 y = Activation("relu")(y) 
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
@@ -148,15 +148,15 @@ y = Dropout(0.25)(y)
 
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
-y = Dense(64,kernel_regularizer='l2')(concat_inputs)
+y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-y = Dense(128,kernel_regularizer='l2')(y)
+y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-y = Dense(64,kernel_regularizer='l2')(y)
+y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -181,9 +181,9 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-#EarlyStopping(patience=5),
+EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
-                save_weights_only=True,
+                save_best_only=True,
                 monitor='val_loss')
 ]
 
