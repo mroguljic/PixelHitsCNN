@@ -11,8 +11,9 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 
 h5_ext = "p1_2018_irrad_BPIXL1"
 cpe = "cnn2d"
-n_events = 2
+n_events = 500
 use_generic = True
+use_generic_detangles = False
 use_det_angles = False
 
 if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug28"%h5_ext
@@ -66,7 +67,7 @@ process.source = cms.Source("PoolSource",
  # fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/RunIIWinter19PFCalibDR/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-2018Conditions_ideal_105X_upgrade2018_design_v3-v2/130000/03400616-B7CF-2442-92F2-F0EF0CAD8E6F.root")
 #fileNames=cms.untracked.vstring("file:MC_5000_111X_upgrade2018_realistic_v3.root"),   
 #fileNames=cms.untracked.vstring("file:MC_15000_phase1_2018_realistic.root"),
-fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_200_phase1_2018_realistic.root"),
+fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_500_phase1_2018_realistic.root"),
 #eventsToSkip=cms.untracked.VEventRange('1:9737-1:9739')
 # data
   #fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
@@ -94,6 +95,7 @@ process.inferNN_x = cms.EDAnalyzer('InferNN_x',
  use_det_angles   = cms.bool(use_det_angles),
  cpe              = cms.string(cpe),
  use_generic = cms.bool(use_generic),
+ use_generic_detangles = cms.bool(use_generic_detangles),
  associateRecoTracks = cms.bool(False),
  associateStrip = cms.bool(False),
  associatePixel = cms.bool(True),

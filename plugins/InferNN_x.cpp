@@ -116,13 +116,17 @@ private:
 	tensorflow::Session* session_x;
 	bool use_det_angles;
 	std::string cpe;
-	bool use_generic;
+	bool use_generic, use_generic_detangles;
 	TFile *fFile; TTree *fTree;
 	static const int MAXCLUSTER = 50000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
-	float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
-	float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
-	float x_gen[MAXCLUSTER], x_nn[MAXCLUSTER]; 
+	//float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
+	//float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
+	//float x_gen[MAXCLUSTER], x_nn[MAXCLUSTER]; 
+	float fClSimHitLx[SIMHITPERCLMAX];    // X local position of simhit 
+	float fClSimHitLy[SIMHITPERCLMAX];
+	float x_gen, x_nn;
+	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; 
 	int count; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
@@ -179,6 +183,7 @@ private:
 		desc.add<bool>("use_det_angles");
 		desc.add<std::string>("cpe");
 		desc.add<bool>("use_generic");
+		desc.add<bool>("use_generic_detangles");
 		desc.add<bool>("associatePixel");
 		desc.add<bool>("associateStrip");
 		desc.add<bool>("associateRecoTracks");
@@ -196,6 +201,7 @@ private:
 	use_det_angles(config.getParameter<bool>("use_det_angles")),
 	cpe(config.getParameter<std::string>("cpe")),
 	use_generic(config.getParameter<bool>("use_generic")),
+	use_generic_detangles(config.getParameter<bool>("use_generic_detangles")),
 	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
 	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
 	trackerHitAssociatorConfig_(config, consumesCollector()) {
@@ -211,13 +217,13 @@ private:
 
 	//initializations
 		for(int i=0;i<MAXCLUSTER;i++){
-			x_nn[i]=-999.0;
-			x_gen[i]=-999.0;
+			dx_nn[i]=9999.0;
+			dx_gen[i]=9999.0;
 			
-			for(int j=0;j<SIMHITPERCLMAX;j++){
-				fClSimHitLx[i][j]=-999.0;
-				fClSimHitLy[i][j]=-999.0;
-			}
+			//for(int j=0;j<SIMHITPERCLMAX;j++){
+			//	fClSimHitLx[i][j]=-999.0;
+			//	fClSimHitLy[i][j]=-999.0;
+			//}
 			for(int j=0;j<2;j++){
 				clsize_1[i][j]=-999.0;
 				clsize_2[i][j]=-999.0;
@@ -238,8 +244,19 @@ private:
 		gen_file = fopen(infile1, "w");
 		}
 
-		sprintf(infile2,"%s/simhits_MC_x.txt",path);
-		sim_file = fopen(infile2, "w");
+		if(use_generic && use_generic_detangles){
+		sprintf(infile1,"%s/generic_MC_x_detangles.txt",path);
+		gen_file = fopen(infile1, "w");
+		}
+
+		if(!use_generic && use_generic_detangles)
+		{
+			printf("USING TEMPLATE WITH DETANGLES IS WRONG\n");
+			return;
+		}
+
+		//sprintf(infile2,"%s/simhits_MC_x.txt",path);
+		//sim_file = fopen(infile2, "w");
 
 		if(use_det_angles){
 		sprintf(infile3,"%s/%s_MC_x_detangles.txt",path,cpe.c_str());
@@ -266,18 +283,18 @@ private:
 	// close the session
 		tensorflow::closeSession(session_x);
 
-		fclose(nn_file);
-		fclose(sim_file);
+		//fclose(nn_file);
+		//fclose(sim_file);
 
 	}
 
 	void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 
-		if (sim_file==NULL) {
-			printf("couldn't open simhit output file/n");
-			return ;
-		}
+		//if (sim_file==NULL) {
+		//	printf("couldn't open simhit output file/n");
+		//	return ;
+		//}
 	
 		if (nn_file==NULL) {
 			printf("couldn't open residual output file/n");
@@ -355,6 +372,9 @@ private:
 				} 
 				clusbuf_x[j] = 0.;
 			} 
+			for(int i=0;i<SIMHITPERCLMAX;i++){
+				fClSimHitLx[i] = -999.0
+			}
 
 			// get the cluster
 				auto clustp = pixhit->cluster();
@@ -513,7 +533,7 @@ private:
 			if(cpe=="cnn2d") tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 			else tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				// convert microns to cms
-			x_nn[count] = output_x[0].matrix<float>()(0,0);
+			x_nn = output_x[0].matrix<float>()(0,0);
 				
 			//printf("x_nn[%i] = %f\n",count,x_nn[count]);
 			//if(isnan(x_nn[count])){
@@ -523,13 +543,13 @@ private:
 			//	printf("\n");
 			//}
 			//printf("\n");}
-			x_nn[count] = (x_nn[count]+pixelsize_x*(mid_x))*micronsToCm; 
+			x_nn = (x_nn+pixelsize_x*(mid_x))*micronsToCm; 
 
 			//	printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);
 				// go back to module coordinate system
-			x_nn[count]+=lp.x(); 
+			x_nn+=lp.x(); 
 				// get the generic position
-			x_gen[count] = hit->localPosition().x();
+			x_gen = hit->localPosition().x();
 				//get sim hits
 			vec_simhits_assoc.clear();
 			vec_simhits_assoc = associate->associateHit(*pixhit);
@@ -540,15 +560,28 @@ private:
 				m < vec_simhits_assoc.end() && iSimHit < SIMHITPERCLMAX; ++m) 
 			{
 
-
-
-				fClSimHitLx[count][iSimHit]    = ( m->entryPoint().x() + m->exitPoint().x() ) / 2.0;
-				fClSimHitLy[count][iSimHit]    = ( m->entryPoint().y() + m->exitPoint().y() ) / 2.0;
+				fClSimHitLx[iSimHit]    = ( m->entryPoint().x() + m->exitPoint().x() ) / 2.0;
+				fClSimHitLy[iSimHit]    = ( m->entryPoint().y() + m->exitPoint().y() ) / 2.0;
 
 				++iSimHit;
 
             } // end sim hit loop
-		if(iSimHit==0) printf("iSimHit = 0 for count = %i\n",count);		
+		    if(iSimHit==0){ 
+		   		printf("iSimHit = 0 for count = %i\n",count);	
+				return;
+			}
+			for(int i = 0,i<SIMHITPERCLMAX;i++){
+
+				if(abs(x_nn-fClSimHitLx[i])<dx_nn[count])
+				dx_nn[count] = x_nn - fClSimHitLx[i];
+				
+				if(abs(x_gen-fClSimHitLx[i])<dx_gen[count])
+				dx_gen[count] = x_gen - fClSimHitLx[i];
+			}	
+			if(dx_gen[count] == 9999.0 || dx_nn[count] == 9999.0){
+				printf("ERROR: Residual is 9999.0\n");
+				return;
+			} 
 		//	printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
 		//	printf("nn position: %f\n ",(x_nn[count]-lp.x())*1e4);
 		//	printf("simhit_x =");
@@ -581,6 +614,7 @@ private:
 
     printf("count = %i\n",count);
     for(int i=prev_count;i<count;i++){
+    	/*
     	for(int j=0; j<SIMHITPERCLMAX;j++){
     		fprintf(sim_file,"%f ", fClSimHitLx[i][j]);
     	}
@@ -588,8 +622,9 @@ private:
     	//	fprintf(sim_file,"%f ", fClSimHitLy[i][j]);
     	//}
     	fprintf(sim_file,"\n");
-    	fprintf(nn_file,"%f\n", x_nn[i]);
-    	fprintf(gen_file,"%f\n", x_gen[i]);
+    	*/
+    	fprintf(nn_file,"%f\n", dx_nn[i]);
+    	fprintf(gen_file,"%f\n", dx_gen[i]);
 
     	fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
