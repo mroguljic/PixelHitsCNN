@@ -11,8 +11,8 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 
 h5_ext = "p1_2018_irrad_BPIXL1"
 cpe = "cnn2d"
-n_events = 200
-use_generic = False
+n_events = 2
+use_generic = True
 use_det_angles = False
 
 if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug28"%h5_ext
@@ -45,6 +45,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 # data
 #process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
+#process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+#process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+#process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+#process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
 # force Generic reco
 process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi")
 if use_generic: process.TTRHBuilderAngleAndTemplate.PixelCPE = cms.string("PixelCPEGeneric")
@@ -104,18 +108,19 @@ process.inferNN_x = cms.EDAnalyzer('InferNN_x',
 
      )
 
-
 # define what to run in the path
 process.raw2digi_step = cms.Path(process.RawToDigi)   
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction_trackingOnly)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.siPixelClusters_step = process.siPixelClusters
-#process.TrackRefitter_step = cms.Path(
- # process.offlineBeamSpot*
- # process.MeasurementTrackerEvent*
- # process.TrackRefitter
-#)
+'''
+process.TrackRefitter_step = cms.Path(
+  process.offlineBeamSpot*
+  process.MeasurementTrackerEvent*
+  process.TrackRefitter
+)
+'''
 process.pixelCPECNN_step = cms.Path(process.inferNN_x)
 
 # potentially for the det angle approach
@@ -130,7 +135,7 @@ process.schedule = cms.Schedule(
   process.raw2digi_step,
 #  process.L1Reco_step,
   process.reconstruction_step,
-  #process.TrackRefitter_step,
+ # process.TrackRefitter_step,
   process.pixelCPECNN_step,
   process.endjob_step
   )
