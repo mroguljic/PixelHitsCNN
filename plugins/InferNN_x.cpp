@@ -373,7 +373,8 @@ private:
 				clusbuf_x[j] = 0.;
 			} 
 			for(int i=0;i<SIMHITPERCLMAX;i++){
-				fClSimHitLx[i] = -999.0
+				fClSimHitLx[i] = -999.0;
+				fClSimHitLy[i] = -999.0;
 			}
 
 			// get the cluster
@@ -570,7 +571,7 @@ private:
 		   		printf("iSimHit = 0 for count = %i\n",count);	
 				return;
 			}
-			for(int i = 0,i<SIMHITPERCLMAX;i++){
+			for(int i = 0;i<SIMHITPERCLMAX;i++){
 
 				if(abs(x_nn-fClSimHitLx[i])<dx_nn[count])
 				dx_nn[count] = x_nn - fClSimHitLx[i];
@@ -589,22 +590,22 @@ private:
 //			printf("%i\n",count);
             switch(clustersize_x){
             	case 1: 
-            	clsize_1[count][0]=x_nn[count];
+            	clsize_1[count][0]=x_nn;
             	break;
             	case 2: 
-            	clsize_2[count][0]=x_nn[count];
+            	clsize_2[count][0]=x_nn;
             	break;
             	case 3: 
-            	clsize_3[count][0]=x_nn[count];
+            	clsize_3[count][0]=x_nn;
             	break;
             	case 4: 
-            	clsize_4[count][0]=x_nn[count];
+            	clsize_4[count][0]=x_nn;
             	break;
             	case 5: 
-            	clsize_5[count][0]=x_nn[count];
+            	clsize_5[count][0]=x_nn;
             	break;
             	case 6: 
-            	clsize_6[count][0]=x_nn[count];
+            	clsize_6[count][0]=x_nn;
             	break;
             }
             count++;

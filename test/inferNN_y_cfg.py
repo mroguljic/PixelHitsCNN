@@ -10,9 +10,9 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
 h5_ext = "p1_2018_irrad_BPIXL1"
-cpe = "cnn2d"
+cpe = "cnn1d"
 n_events = 500
-use_generic = True
+use_generic = False
 use_generic_detangles = False
 use_det_angles = False
 

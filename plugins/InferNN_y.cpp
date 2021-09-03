@@ -260,14 +260,14 @@ private:
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_y_detangles.txt",path,cpe.c_str());
-		clustersize_x_file = fopen(infile4, "w");
+		clustersize_y_file = fopen(infile4, "w");
 		}
 		else{
 		sprintf(infile3,"%s/%s_MC_y.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_y.txt",path,cpe.c_str());
-		clustersize_x_file = fopen(infile4, "w");
+		clustersize_y_file = fopen(infile4, "w");
 		}
 
 		
