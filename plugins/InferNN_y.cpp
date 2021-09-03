@@ -123,7 +123,7 @@ private:
 	float fClSimHitLx[SIMHITPERCLMAX];    // X local position of simhit 
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float y_nn,y_gen;
-	float dy_gen[MAXCLUSTER], dy_nn[MAXCLUSTER]; 
+	float dy_gen[MAXCLUSTER], dy_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
 	int count; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
@@ -216,6 +216,7 @@ private:
 		for(int i=0;i<MAXCLUSTER;i++){
 			dy_nn[i]=9999.0;
 			dy_gen[i]=9999.0;
+			index[i]=-999;
 			
 			//for(int j=0;j<SIMHITPERCLMAX;j++){
 			//	fClSimHitLx[i][j]=-999.0;
@@ -331,7 +332,11 @@ private:
 
 		static int ix,iy;
 		int prev_count = count;
+		int id = count-1;
 		for (auto const& track : *tracks) {
+
+			id++;
+			index[count] = id;
 
 			auto etatk = track.eta();
 
@@ -341,22 +346,29 @@ private:
 
 			for (unsigned int h = 0; h < track.recHitsSize(); h++) {
 				auto hit = *(hb + h);
-				if (!hit->isValid())
+				if (!hit->isValid()){
+					printf("hit is not valid\n");
 					continue;
+				}
 				auto id = hit->geographicalId();
 
 			// check that we are in the pixel detector
 				auto subdetid = (id.subdetId());
 
-				if (subdetid != PixelSubdetector::PixelBarrel) //&& subdetid != PixelSubdetector::PixelEndcap)
+				if (subdetid != PixelSubdetector::PixelBarrel){ //&& subdetid != PixelSubdetector::PixelEndcap)
+					printf("not barrel\n");
 					continue;
-			if (tkTpl.pxbLayer(id) != 1) //only L1
+				}
+			if (tkTpl.pxbLayer(id) != 1){ //only L1
+				printf("not L1\n");
 				continue;
-			
+			}
 
 			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
-			if (!pixhit)
+			if (!pixhit){
+				printf("hit is not vali\n");
 				continue;
+			}
 
 
 			//some initialization
@@ -615,8 +627,8 @@ private:
     	}
     	fprintf(sim_file,"\n");
     	*/
-    	fprintf(nn_file,"%f\n", dy_nn[i]);
-    	fprintf(gen_file,"%f\n", dy_gen[i]);
+    	fprintf(nn_file,"%f %f\n", index[i],dy_nn[i]);
+    	fprintf(gen_file,"%f %f\n", index[i],dy_gen[i]);
 
     	fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }

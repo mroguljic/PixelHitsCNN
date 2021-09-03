@@ -126,7 +126,7 @@ private:
 	float fClSimHitLx[SIMHITPERCLMAX];    // X local position of simhit 
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
-	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; 
+	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
 	int count; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
@@ -219,7 +219,7 @@ private:
 		for(int i=0;i<MAXCLUSTER;i++){
 			dx_nn[i]=9999.0;
 			dx_gen[i]=9999.0;
-			
+			index[i]=-999;
 			//for(int j=0;j<SIMHITPERCLMAX;j++){
 			//	fClSimHitLx[i][j]=-999.0;
 			//	fClSimHitLy[i][j]=-999.0;
@@ -333,7 +333,11 @@ private:
 
 		static int ix,iy;
 		int prev_count = count;
+		int id = count-1;
 		for (auto const& track : *tracks) {
+
+			id++;
+			index[count] = id;
 
 			auto etatk = track.eta();
 
@@ -621,8 +625,8 @@ private:
     	//}
     	fprintf(sim_file,"\n");
     	*/
-    	fprintf(nn_file,"%f\n", dx_nn[i]);
-    	fprintf(gen_file,"%f\n", dx_gen[i]);
+    	fprintf(nn_file,"%f %f\n", index[i],dx_nn[i]);
+    	fprintf(gen_file,"%f %f\n", index[i],dx_gen[i]);
 
     	fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
