@@ -13,7 +13,7 @@ h5_ext = "p1_2018_irrad_BPIXL1"
 cpe = "cnn1d"
 n_events = 500
 use_generic = True
-use_generic_detangles = True
+use_generic_detangles = False
 use_det_angles = True
 
 if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug31"%h5_ext
