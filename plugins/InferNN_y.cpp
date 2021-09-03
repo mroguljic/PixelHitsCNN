@@ -418,7 +418,7 @@ private:
 			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 			if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
 
-
+			//printf("%f %f \n",cotAlpha,cotBeta);
 			if(use_det_angles){
 				auto const& theOrigin = geomdetunit->surface().toLocal(GlobalPoint(0, 0, 0));
 				LocalPoint lp2 = topol.localPosition(
@@ -429,6 +429,7 @@ private:
 					// calculate angles
 				cotAlpha = gvx * gvz;
 				cotBeta = gvy * gvz;
+				//printf("detangles: %f %f \n",cotAlpha,cotBeta);
 			}
 
 				  // first compute matrix size
