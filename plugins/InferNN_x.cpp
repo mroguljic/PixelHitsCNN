@@ -235,24 +235,21 @@ private:
 			
 		}
 		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
-		if(use_generic){
+		if(use_generic && !use_generic_detangles){
 		sprintf(infile1,"%s/generic_MC_x.txt",path);
 		gen_file = fopen(infile1, "w");
 		}
-		else{
-		sprintf(infile1,"%s/template_MC_x.txt",path);
-		gen_file = fopen(infile1, "w");
-		}
-
-		if(use_generic && use_generic_detangles){
+		else if(use_generic && use_generic_detangles){
 		sprintf(infile1,"%s/generic_MC_x_detangles.txt",path);
 		gen_file = fopen(infile1, "w");
 		}
-
-		if(!use_generic && use_generic_detangles)
-		{
-			printf("USING TEMPLATE WITH DETANGLES IS WRONG\n");
-			return;
+		else if(!use_generic && !use_generic_detangles){
+		sprintf(infile1,"%s/template_MC_x.txt",path);
+		gen_file = fopen(infile1, "w");
+		}
+		else {
+		printf("USING TEMPLATE WITH DETANGLES IS WRONG\n");
+		return;
 		}
 
 		//sprintf(infile2,"%s/simhits_MC_x.txt",path);
