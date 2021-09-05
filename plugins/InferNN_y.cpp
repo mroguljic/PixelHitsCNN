@@ -77,6 +77,9 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 //#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
 
 class TObject;
 class TTree;
@@ -124,7 +127,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float y_nn,y_gen;
 	float dy_gen[MAXCLUSTER], dy_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
-	int count; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
+	int idx=-1,count=0; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -332,11 +335,10 @@ private:
 
 		static int ix,iy;
 		int prev_count = count;
-		int id = count-1;
+		//int id = count-1;
 		for (auto const& track : *tracks) {
 
-			id++;
-			index[count] = id;
+			
 
 			auto etatk = track.eta();
 
@@ -345,13 +347,19 @@ private:
 			auto hb = track.recHitsBegin();
 
 			for (unsigned int h = 0; h < track.recHitsSize(); h++) {
+
+				idx++;
+				index[count] = idx;
 				auto hit = *(hb + h);
 				if (!hit->isValid()){
 					printf("hit is not valid\n");
 					continue;
 				}
+				if (hit->geographicalId().det() != DetId::Tracker) {
+            		continue; 
+         		 }
 				auto id = hit->geographicalId();
-
+				DetId &hit_detId = hit->geographicalId();
 			// check that we are in the pixel detector
 				auto subdetid = (id.subdetId());
 
@@ -359,7 +367,7 @@ private:
 					printf("not barrel\n");
 					continue;
 				}
-			if (tkTpl.pxbLayer(id) != 1){ //only L1
+			if (tkTpl.pxbLayer(hit_detId) != 1){ //only L1
 				printf("not L1\n");
 				continue;
 			}
@@ -423,6 +431,7 @@ private:
 			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
 			LocalPoint lp; 
 			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+			if(!geomdetunit) continue;
 			auto const& topol = geomdetunit->specificTopology();
 			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 			if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
