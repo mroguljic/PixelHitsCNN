@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy import optimize
 
 def gaussian(x, amplitude, mean, stddev):
     return amplitude * np.exp(-0.5*((x - mean) / stddev)**2)
@@ -34,7 +35,7 @@ def plot_dnn_loss(history,label,img_ext):
 def plot_residuals(residuals,RMS,algo,label,img_ext):
 
 	bins = np.linspace(-300,300,100)
-	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label, alpha=0.)	xmin, xmax = plt.xlim()
+	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label, alpha=0.)	
 	
 	bins_g = np.zeros_like(bins)
 
