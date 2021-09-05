@@ -38,7 +38,7 @@ def plot_residual(residuals,label,algo):
 	'''
 	RMS = np.std(residuals)
 
-	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label)
+	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label, alpha=0.)
 	
 	bins_g = np.zeros_like(bins)
 
@@ -48,7 +48,9 @@ def plot_residual(residuals,label,algo):
 	bins_g = bins[:-1]
 	
 	popt, _ = optimize.curve_fit(gaussian, bins_g, binned_data)
-	plt.plot(bins_g, gaussian(bins_g, *popt),linewidth=1,color='red',label='gaussian fit')
+
+	plt.scatter(bins_g,binned_data,marker='o',s=10)
+	plt.plot(bins_g, gaussian(bins_g, *popt),linewidth=1,color='black',label='gaussian fit')
 
 	print("popt = ",popt)
 	plt.title('%s - residuals in %s, RMS = %0.2f, %s = %0.2f'%(algo, label,RMS,r'$\sigma$',popt[2]))
