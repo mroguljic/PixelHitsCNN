@@ -358,7 +358,7 @@ private:
             		continue; 
          		 }
 				auto id = hit->geographicalId();
-			    DetId &hit_detId = hit->geographicalId();
+			    DetId hit_detId = hit->geographicalId();
 
 			// check that we are in the pixel detector
 				auto subdetid = (id.subdetId());
@@ -428,7 +428,7 @@ private:
 			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
 			LocalPoint lp; 
 			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-			if(!geomdetunit) continue
+			if(!geomdetunit) continue;
 			auto const& topol = geomdetunit->specificTopology();
 			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
 			if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
@@ -586,14 +586,14 @@ private:
 			}
 			for(int i = 0;i<SIMHITPERCLMAX;i++){
 
-				if(abs(x_nn-fClSimHitLx[i])<dx_nn[count])
+				if(fabs(x_nn-fClSimHitLx[i])<fabs(dx_nn[count]))
 				dx_nn[count] = x_nn - fClSimHitLx[i];
 				
-				if(abs(x_gen-fClSimHitLx[i])<dx_gen[count])
+				if(fabs(x_gen-fClSimHitLx[i])<fabs(dx_gen[count]))
 				dx_gen[count] = x_gen - fClSimHitLx[i];
 			}	
-			if(dx_gen[count] == 9999.0 || dx_nn[count] == 9999.0){
-				printf("ERROR: Residual is 9999.0\n");
+			if(dx_gen[count] >= 999.0 || dx_nn[count] >= 999.0){
+				printf("ERROR: Residual is %f %f >= 999.0\n",dx_gen[count],dx_nn[count]);
 				return;
 			} 
 		//	printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);

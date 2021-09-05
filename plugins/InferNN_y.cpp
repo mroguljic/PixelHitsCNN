@@ -352,29 +352,29 @@ private:
 				index[count] = idx;
 				auto hit = *(hb + h);
 				if (!hit->isValid()){
-					printf("hit is not valid\n");
+				//	printf("hit is not valid\n");
 					continue;
 				}
 				if (hit->geographicalId().det() != DetId::Tracker) {
             		continue; 
          		 }
 				auto id = hit->geographicalId();
-				DetId &hit_detId = hit->geographicalId();
+				DetId hit_detId = hit->geographicalId();
 			// check that we are in the pixel detector
 				auto subdetid = (id.subdetId());
 
 				if (subdetid != PixelSubdetector::PixelBarrel){ //&& subdetid != PixelSubdetector::PixelEndcap)
-					printf("not barrel\n");
+			//		printf("not barrel\n");
 					continue;
 				}
 			if (tkTpl.pxbLayer(hit_detId) != 1){ //only L1
-				printf("not L1\n");
+			//	printf("not L1\n");
 				continue;
 			}
 
 			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
 			if (!pixhit){
-				printf("hit is not vali\n");
+			//	printf("hit is not vali\n");
 				continue;
 			}
 
@@ -585,14 +585,14 @@ private:
 			}
 			for(int i = 0;i<SIMHITPERCLMAX;i++){
 
-				if(abs(y_nn-fClSimHitLy[i])<dy_nn[count])
+				if(fabs(y_nn-fClSimHitLy[i])<fabs(dy_nn[count]))
 				dy_nn[count] = y_nn - fClSimHitLy[i];
 				
-				if(abs(y_gen-fClSimHitLy[i])<dy_gen[count])
+				if(fabs(y_gen-fClSimHitLy[i])<fabs(dy_gen[count]))
 				dy_gen[count] = y_gen - fClSimHitLy[i];
 			}	
-			if(dy_gen[count] == 9999.0 || dy_nn[count] == 9999.0){
-				printf("ERROR: Residual is 9999.0\n");
+			if(dy_gen[count] >= 999.0 || dy_nn[count] >= 999.0){
+				printf("ERROR: Residual is %f %f >= 999.0\n",dy_gen[count],dy_nn[count]);
 				return;
 			} 
 		//	printf("Generic position: %f\n ",(y_gen[count]-lp.x())*1e4);
