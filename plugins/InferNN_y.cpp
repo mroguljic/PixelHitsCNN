@@ -627,8 +627,8 @@ private:
     	}
     	fprintf(sim_file,"\n");
     	*/
-    	fprintf(nn_file,"%f %f\n", index[i],dy_nn[i]);
-    	fprintf(gen_file,"%f %f\n", index[i],dy_gen[i]);
+    	fprintf(nn_file,"%i %f\n", index[i],dy_nn[i]);
+    	fprintf(gen_file,"%i %f\n", index[i],dy_gen[i]);
 
     	fprintf(clustersize_y_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }

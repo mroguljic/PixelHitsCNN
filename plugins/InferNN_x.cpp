@@ -127,7 +127,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
 	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
-	int count; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
+	int count=0, id=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -333,11 +333,11 @@ private:
 
 		static int ix,iy;
 		int prev_count = count;
-		int id = count-1;
+		//int id = count-1;
 		for (auto const& track : *tracks) {
 
-			id++;
-			index[count] = id;
+			//id++;
+			//index[count] = id;
 
 			auto etatk = track.eta();
 
@@ -346,6 +346,9 @@ private:
 			auto hb = track.recHitsBegin();
 
 			for (unsigned int h = 0; h < track.recHitsSize(); h++) {
+				id++;
+                               index[count] = id;
+
 				auto hit = *(hb + h);
 				if (!hit->isValid())
 					continue;
@@ -625,8 +628,8 @@ private:
     	//}
     	fprintf(sim_file,"\n");
     	*/
-    	fprintf(nn_file,"%f %f\n", index[i],dx_nn[i]);
-    	fprintf(gen_file,"%f %f\n", index[i],dx_gen[i]);
+    	fprintf(nn_file,"%i %i %f\n", i,index[i],dx_nn[i]);
+    	fprintf(gen_file,"%i %i %f\n", i,index[i],dx_gen[i]);
 
     	fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
