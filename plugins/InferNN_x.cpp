@@ -464,7 +464,7 @@ private:
 			mcol = std::min(mcol, TYSIZE);
 			assert(mrow > 0);
 			assert(mcol > 0);
-			float cluster_max = 0., cluster_min = 1e8;
+			float cluster_max = 0., cluster_min = 0.;
 
 			bool bigPixel=false;
 			int irow_sum = 0, icol_sum = 0;
@@ -482,7 +482,7 @@ private:
 				irow_sum+=irow;
 				icol_sum+=icol;
 				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
-				if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
+				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
 			if(bigPixel) continue;
@@ -504,22 +504,22 @@ private:
 
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 				//normalized value
-				if(cluster_max!=cluster_min)
-				clusbuf[irow][icol] = (float(pix.adc)-cluster_min)/(cluster_max-cluster_min);
-				else clusbuf[irow][icol] = 1.;
+				//if(cluster_max!=cluster_min)
+				clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
+				//else clusbuf[irow][icol] = 1.;
  				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 			}
-			cluster_max = 0., cluster_min = 1e8;
+			cluster_max = 0., cluster_min = 0.;
 			for(int i = 0;i < TXSIZE; i++){
 				for(int j = 0; j < TYSIZE; j++){
 					clusbuf_x[i] += clusbuf[i][j];
 				}
 				if(clusbuf_x[i] > cluster_max) cluster_max = clusbuf_x[i] ; 
-				if(clusbuf_x[i] < cluster_min) cluster_min = clusbuf_x[i] ;
+				//if(clusbuf_x[i] < cluster_min) cluster_min = clusbuf_x[i] ;
 			}
 			//normalize 1d inputs
-			for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = (clusbuf_x[i]-cluster_min)/(cluster_max-cluster_min);
+			for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = clusbuf_x[i]/cluster_max;
 				//===============================
 				// define a tensor and fill it with cluster projection
 			tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
