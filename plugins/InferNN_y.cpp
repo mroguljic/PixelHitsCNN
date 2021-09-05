@@ -467,7 +467,7 @@ private:
 			mcol = std::min(mcol, TYSIZE);
 			assert(mrow > 0);
 			assert(mcol > 0);
-			float cluster_max = 0., cluster_min = 0.;
+			float cluster_max = 0.;
 
 			bool bigPixel=false;
 			int irow_sum = 0, icol_sum = 0;
@@ -513,7 +513,7 @@ private:
  				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 			}
-			cluster_max = 0., cluster_min = 0.;
+			cluster_max = 0.;
 			for(int i = 0;i < TYSIZE; i++){
 				for(int j = 0; j < TXSIZE; j++){
 					clusbuf_y[i] += clusbuf[j][i];
