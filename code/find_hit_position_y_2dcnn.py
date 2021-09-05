@@ -168,7 +168,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -176,7 +176,7 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-
+'''
 
 callbacks = [
 EarlyStopping(patience=5),
@@ -197,7 +197,7 @@ cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
-
+'''
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
@@ -210,14 +210,12 @@ inference_time_y = time.clock() - start
 
 
 residuals_y = y_pred - y_test
-RMS_y = np.sqrt(np.mean(residuals_y*residuals_y))
+RMS_y = np.std(residuals_y)
 print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
-mean_y, sigma_y = norm.fit(residuals_y)
-print("mean_y = %0.2f, sigma_y = %0.2f"%(mean_y,sigma_y))
 
-plot_residuals(residuals_y,mean_y,sigma_y,RMS_y,'y',img_ext)
+plot_residuals(residuals_y,RMS_y,'2dcnn','y',img_ext)
 
 plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 

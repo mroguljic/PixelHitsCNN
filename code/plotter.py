@@ -5,6 +5,8 @@ from scipy.stats import norm
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
 
+def gaussian(x, amplitude, mean, stddev):
+    return amplitude * np.exp(-0.5*((x - mean) / stddev)**2)
 
 def plot_cnn_loss(history,label,img_ext):
 	plt.plot(history['%s_loss'%(label)])
@@ -29,16 +31,27 @@ def plot_dnn_loss(history,label,img_ext):
 	plt.close()
 
 
-def plot_residuals(residuals,mean,sigma,RMS,label,img_ext):
-	plt.hist(residuals, bins=np.arange(-300,300,0.25), histtype='step', density=True,linewidth=2, label=r'$\vartriangle$'+label)
-	xmin, xmax = plt.xlim()
-	x = np.linspace(xmin, xmax, 100)
-	p = norm.pdf(x, mean, sigma)
-	plt.title('residuals in %s, RMS = %0.2f, %s = %0.2f'%(label,RMS,r'$\sigma$',sigma))
+def plot_residuals(residuals,RMS,algo,label,img_ext):
+
+	bins = np.linspace(-300,300,100)
+	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label, alpha=0.)	xmin, xmax = plt.xlim()
+	
+	bins_g = np.zeros_like(bins)
+
+	for i in range(len(bins)-1):
+		bins_g[i] = (bins[i]+bins[i+1])/2.
+	
+	bins_g = bins[:-1]
+	
+	popt, _ = optimize.curve_fit(gaussian, bins_g, binned_data)
+	print("sigma of the fit = ",popt[2])
+
+	plt.scatter(bins_g,binned_data,marker='o',s=10)
+	plt.plot(bins_g, gaussian(bins_g, *popt),linewidth=1,color='black',label='gaussian fit')
+	plt.title('%s - residuals in %s, RMS = %0.2f, %s = %0.2f'%(algo, label,RMS,r'$\sigma$',popt[2]))
 	#plt.ylabel('No. of samples')
 	plt.xlabel(r'$\mu m$')
 
-	plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
 	plt.legend()
 	plt.savefig("plots/python/residuals/residuals_%s_%s.png"%(label,img_ext))
 	plt.close()

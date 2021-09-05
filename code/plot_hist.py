@@ -17,7 +17,7 @@ def plot_residual(residuals,label,algo):
 	residuals*=1e4
 
 	print("====== %s %s ======"%(algo,label))
-	print("no of residuals > 1000 = ",len(residuals[residuals>1000]))
+
 	#residuals = residuals[residuals<1000]
 	'''
 	residuals = np.zeros_like(results)+99999.
@@ -124,41 +124,47 @@ def plot_by_clustersize(residuals_x,residuals_y,algo,img_ext):
 
 		pp.close()
 
-cnn1d_x = np.genfromtxt("txt_files/cnn1d_MC_x.txt")
-cnn1d_y = np.genfromtxt("txt_files/cnn1d_MC_y.txt")
+cnn1d_x = np.genfromtxt("txt_files/cnn1d_MC_x.txt")[:,1]
+cnn1d_y = np.genfromtxt("txt_files/cnn1d_MC_y.txt")[:,1]
+cnn1d_ids = np.genfromtxt("txt_files/cnn1d_MC_y.txt")[:,0]
 
 cnn1d_x_det = np.genfromtxt("txt_files/cnn1d_MC_x_detangles.txt")
 cnn1d_y_det = np.genfromtxt("txt_files/cnn1d_MC_y_detangles.txt")
 
-cnn2d_x = np.genfromtxt("txt_files/cnn2d_MC_x.txt")
-cnn2d_y = np.genfromtxt("txt_files/cnn2d_MC_y.txt")
+cnn2d_x = np.genfromtxt("txt_files/cnn2d_MC_x.txt")[:,1]
+cnn2d_y = np.genfromtxt("txt_files/cnn2d_MC_y.txt")[:,1]
+cnn2d_ids = np.genfromtxt("txt_files/cnn2d_MC_y.txt")[:,0]
 
 cnn2d_x_det = np.genfromtxt("txt_files/cnn2d_MC_x_detangles.txt")
 cnn2d_y_det = np.genfromtxt("txt_files/cnn2d_MC_y_detangles.txt")
 
+gen_x = np.genfromtxt("txt_files/generic_MC_x.txt")[:,1]
+gen_y = np.genfromtxt("txt_files/generic_MC_y.txt")[:,1]
+gen_ids = np.genfromtxt("txt_files/generic_MC_y.txt")[:,0]
+
 gen_x_det = np.genfromtxt("txt_files/generic_MC_x_detangles.txt")
 gen_y_det = np.genfromtxt("txt_files/generic_MC_y_detangles.txt")
 
-gen_x = np.genfromtxt("txt_files/generic_MC_x.txt")
-gen_y = np.genfromtxt("txt_files/generic_MC_y.txt")
+template_x = np.genfromtxt("txt_files/template_MC_x.txt")[:,1]
+template_y = np.genfromtxt("txt_files/template_MC_y.txt")[:,1]
+template_ids = np.genfromtxt("txt_files/template_MC_y.txt")[:,0]
 
-template_x = np.genfromtxt("txt_files/template_MC_x.txt")
-template_y = np.genfromtxt("txt_files/template_MC_y.txt")
+print("gen_x shape = ",gen_x.shape,"gen_y shape = ",gen_y.shape)
+print("template_x shape = ",template_x.shape,"template_y shape = ",template_y.shape)
+print("cnn1d_x shape = ",cnn1d_x.shape,"cnn1d_y shape = ",cnn1d_y.shape)
+print("cnn2d_x shape = ",cnn2d_x.shape,"cnn2d_y shape = ",cnn2d_y.shape)
+print("gen_x_det shape = ",gen_x_det.shape,"gen_y_det shape = ",gen_y_det.shape)
+print("cnn1d_x_det shape = ",cnn1d_x_det.shape,"cnn1d_y_det shape = ",cnn1d_y_det.shape)
+print("cnn2d_x_det shape = ",cnn2d_x_det.shape,"cnn2d_y_det shape = ",cnn2d_y_det.shape)
 
-
-print("gen_x shape = ",gen_x.shape)
-print("template_x shape = ",template_x.shape)
-print("cnn1d_x shape = ",cnn1d_x.shape)
-print("cnn2d_x shape = ",cnn2d_x.shape)
-print("gen_x_det shape = ",gen_x_det.shape)
-print("cnn1d_x_det shape = ",cnn1d_x_det.shape)
-print("cnn2d_x_det shape = ",cnn2d_x_det.shape)
+n = min(len(cnn1d_ids),len(template_ids))
+print(len(cnn1d_ids[:n]==template_ids[:n]))
 
 residuals_x = plot_residual(cnn1d_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,'y','1dcnn')
 
-residuals_x = plot_residual(cnn1d_x_det,'x','1dcnn_detangles')
-residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
+#residuals_x = plot_residual(cnn1d_x_det,'x','1dcnn_detangles')
+#residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
 #plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
@@ -167,8 +173,8 @@ residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
 residuals_x = plot_residual(gen_x,'x','gen')
 residuals_y = plot_residual(gen_y,'y','gen')
 
-residuals_x = plot_residual(gen_x_det,'x','gen_detangles')
-residuals_y = plot_residual(gen_y_det,'y','gen_detangles')
+#residuals_x = plot_residual(gen_x_det,'x','gen_detangles')
+#residuals_y = plot_residual(gen_y_det,'y','gen_detangles')
 
 residuals_x = plot_residual(template_x,'x','template')
 residuals_y = plot_residual(template_y,'y','template')
@@ -176,8 +182,8 @@ residuals_y = plot_residual(template_y,'y','template')
 residuals_x = plot_residual(cnn2d_x,'x','2dcnn')
 residuals_y = plot_residual(cnn2d_y,'y','2dcnn')
 
-residuals_x = plot_residual(cnn2d_x_det,'x','2dcnn_detangles')
-residuals_y = plot_residual(cnn2d_y_det,'y','2dcnn_detangles')
+#residuals_x = plot_residual(cnn2d_x_det,'x','2dcnn_detangles')
+#residuals_y = plot_residual(cnn2d_y_det,'y','2dcnn_detangles')
 
 #plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
 
