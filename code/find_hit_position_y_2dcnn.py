@@ -217,5 +217,5 @@ print("RMS_y = %f\n"%(RMS_y))
 
 plot_residuals(residuals_y,RMS_y,'2dcnn','y',img_ext)
 
-plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
+#plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 

@@ -563,7 +563,7 @@ private:
 				// go back to module coordinate system
 			x_nn+=lp.x(); 
 				// get the generic position
-			x_gen = hit->localPosition().x();
+			x_gen = pixhit->localPosition().x();
 				//get sim hits
 			vec_simhits_assoc.clear();
 			vec_simhits_assoc = associate->associateHit(*pixhit);
