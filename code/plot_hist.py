@@ -2,33 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
+from scipy import optimize
 
 img_ext = '090221'
 SIMHITPERCLMAX = 10
 
+def gaussian(x, amplitude, mean, stddev):
+    return amplitude * np.exp(-0.5*((x - mean) / stddev)**2)
+
+
 def plot_residual(residuals,label,algo):
-	'''
-	results = results*1e4
-	sim = results[:,1]*1e4
-
-	plt.hist(nn,facecolor='None',edgecolor='r',lw=2,label="%s_%s"%(label,algo),bins=30)
-	#plt.title()
-	#plt.xlabel("microns")
-
-	plt.hist(gen,facecolor='None',edgecolor='b',lw=2,label="%s_generic"%label,bins=30)
-	plt.title("Comparison between %s_generic and %s_%s outputs"%(label,label,algo))
-	plt.xlabel("microns")
-	#plt.savefig('plots/%s_gen_%s.png'%(label,algo))
-	#plt.close()
-
 	
-	plt.legend()
-	plt.savefig('plots/%s_compare_%s.png'%(label,algo))
-	plt.close()
-	'''
 	bins = np.linspace(-300,300,100)
 	residuals*=1e4
+
 	print("====== %s %s ======"%(algo,label))
+	print("no of residuals > 1000 = ",len(residuals[residuals>1000]))
+	#residuals = residuals[residuals<1000]
 	'''
 	residuals = np.zeros_like(results)+99999.
 
@@ -46,18 +36,24 @@ def plot_residual(residuals,label,algo):
 	#print(np.argwhere(residuals>1000),residuals[residuals>1000])
 	#residuals = residuals[residuals<1000]
 	'''
-	RMS = np.sqrt(np.mean(residuals*residuals))
-	mean, sigma = norm.fit(residuals)
+	RMS = np.std(residuals)
 
-	plt.hist(residuals, bins=bins, histtype='step', density=True,linewidth=2,label=r'$\vartriangle$'+label)
-	xmin, xmax = plt.xlim()
-	x = np.linspace(xmin, xmax, 100)
-	p = norm.pdf(x, mean, sigma)
-	plt.title('%s - residuals in %s, RMS = %0.2f, %s = %0.2f'%(algo, label,RMS,r'$\sigma$',sigma))
+	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label)
+	
+	bins_g = np.zeros_like(bins)
+
+	for i in range(len(bins)-1):
+		bins_g[i] = (bins[i]+bins[i+1])/2.
+	
+	bins_g = bins[:-1]
+	
+	popt, _ = optimize.curve_fit(gaussian, bins_g, binned_data)
+	plt.plot(bins_g, gaussian(bins_g, *popt),linewidth=1,color='red',label='gaussian fit')
+
+	print("popt = ",popt)
+	plt.title('%s - residuals in %s, RMS = %0.2f, %s = %0.2f'%(algo, label,RMS,r'$\sigma$',popt[2]))
 	#plt.ylabel('No. of samples')
 	plt.xlabel(r'$\mu m$')
-
-	plt.plot(x, p, 'k', linewidth=1,color='red',label='gaussian fit')
 	plt.legend()
 	plt.savefig("plots/CMSSW/residuals/%s_residuals_%s_%s.png"%(label,algo,img_ext))
 	plt.close()
@@ -147,41 +143,39 @@ gen_y = np.genfromtxt("txt_files/generic_MC_y.txt")
 template_x = np.genfromtxt("txt_files/template_MC_x.txt")
 template_y = np.genfromtxt("txt_files/template_MC_y.txt")
 
-simhits_x = np.genfromtxt("txt_files/simhits_MC_x.txt")
-simhits_y = np.genfromtxt("txt_files/simhits_MC_y.txt")
-
-simhits_x_gen = np.genfromtxt("txt_files/simhits_MC_x_gendet.txt")
-simhits_y_gen = np.genfromtxt("txt_files/simhits_MC_y_gendet.txt")
 
 print("gen_x shape = ",gen_x.shape)
 print("template_x shape = ",template_x.shape)
 print("cnn1d_x shape = ",cnn1d_x.shape)
 print("cnn2d_x shape = ",cnn2d_x.shape)
+print("gen_x_det shape = ",gen_x_det.shape)
+print("cnn1d_x_det shape = ",cnn1d_x_det.shape)
+print("cnn2d_x_det shape = ",cnn2d_x_det.shape)
 
 residuals_x = plot_residual(cnn1d_x,'x','1dcnn')
-#residuals_y = plot_residual(cnn1d_y,simhits_y,'y','1dcnn')
+residuals_y = plot_residual(cnn1d_y,'y','1dcnn')
 
-#residuals_x = plot_residual(cnn1d_x_det,simhits_x,'x','1dcnn_detangles')
-#residuals_y = plot_residual(cnn1d_y_det,simhits_y,'y','1dcnn_detangles')
+residuals_x = plot_residual(cnn1d_x_det,'x','1dcnn_detangles')
+residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
 #plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 #residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
 
 residuals_x = plot_residual(gen_x,'x','gen')
-#residuals_y = plot_residual(gen_y,simhits_y,'y','gen')
+residuals_y = plot_residual(gen_y,'y','gen')
 
-#residuals_x = plot_residual(gen_x_det,simhits_x_gen,'x','gen_detangles')
-#residuals_y = plot_residual(gen_y_det,simhits_y_gen,'y','gen_detangles')
+residuals_x = plot_residual(gen_x_det,'x','gen_detangles')
+residuals_y = plot_residual(gen_y_det,'y','gen_detangles')
 
 residuals_x = plot_residual(template_x,'x','template')
-#residuals_y = plot_residual(template_y,simhits_y,'y','template')
+residuals_y = plot_residual(template_y,'y','template')
 
 residuals_x = plot_residual(cnn2d_x,'x','2dcnn')
-#residuals_y = plot_residual(cnn2d_y,simhits_y,'y','2dcnn')
+residuals_y = plot_residual(cnn2d_y,'y','2dcnn')
 
-#residuals_x = plot_residual(cnn2d_x_det,simhits_x,'x','2dcnn_detangles')
-#residuals_y = plot_residual(cnn2d_y_det,simhits_y,'y','2dcnn_detangles')
+residuals_x = plot_residual(cnn2d_x_det,'x','2dcnn_detangles')
+residuals_y = plot_residual(cnn2d_y_det,'y','2dcnn_detangles')
 
 #plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
 
