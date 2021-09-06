@@ -5,6 +5,12 @@ from scipy.stats import norm
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import optimize
+import ROOT
+from ROOT import *
+
+gStyle.SetOptStat(1)
+gROOT.SetBatch(1)
+gStyle.SetOptFit(1);
 
 def gaussian(x, amplitude, mean, stddev):
     return amplitude * np.exp(-0.5*((x - mean) / stddev)**2)
@@ -32,30 +38,34 @@ def plot_dnn_loss(history,label,img_ext):
 	plt.close()
 
 
-def plot_residuals(residuals,RMS,algo,label,img_ext):
+def plot_residuals(residuals,algo,label,img_ext):
 
-	bins = np.linspace(-300,300,100)
-	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label, alpha=0.)	
-	
-	bins_g = np.zeros_like(bins)
+	res = ROOT.TH1F("residuals","%s %s"%(algo,label),100,-300,300)
+	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
+	'''
+	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
+	are linked to the last file that was opened, so when you close the file the histogram may disappear.
+	We want to change this behaviour, to say that the histogram we just created has no parent file, and thus
+	should not be removed when any files are closed.
+	'''
+	res.SetDirectory(0)
+	print("RMS of %s %s = %f"%(algo,label,res.GetRMS()))
+	for entry in residuals:
+		res.Fill(entry)
 
-	for i in range(len(bins)-1):
-		bins_g[i] = (bins[i]+bins[i+1])/2.
-	
-	bins_g = bins[:-1]
-	
-	popt, _ = optimize.curve_fit(gaussian, bins_g, binned_data)
-	print("sigma of the fit = ",popt[2])
-
-	plt.scatter(bins_g,binned_data,marker='o',s=10)
-	plt.plot(bins_g, gaussian(bins_g, *popt),linewidth=1,color='black',label='gaussian fit')
-	plt.title('%s - residuals in %s, RMS = %0.2f, %s = %0.2f'%(algo, label,RMS,r'$\sigma$',popt[2]))
-	#plt.ylabel('No. of samples')
-	plt.xlabel(r'$\mu m$')
-
-	plt.legend()
-	plt.savefig("plots/python/residuals/residuals_%s_%s.png"%(label,img_ext))
-	plt.close()
+	canvas = ROOT.TCanvas (" canvas ")
+	canvas.cd()
+	res.SetMarkerColor(ROOT.kRed);
+    	res.SetMarkerStyle(20)
+	res.SetMarkerSize(0.6)
+	res.SetLineColor(ROOT.kRed)
+	res.GetXaxis().SetTitle(r'$\mu m$')
+	res.GetYaxis().SetTitle("Number of events")
+	res.SetTitle("%s - residuals in %s"%(algo, label))
+	res.Fit("gaus","E")
+	res.GetFunction("gaus").SetLineColor(ROOT.kBlack);
+	res.Draw("pe")
+	canvas.Print("plots/CMSSW/residuals/%s_residuals_%s.png"%(label,img_ext))
 
 def plot_by_clustersize(residuals,clustersize,label,img_ext):
 
