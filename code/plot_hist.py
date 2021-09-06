@@ -11,6 +11,7 @@ SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)
 gROOT.SetBatch(1)
+gStyle.SetOptFit(1);
 
 def gaussian(x, amplitude, mean, stddev):
     return amplitude * np.exp(-0.5*((x - mean) / stddev)**2)
@@ -70,11 +71,12 @@ def plot_root(residuals,label,algo):
 	res = ROOT.TH1F("residuals","%s %s"%(algo,label),100,-300,300)
 	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
 	'''
-	Once the histogram has been filled, we want to make sure that it doesn’t disappear. By default, histograms
+	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
 	are linked to the last file that was opened, so when you close the file the histogram may disappear.
-	– We want to change this behaviour, to say that the histogram we just created has no parent file, and thus
+	We want to change this behaviour, to say that the histogram we just created has no parent file, and thus
 	should not be removed when any files are closed.
 	'''
+	residuals*=1e4
 	res.SetDirectory(0)
 	for entry in residuals:
 		res.Fill(entry)
