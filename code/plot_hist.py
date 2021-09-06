@@ -85,6 +85,7 @@ def plot_root(residuals,label,algo):
 	canvas.cd()
 	res.SetMarkerColor(ROOT.kRed);
     	res.SetMarkerStyle(20)
+	res.SetMarkerSize(0.6)
 	res.SetLineColor(ROOT.kRed)
 	res.GetXaxis().SetTitle(r'$\mu m$')
 	res.GetYaxis().SetTitle("Number of events")
