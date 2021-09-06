@@ -64,7 +64,7 @@ def plot_residuals(residuals,algo,label,img_ext):
 	res.Fit("gaus","E")
 	res.GetFunction("gaus").SetLineColor(ROOT.kBlack);
 	res.Draw("pe")
-	canvas.Print("plots/CMSSW/residuals/%s_residuals_%s.png"%(label,img_ext))
+	canvas.Print("plots/python/residuals/%s_residuals_%s.png"%(label,img_ext))
 
 def plot_by_clustersize(residuals,clustersize,label,img_ext):
 
