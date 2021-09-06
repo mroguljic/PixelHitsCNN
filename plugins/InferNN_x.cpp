@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <sys/time.h>
 
 #include <TF1.h>
 #include "Math/MinimizerOptions.h"
@@ -146,7 +147,9 @@ private:
 	float pixelsize_x = 100., pixelsize_y = 150., pixelsize_z = 285.0;
 	int mid_x = 0, mid_y = 0;
 	float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
-	
+	struct timeval now0, now1;
+    struct timezone timz;
+
 
 	};
 
@@ -271,6 +274,7 @@ private:
 		sprintf(infile4,"%s/%s_MC_perclustersize_x.txt",path,cpe.c_str());
 		clustersize_x_file = fopen(infile4, "w");
 		}
+		
 		
 	}
 
@@ -541,7 +545,9 @@ private:
 				}
 					//printf("\n");
 			}
-			
+			//  Determine current time
+
+    		gettimeofday(&now0, &timz);
 				// define the output and run
 			std::vector<tensorflow::Tensor> output_x;
 			if(cpe=="cnn2d") tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
@@ -562,6 +568,9 @@ private:
 			//	printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);
 				// go back to module coordinate system
 			x_nn+=lp.x(); 
+			gettimeofday(&now1, &timz);
+			float deltaus = now1.tv_usec - now0.tv_usec;
+			printf("elapsed time = %f us\n",deltaus);
 				// get the generic position
 			x_gen = pixhit->localPosition().x();
 				//get sim hits
@@ -627,6 +636,7 @@ private:
     }
 
     printf("count = %i\n",count);
+
     for(int i=prev_count;i<count;i++){
     	/*
     	for(int j=0; j<SIMHITPERCLMAX;j++){
