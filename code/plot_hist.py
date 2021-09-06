@@ -6,10 +6,10 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '090221'
+img_ext = '090621'
 SIMHITPERCLMAX = 10
 
-gStyle.SetOptStat(0)
+gStyle.SetOptStat(1)
 gROOT.SetBatch(1)
 
 def gaussian(x, amplitude, mean, stddev):
@@ -39,8 +39,8 @@ def plot_residual(residuals,label,algo):
 	#residuals = residuals[residuals<1000]
 	'''
 
-	print("no of residuals >1000: ",len(np.argwhere(residuals>1000)))
-	print(np.argwhere(residuals>1000),residuals[residuals>1000])
+	#print("no of residuals >1000: ",len(np.argwhere(residuals>1000)))
+	#print(np.argwhere(residuals>1000),residuals[residuals>1000])
 	RMS = np.std(residuals)
 
 	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2, alpha=0.)
@@ -86,8 +86,9 @@ def plot_root(residuals,label,algo):
 	res.GetYaxis().SetTitle("Number of events")
 	res.SetTitle("%s - residuals in %s"%(algo, label))
 	res.Fit("gaus","E")
+	res.GetFunction("gaus").SetLineColor(ROOT.kBlack);
 	res.Draw("pe")
-	canvas.Print("plots/CMSSW/residuals/root_%s_residuals_%s_%s.png"%(label,algo,img_ext))
+	canvas.Print("plots/CMSSW/residuals/%s_residuals_%s_%s.png"%(label,algo,img_ext))
 
 
 
@@ -189,32 +190,29 @@ print("cnn2d_x_det shape = ",cnn2d_x_det.shape,"cnn2d_y_det shape = ",cnn2d_y_de
 n = min(len(cnn1d_ids),len(template_ids))
 print(len(cnn1d_ids[:n]==template_ids[:n]))
 
-residuals_x = plot_residual(cnn1d_x,'x','1dcnn')
-residuals_y = plot_residual(cnn1d_y,'y','1dcnn')
+residuals_x = plot_root(cnn1d_x,'x','1dcnn')
+residuals_y = plot_root(cnn1d_y,'y','1dcnn')
 
-residuals_x = plot_residual(cnn1d_x_det,'x','1dcnn_detangles')
-residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
+residuals_x = plot_root(cnn1d_x_det,'x','1dcnn_detangles')
+residuals_y = plot_root(cnn1d_y_det,'y','1dcnn_detangles')
 #plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 #residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
 
-residuals_x = plot_residual(gen_x,'x','gen')
-residuals_y = plot_residual(gen_y,'y','gen')
+residuals_x = plot_root(gen_x,'x','gen')
+residuals_y = plot_root(gen_y,'y','gen')
 
-residuals_x = plot_residual(gen_x_det,'x','gen_detangles')
-residuals_y = plot_residual(gen_y_det,'y','gen_detangles')
+residuals_x = plot_root(gen_x_det,'x','gen_detangles')
+residuals_y = plot_root(gen_y_det,'y','gen_detangles')
 
-residuals_x = plot_residual(template_x,'x','template')
-residuals_y = plot_residual(template_y,'y','template')
+residuals_x = plot_root(template_x,'x','template')
+residuals_y = plot_root(template_y,'y','template')
 
-residuals_x = plot_residual(cnn2d_x,'x','2dcnn')
-residuals_y = plot_residual(cnn2d_y,'y','2dcnn')
+residuals_x = plot_root(cnn2d_x,'x','2dcnn')
+residuals_y = plot_root(cnn2d_y,'y','2dcnn')
 
-residuals_x = plot_residual(cnn2d_x_det,'x','2dcnn_detangles')
-residuals_y = plot_residual(cnn2d_y_det,'y','2dcnn_detangles')
+residuals_x = plot_root(cnn2d_x_det,'x','2dcnn_detangles')
+residuals_y = plot_root(cnn2d_y_det,'y','2dcnn_detangles')
 
 #plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
-
-plot_root(cnn2d_x,'x','2dcnn')
-plot_root(cnn2d_y,'y','2dcnn')
