@@ -205,5 +205,5 @@ RMS_x = np.std(residuals_x)
 print(np.amin(residuals_x),np.amax(residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 
-plot_residuals(residuals_x,RMS_x,'2dcnn','x',img_ext)
+plot_residuals(residuals_x,'2dcnn','x',img_ext)
 #plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)

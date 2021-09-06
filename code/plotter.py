@@ -49,10 +49,9 @@ def plot_residuals(residuals,algo,label,img_ext):
 	should not be removed when any files are closed.
 	'''
 	res.SetDirectory(0)
-	print("RMS of %s %s = %f"%(algo,label,res.GetRMS()))
 	for entry in residuals:
 		res.Fill(entry)
-
+	print("RMS of %s %s = %f"%(algo,label,res.GetRMS()))
 	canvas = ROOT.TCanvas (" canvas ")
 	canvas.cd()
 	res.SetMarkerColor(ROOT.kRed);
