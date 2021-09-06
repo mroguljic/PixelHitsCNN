@@ -3,9 +3,14 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import optimize
+import ROOT
+from ROOT import *
 
 img_ext = '090221'
 SIMHITPERCLMAX = 10
+
+gStyle.SetOptStat(0)
+gROOT.SetBatch(1)
 
 def gaussian(x, amplitude, mean, stddev):
     return amplitude * np.exp(-0.5*((x - mean) / stddev)**2)
@@ -31,14 +36,14 @@ def plot_residual(residuals,label,algo):
 
 			#else: print("abs(results[i]-sim[i][j])<residuals[i]",results[i])
 	
-	
-	#print("no of residuals >1000: ",len(np.argwhere(residuals>1000)))
-	#print(np.argwhere(residuals>1000),residuals[residuals>1000])
 	#residuals = residuals[residuals<1000]
 	'''
+
+	print("no of residuals >1000: ",len(np.argwhere(residuals>1000)))
+	print(np.argwhere(residuals>1000),residuals[residuals>1000])
 	RMS = np.std(residuals)
 
-	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2,label=r'$\vartriangle$'+label, alpha=0.)
+	binned_data,bins_h,patches = plt.hist(residuals, bins=bins, histtype='step', density=False,linewidth=2, alpha=0.)
 	
 	bins_g = np.zeros_like(bins)
 
@@ -49,7 +54,7 @@ def plot_residual(residuals,label,algo):
 	
 	popt, _ = optimize.curve_fit(gaussian, bins_g, binned_data)
 
-	plt.scatter(bins_g,binned_data,marker='o',s=10)
+	plt.scatter(bins_g,binned_data,marker='o',s=10,label=r'$\vartriangle$'+label)
 	plt.plot(bins_g, gaussian(bins_g, *popt),linewidth=1,color='black',label='gaussian fit')
 
 	print("popt = ",popt)
@@ -60,7 +65,31 @@ def plot_residual(residuals,label,algo):
 	plt.savefig("plots/CMSSW/residuals/%s_residuals_%s_%s.png"%(label,algo,img_ext))
 	plt.close()
 
-	
+def plot_root(residuals,label,algo):
+
+	res = ROOT.TH1F("residuals","%s %s"%(algo,label),100,-300,300)
+	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
+	'''
+	Once the histogram has been filled, we want to make sure that it doesn’t disappear. By default, histograms
+	are linked to the last file that was opened, so when you close the file the histogram may disappear.
+	– We want to change this behaviour, to say that the histogram we just created has no parent file, and thus
+	should not be removed when any files are closed.
+	'''
+	res.SetDirectory(0)
+	for entry in residuals:
+		res.Fill(entry)
+
+	canvas = ROOT.TCanvas (" canvas ")
+	canvas.cd()
+	res.SetLineColor(ROOT.kRed)
+	res.GetXaxis().SetTitle(r'$\mu m$')
+	res.GetYaxis().SetTitle("Number of events")
+	res.SetTitle("%s - residuals in %s"%(algo, label))
+	res.Fit("gaus","E")
+	res.Draw("pe")
+	canvas.Print("plots/CMSSW/residuals/root_%s_residuals_%s_%s.png"%(label,algo,img_ext))
+
+
 
 def plot_by_clustersize(residuals_x,residuals_y,algo,img_ext):
 	#print clustersize wise residuals
@@ -128,22 +157,22 @@ cnn1d_x = np.genfromtxt("txt_files/cnn1d_MC_x.txt")[:,1]
 cnn1d_y = np.genfromtxt("txt_files/cnn1d_MC_y.txt")[:,1]
 cnn1d_ids = np.genfromtxt("txt_files/cnn1d_MC_y.txt")[:,0]
 
-cnn1d_x_det = np.genfromtxt("txt_files/cnn1d_MC_x_detangles.txt")
-cnn1d_y_det = np.genfromtxt("txt_files/cnn1d_MC_y_detangles.txt")
+cnn1d_x_det = np.genfromtxt("txt_files/cnn1d_MC_x_detangles.txt")[:,1]
+cnn1d_y_det = np.genfromtxt("txt_files/cnn1d_MC_y_detangles.txt")[:,1]
 
 cnn2d_x = np.genfromtxt("txt_files/cnn2d_MC_x.txt")[:,1]
 cnn2d_y = np.genfromtxt("txt_files/cnn2d_MC_y.txt")[:,1]
 cnn2d_ids = np.genfromtxt("txt_files/cnn2d_MC_y.txt")[:,0]
 
-cnn2d_x_det = np.genfromtxt("txt_files/cnn2d_MC_x_detangles.txt")
-cnn2d_y_det = np.genfromtxt("txt_files/cnn2d_MC_y_detangles.txt")
+cnn2d_x_det = np.genfromtxt("txt_files/cnn2d_MC_x_detangles.txt")[:,1]
+cnn2d_y_det = np.genfromtxt("txt_files/cnn2d_MC_y_detangles.txt")[:,1]
 
 gen_x = np.genfromtxt("txt_files/generic_MC_x.txt")[:,1]
 gen_y = np.genfromtxt("txt_files/generic_MC_y.txt")[:,1]
 gen_ids = np.genfromtxt("txt_files/generic_MC_y.txt")[:,0]
 
-gen_x_det = np.genfromtxt("txt_files/generic_MC_x_detangles.txt")
-gen_y_det = np.genfromtxt("txt_files/generic_MC_y_detangles.txt")
+gen_x_det = np.genfromtxt("txt_files/generic_MC_x_detangles.txt")[:,1]
+gen_y_det = np.genfromtxt("txt_files/generic_MC_y_detangles.txt")[:,1]
 
 template_x = np.genfromtxt("txt_files/template_MC_x.txt")[:,1]
 template_y = np.genfromtxt("txt_files/template_MC_y.txt")[:,1]
@@ -163,8 +192,8 @@ print(len(cnn1d_ids[:n]==template_ids[:n]))
 residuals_x = plot_residual(cnn1d_x,'x','1dcnn')
 residuals_y = plot_residual(cnn1d_y,'y','1dcnn')
 
-#residuals_x = plot_residual(cnn1d_x_det,'x','1dcnn_detangles')
-#residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
+residuals_x = plot_residual(cnn1d_x_det,'x','1dcnn_detangles')
+residuals_y = plot_residual(cnn1d_y_det,'y','1dcnn_detangles')
 #plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
@@ -173,8 +202,8 @@ residuals_y = plot_residual(cnn1d_y,'y','1dcnn')
 residuals_x = plot_residual(gen_x,'x','gen')
 residuals_y = plot_residual(gen_y,'y','gen')
 
-#residuals_x = plot_residual(gen_x_det,'x','gen_detangles')
-#residuals_y = plot_residual(gen_y_det,'y','gen_detangles')
+residuals_x = plot_residual(gen_x_det,'x','gen_detangles')
+residuals_y = plot_residual(gen_y_det,'y','gen_detangles')
 
 residuals_x = plot_residual(template_x,'x','template')
 residuals_y = plot_residual(template_y,'y','template')
@@ -182,9 +211,10 @@ residuals_y = plot_residual(template_y,'y','template')
 residuals_x = plot_residual(cnn2d_x,'x','2dcnn')
 residuals_y = plot_residual(cnn2d_y,'y','2dcnn')
 
-#residuals_x = plot_residual(cnn2d_x_det,'x','2dcnn_detangles')
-#residuals_y = plot_residual(cnn2d_y_det,'y','2dcnn_detangles')
+residuals_x = plot_residual(cnn2d_x_det,'x','2dcnn_detangles')
+residuals_y = plot_residual(cnn2d_y_det,'y','2dcnn_detangles')
 
 #plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)
 
-
+plot_root(cnn2d_x,'x','2dcnn')
+plot_root(cnn2d_y,'y','2dcnn')
