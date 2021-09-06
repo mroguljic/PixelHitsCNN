@@ -45,7 +45,7 @@ import cmsml
 
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "2dcnn_%s_aug31"%h5_ext
+img_ext = "2dcnn_%s_sep6"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -75,13 +75,13 @@ h5_ext = "p1_2018_irrad_BPIXL1_file2"
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
-pix_train = np.vstack((pix_train,f['train_hits'][:3000000]))
-cota_train = np.vstack((cota_train,f['cota'][:3000000]))
-cotb_train = np.vstack((cotb_train,f['cotb'][:3000000]))
-x_train = np.vstack((x_train,f['x'][:3000000])) 
-y_train = np.vstack((y_train,f['y'][:3000000]))
-clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:3000000]))
-clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:3000000]))
+pix_train = np.vstack((pix_train,f['train_hits'][:5000000]))
+cota_train = np.vstack((cota_train,f['cota'][:5000000]))
+cotb_train = np.vstack((cotb_train,f['cotb'][:5000000]))
+x_train = np.vstack((x_train,f['x'][:5000000])) 
+y_train = np.vstack((y_train,f['y'][:5000000]))
+clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:5000000]))
+clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:5000000]))
 
 angles_train = np.hstack((cota_train,cotb_train))
 
@@ -94,7 +94,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 
 
 # Model configuration
-batch_size = 512
+batch_size = 800
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
@@ -168,7 +168,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -176,7 +176,7 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-'''
+
 
 callbacks = [
 EarlyStopping(patience=5),
@@ -197,7 +197,7 @@ cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
-'''
+
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()

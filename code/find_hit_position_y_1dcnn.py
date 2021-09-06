@@ -120,8 +120,8 @@ test_cy = test_c.sum(axis=0).reshape((1,21))
 batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 20
-n_epochs_y = 30
-optimizer = Adam(lr=0.0002)
+n_epochs_y = 20
+optimizer = Adam(lr=0.0001)
 validation_split = 0.3
 
 
@@ -181,9 +181,10 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=5),
+#EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
-                save_best_only=True,
+                save_weights_only=True,
+		save_best_only=True,
                 monitor='val_loss')
 ]
 
