@@ -12,12 +12,12 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 h5_ext = "p1_2018_irrad_BPIXL1"
 cpe = "cnn1d"
 n_events = 500
-use_generic = True
-use_generic_detangles = True
-use_det_angles = True
+use_generic = False
+use_generic_detangles = False
+use_det_angles = False
 
 if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_aug31"%h5_ext
-elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug31"%h5_ext
+elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_sep6"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 
 print("n_events = %i, use_generic = %i, use_det_angles = %i, cpe = %s"%(n_events,use_generic,use_det_angles,cpe))
