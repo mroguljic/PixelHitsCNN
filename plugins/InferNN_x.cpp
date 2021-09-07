@@ -547,12 +547,15 @@ private:
 			}
 			//  Determine current time
 
-    		gettimeofday(&now0, &timz);
+    			//gettimeofday(&now0, &timz);
 				// define the output and run
 			std::vector<tensorflow::Tensor> output_x;
 			if(cpe=="cnn2d") tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
-			else tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
-				// convert microns to cms
+			else {  gettimeofday(&now0, &timz);
+				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
+				gettimeofday(&now1, &timz);
+			}
+			// convert microns to cms
 			x_nn = output_x[0].matrix<float>()(0,0);
 				
 			//printf("x_nn[%i] = %f\n",count,x_nn[count]);
@@ -568,9 +571,9 @@ private:
 			//	printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);
 				// go back to module coordinate system
 			x_nn+=lp.x(); 
-			gettimeofday(&now1, &timz);
+			//gettimeofday(&now1, &timz);
 			float deltaus = now1.tv_usec - now0.tv_usec;
-			printf("elapsed time = %f us\n",deltaus);
+			//printf("elapsed time = %f us\n",deltaus);
 				// get the generic position
 			x_gen = pixhit->localPosition().x();
 				//get sim hits

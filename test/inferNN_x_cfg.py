@@ -11,7 +11,7 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 
 h5_ext = "p1_2018_irrad_BPIXL1"
 cpe = "cnn1d"
-n_events = 500
+n_events = 1
 use_generic = True
 use_generic_detangles = True
 use_det_angles = True
