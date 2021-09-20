@@ -294,20 +294,64 @@ def project_matrices_xy(cluster_matrices):
 
 	print('took x and y projections of all matrices')	
 
+def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double):
+
+	# only for 1d for now
+	# 3 cases: double in x, double in y, double in x and y
+	# for 1d, case 3 wont make a difference to how the flat matrices look - bother about this in 2d 
+	# simulate n_double matrices for case 1 and 2
+
+	double_idx = rng.randint(0,len(x_flat),size=n_double)
+
+	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
+	x_flat = np.vstack((x_flat,x_flat[double_idx]))
+	y_flat = np.vstack((y_flat,y_flat[double_idx]))
+	print("new x_flat shape = ",x_flat.shape,"new y_flat shape = ",y_flat.shape)
+	clustersize_x = np.vstack((clustersize_x,clustersize_x[double_idx]))
+	clustersize_y = np.vstack((clustersize_y,clustersize_y[double_idx]))
+	x_position = np.vstack((x_position,x_position[double_idx]))
+	y_position = np.vstack((y_position,y_position[double_idx]))
+	cota = np.vstack((cota,cota[double_idx]))
+	cotb = np.vstack((cotb,cotb[double_idx]))
+
+	for i in double_idx:
+		# for x matrices
+		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((clustersize_x[i],))
+		#choose a random column to make double width
+		double_col = rng.choice(nonzero_idx)
+		if double_col == nonzero_idx[-1]:
+			#if the last column in the cluster is double width, divide charge between last and last-1 pixel so as to not increase cluster length
+			x_flat[i][double_col] = x_flat[i][double_col-1] = (x_flat[i][double_col]+x_flat[i][double_col-1])/2.
+		else:	
+			x_flat[i][double_col] = x_flat[i][double_col+1] = (x_flat[i][double_col]+x_flat[i][double_col+1])/2.
+
+		# for y matrices
+		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((clustersize_y[i],))
+		#choose a random column to make double width
+		double_col = rng.choice(nonzero_idx)
+		if double_col == nonzero_idx[-1]:
+			#if the last column in the cluster is double width, divide charge between last and last-1 pixel so as to not increase cluster length
+			y_flat[i][double_col] = y_flat[i][double_col-1] = (y_flat[i][double_col]+y_flat[i][double_col-1])/2.
+		else:	
+			y_flat[i][double_col] = y_flat[i][double_col+1] = (y_flat[i][double_col]+y_flat[i][double_col+1])/2.
+
+	return x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb
 
 def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
 
 	#normalize inputs
 	for index in range(len(cluster_matrices)):
 
-		max_c, min_c = cluster_matrices[index].max(), cluster_matrices[index].min()
-		cluster_matrices[index] = (cluster_matrices[index]-min_c)/(max_c-min_c)
+		max_c = cluster_matrices[index].max()
+		cluster_matrices[index] = cluster_matrices[index]/max_c
 
-		max_c, min_c = x_flat[index].max(), x_flat[index].min()
-		x_flat[index] = (x_flat[index]-min_c)/(max_c-min_c)		
+	for index in range(len(x_flat)): #currently testing double width in 1d only 
 
-		max_c, min_c = y_flat[index].max(), y_flat[index].min()
-		y_flat[index] = (y_flat[index]-min_c)/(max_c-min_c)
+		max_c = x_flat[index].max()
+		x_flat[index] = x_flat[index]/max_c		
+
+		max_c = y_flat[index].max()
+		y_flat[index] = y_flat[index]/max_c
 
 	clusters_dset = f.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
 	x_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
@@ -358,15 +402,15 @@ p1 = 0.711
 p2 = 203.
 p3 = 148.
 
-date = "082821"
-filename = "p1_2018_irrad_BPIXL1_t4000_file2"
+date = "092021"
+filename = "p1_2018_irrad_BPIXL1_double"
 phase1 = True
 
 if(phase1):
 	#threshold = 2000; # threshold in e-
-	threshold = 4000; # BPIX L1 Phase1
+	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -377,6 +421,7 @@ lines = train_out.readlines()
 train_out.close()
 
 n_train = int((len(lines)-2)/14)
+n_double = int(0.3*n_train)
 #print("n_train = ",n_train)
 
 #"image" size = 13x21x1
@@ -417,6 +462,8 @@ project_matrices_xy(train_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
 
+x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+
 f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,train_data,x_flat,y_flat,"train")
@@ -431,6 +478,7 @@ lines = test_out.readlines()
 test_out.close()
 
 n_test = int((len(lines)-2)/14)
+n_double = int(0.3*n_test)
 #print("n_test = ",n_test)
 
 #"image" size = 13x21x1
@@ -482,8 +530,10 @@ project_matrices_xy(test_data)
 #for i in range(30):
 #       print("======== Modified Cluster %i ========\n"%i)
 #       print(test_data[i].reshape((21,13)).astype(int))
+x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+
 f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f,test_data,x_flat,y_flat,"test")
 
-'''
+
