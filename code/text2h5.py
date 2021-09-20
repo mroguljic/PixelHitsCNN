@@ -300,8 +300,20 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	# 3 cases: double in x, double in y, double in x and y
 	# for 1d, case 3 wont make a difference to how the flat matrices look - bother about this in 2d 
 	# simulate n_double matrices for case 1 and 2
-
-	double_idx = rng.choice(np.arange(0,len(x_flat)),size=n_double,replace=False)
+	'''
+	general algo: 
+	skip clsize = 1
+	for N >=2, clsize N simulates double width pix of clsize_d = N-1
+	this only works for clsize_d <= 12/20 ie if there is a double width pixel in a cluster of size 13 or 20 -> skip it for now
+	simulation: 
+	clsize = 2: let choice of i only be the first idx x[i]+x[i+1]/2, clsize--;
+	clsize = 3: let choice of i only be the first,second idx x[i]+x[i+1]/2, clsize--;
+	so on and so forth
+	'''
+	#choose clusters whose size is not 1 in x or y
+	double_idx_x = np.argwhere(clustersize_x!=1)[:,0]
+	double_idx_y = np.argwhere(clustersize_y!=1)[:,0]
+	double_idx = rng.choice(np.intersect1d(double_idx_x,double_idx_y),size=n_double,replace=False)
 
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
 	x_flat = np.vstack((x_flat,x_flat[double_idx]))
@@ -319,22 +331,16 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		#if clustersize_x[i]==1: print(x_flat[i])
 		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((int(clustersize_x[i]),))
 		#choose a random column to make double width
-		double_col = rng.choice(nonzero_idx)
-		if double_col == nonzero_idx[-1]:
-			#if the last column in the cluster is double width, divide charge between last and last-1 pixel so as to not increase cluster length
-			x_flat[i][double_col] = x_flat[i][double_col-1] = (x_flat[i][double_col]+x_flat[i][double_col-1])/2.
-		else:	
-			x_flat[i][double_col] = x_flat[i][double_col+1] = (x_flat[i][double_col]+x_flat[i][double_col+1])/2.
+		double_col = rng.choice(nonzero_idx[:-1]) #we want to choose an integer for double col but not the last one in the cluster
+		x_flat[i][double_col] = x_flat[i][double_col+1] = (x_flat[i][double_col]+x_flat[i][double_col+1])/2.
+		clustersize_x[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
 
 		# for y matrices
 		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((int(clustersize_y[i]),))
 		#choose a random column to make double width
-		double_col = rng.choice(nonzero_idx)
-		if double_col == nonzero_idx[-1]:
-			#if the last column in the cluster is double width, divide charge between last and last-1 pixel so as to not increase cluster length
-			y_flat[i][double_col] = y_flat[i][double_col-1] = (y_flat[i][double_col]+y_flat[i][double_col-1])/2.
-		else:	
-			y_flat[i][double_col] = y_flat[i][double_col+1] = (y_flat[i][double_col]+y_flat[i][double_col+1])/2.
+		double_col = rng.choice(nonzero_idx[:-1])
+		y_flat[i][double_col] = y_flat[i][double_col+1] = (y_flat[i][double_col]+y_flat[i][double_col+1])/2.
+		clustersize_y[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
 
 	return x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb
 
