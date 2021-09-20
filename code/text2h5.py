@@ -301,7 +301,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	# for 1d, case 3 wont make a difference to how the flat matrices look - bother about this in 2d 
 	# simulate n_double matrices for case 1 and 2
 
-	double_idx = rng.randint(0,len(x_flat),size=n_double)
+	double_idx = rng.choice(np.arange(0,len(x_flat)),size=n_double,replace=False)
 
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
 	x_flat = np.vstack((x_flat,x_flat[double_idx]))
@@ -316,7 +316,8 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 
 	for i in double_idx:
 		# for x matrices
-		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((clustersize_x[i],))
+		#if clustersize_x[i]==1: print(x_flat[i])
+		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((int(clustersize_x[i]),))
 		#choose a random column to make double width
 		double_col = rng.choice(nonzero_idx)
 		if double_col == nonzero_idx[-1]:
@@ -326,7 +327,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 			x_flat[i][double_col] = x_flat[i][double_col+1] = (x_flat[i][double_col]+x_flat[i][double_col+1])/2.
 
 		# for y matrices
-		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((clustersize_y[i],))
+		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((int(clustersize_y[i]),))
 		#choose a random column to make double width
 		double_col = rng.choice(nonzero_idx)
 		if double_col == nonzero_idx[-1]:
@@ -401,6 +402,7 @@ p0 = 0.01218
 p1 = 0.711
 p2 = 203.
 p3 = 148.
+
 
 date = "092021"
 filename = "p1_2018_irrad_BPIXL1_double"
@@ -512,8 +514,6 @@ test_data = apply_noise_threshold(test_data,threshold,noise,threshold_noise_frac
 #print(test_data[0].reshape((21,13)).astype(int))
 test_data = apply_gain(test_data,fe_type,common_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
-#for i in range(30):
-#	print("======== Modified Cluster %i ========\n"%i)
 #	print(test_data[i].reshape((21,13)).astype(int))
 
 test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data,threshold)

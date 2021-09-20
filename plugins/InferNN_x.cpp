@@ -130,7 +130,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
 	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
-	int count=0, idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
+	int count=0, double_count = 0, idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -478,10 +478,10 @@ private:
 				int icol = int(pix.y) - col_offset;
 					//double pixels skip
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-					bigPixel=true; break;
+					bigPixel=true; double_count++; break;
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-					bigPixel=true; break;
+					bigPixel=true; double_count++; break;
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
@@ -550,7 +550,10 @@ private:
     			//gettimeofday(&now0, &timz);
 				// define the output and run
 			std::vector<tensorflow::Tensor> output_x;
-			if(cpe=="cnn2d") tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
+			if(cpe=="cnn2d"){ gettimeofday(&now0, &timz);
+				 tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
+				gettimeofday(&now1, &timz);
+			}
 			else {  gettimeofday(&now0, &timz);
 				tensorflow::run(session_x, {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				gettimeofday(&now1, &timz);
@@ -573,7 +576,7 @@ private:
 			x_nn+=lp.x(); 
 			//gettimeofday(&now1, &timz);
 			float deltaus = now1.tv_usec - now0.tv_usec;
-			//printf("elapsed time = %f us\n",deltaus);
+	//		printf("elapsed time = %f us\n",deltaus);
 				// get the generic position
 			x_gen = pixhit->localPosition().x();
 				//get sim hits
@@ -638,8 +641,8 @@ private:
         }
     }
 
-    printf("count = %i\n",count);
-
+    printf("double width count = %i\n",double_count);
+    printf("single width count = %i\n",count);
     for(int i=prev_count;i<count;i++){
     	/*
     	for(int j=0; j<SIMHITPERCLMAX;j++){
