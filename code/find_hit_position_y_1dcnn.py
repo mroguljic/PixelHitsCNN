@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "082821"
-h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "1dcnn_%s_aug31"%h5_ext
+h5_date = "092021"
+h5_ext = "p1_2018_irrad_BPIXL1_double"
+img_ext = "1dcnn_%s_sep20"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -55,9 +55,9 @@ x_train = f['x'][...]
 y_train = f['y'][...]
 clustersize_x_train = f['clustersize_x'][...]
 clustersize_y_train = f['clustersize_y'][...]
-#inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-#inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-#angles_train = np.hstack((cota_train,cotb_train))
+inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 #print(inputs_x_train[0])
 
@@ -74,7 +74,7 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-
+'''
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1_file2"
 
@@ -93,7 +93,7 @@ inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newax
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
-
+'''
 print(angles_train.shape)
 print(xpix_flat_test[:30])
 print(ypix_flat_test[:30])
@@ -121,8 +121,8 @@ batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 20
 n_epochs_y = 20
-optimizer = Adam(lr=0.0001)
-validation_split = 0.3
+optimizer = Adam(lr=0.001)
+validation_split = 0.2
 
 
 train_time_y = time.clock()
@@ -133,11 +133,14 @@ inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
 y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same")(y)
+y = Conv1D(128, kernel_size=3, padding="same")(y)
+y = Activation("relu")(y)
+y = Conv1D(64, kernel_size=2, padding="same")(y)
 y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
+'''
 y = Conv1D(64, kernel_size=2, padding="same")(y)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=2, padding="same")(y)
@@ -145,7 +148,7 @@ y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-
+'''
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 y = Dense(64)(concat_inputs)
@@ -170,7 +173,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -179,9 +182,9 @@ model.compile(loss=loss_function,
               )
 
 
-'''
+
 callbacks = [
-#EarlyStopping(patience=7),
+EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
 		save_best_only=True,
@@ -199,7 +202,7 @@ cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
-'''
+
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()

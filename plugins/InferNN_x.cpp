@@ -472,7 +472,7 @@ private:
 			float cluster_max = 0.;
 			int n_double_x = 0, n_double_y = 0;
 
-			bool bigPixel=false;
+			
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -480,10 +480,10 @@ private:
 				int icol = int(pix.y) - col_offset;
 					//double pixels skip
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-					bigPixel=true; n_double_x++; break;
+				 n_double_x++; printf("%f\n",float(pix.adc)); break;
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-					bigPixel=true; n_double_y++; break;
+				 n_double_y++; break;
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
@@ -492,6 +492,7 @@ private:
 
 			}
 			if(n_double_x>1 || n_double_y>1) continue; //currently can only deal with single double pix
+			
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
@@ -511,7 +512,8 @@ private:
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 				//normalized value
 				//if(cluster_max!=cluster_min)
-				clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
+				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
+				clusbuf[irow][icol] = float(pix.adc);
 				//else clusbuf[irow][icol] = 1.;
  				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
@@ -522,26 +524,36 @@ private:
 					clusbuf_x_temp[i] += clusbuf[i][j];
 				}
 				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
-			
 			}
-
+			if(n_double_x==1 && clustersize_x>12) continue;
+			if(n_double_x==1){
+			printf("double width cluster\n");
+			for(int i = 0;i < TXSIZE; i++){
+                         printf("%f ",clusbuf_x_temp[i]);
+                         }
+			printf("\n");}
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset + offset_x;
-				
+				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-					if (clustersize_x > 12) continue; //cant deal with clsize 13 with double pix
 					clusbuf_x[irow] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[irow+1] = clusbuf_x_temp[j]/2.;
 					offset_x++;
+
 				}
 				else clusbuf_x[irow] = clusbuf_x_temp[j];
 
 				j++;
 			}
-			
+			if(n_double_x==1){
+                         printf("MODIFIED double width cluster\n");
+                         for(int i = 0;i < TXSIZE; i++){
+                          printf("%f ",clusbuf_x[i]);
+                          }
+                         printf("\n");}
 			//compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TXSIZE; i++){

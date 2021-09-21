@@ -41,9 +41,9 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "082821"
-h5_ext = "p1_2018_irrad_BPIXL1"
-img_ext = "1dcnn_%s_sep10"%h5_ext
+h5_date = "092021"
+h5_ext = "p1_2018_irrad_BPIXL1_double"
+img_ext = "1dcnn_%s_sep20"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -135,6 +135,8 @@ inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
 x = Conv1D(64, kernel_size=2, padding="same")(inputs)
 x = Activation("relu")(x)
+x = Conv1D(128, kernel_size=3, padding="same")(x)
+x = Activation("relu")(x)
 x = Conv1D(64, kernel_size=2, padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
@@ -155,7 +157,7 @@ x = Dense(64)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x = Dense(64)(x)
+x = Dense(128)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
