@@ -500,7 +500,7 @@ private:
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
 
-
+			int double_row = 0;
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -510,6 +510,9 @@ private:
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
+				if ((int)pix.x == 79 || (int)pix.x == 80){
+					double_row = irow;
+				}
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
@@ -529,11 +532,13 @@ private:
 			if(n_double_x==1){
 			printf("double width cluster\n");
 			for(int i = 0;i < TXSIZE; i++){
-                         printf("%f ",clusbuf_x_temp[i]);
-                         }
+                printf("%f ",clusbuf_x_temp[i]);
+            }
 			printf("\n");}
+
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
+			/*
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset + offset_x;
@@ -548,6 +553,15 @@ private:
 
 				j++;
 			}
+			*/
+			for(int i = 0;i < TXSIZE; i++){
+                if(i==double_row){
+                	clusbuf_x[i] = clusbuf_x_temp[i]/2.;
+					clusbuf_x[i+1] = clusbuf_x_temp[i]/2.;
+					i++;
+                }
+                else clusbuf_x[i] = clusbuf_x_temp[i];
+            }
 			if(n_double_x==1){
                          printf("MODIFIED double width cluster\n");
                          for(int i = 0;i < TXSIZE; i++){
