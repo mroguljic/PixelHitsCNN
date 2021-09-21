@@ -472,7 +472,7 @@ private:
 			float cluster_max = 0.;
 			int n_double_x = 0, n_double_y = 0;
 
-			
+			int double_row = -1, double_col = -1;
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -480,10 +480,15 @@ private:
 				int icol = int(pix.y) - col_offset;
 					//double pixels skip
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-				 n_double_x++; printf("%f\n",float(pix.adc)); break;
+				if(irow!=double_row){	
+				 n_double_x++; 
+				double_row=irow;
+				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));} 
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-				 n_double_y++; break;
+				if(icol!=double_col){ 
+				n_double_y++; 
+				double_col = icol;}
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
@@ -491,8 +496,10 @@ private:
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
-			if(n_double_x>1 || n_double_y>1) continue; //currently can only deal with single double pix
-			
+			if(n_double_x>1 || n_double_y>1){
+			printf("MORE THAN 1 DOUBLE COL, SKIPPING\n");
+			 continue; //currently can only deal with single double pix
+			}
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
@@ -500,7 +507,7 @@ private:
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
 
-			int double_row = 0;
+			double_row = 0;
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -556,11 +563,12 @@ private:
 			*/
 			for(int i = 0;i < TXSIZE; i++){
                 if(i==double_row){
-                	clusbuf_x[i] = clusbuf_x_temp[i]/2.;
-					clusbuf_x[i+1] = clusbuf_x_temp[i]/2.;
+                	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
+					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
 					i++;
                 }
-                else clusbuf_x[i] = clusbuf_x_temp[i];
+                else clusbuf_x[i] = clusbuf_x_temp[j];
+		j++;
             }
 			if(n_double_x==1){
                          printf("MODIFIED double width cluster\n");
