@@ -6,7 +6,7 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '090621'
+img_ext = '092121'
 SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)
@@ -198,8 +198,8 @@ print(len(cnn1d_ids[:n]==template_ids[:n]))
 residuals_x = plot_root(cnn1d_x,'x','1dcnn')
 residuals_y = plot_root(cnn1d_y,'y','1dcnn')
 
-residuals_x = plot_root(cnn1d_x_det,'x','1dcnn_detangles')
-residuals_y = plot_root(cnn1d_y_det,'y','1dcnn_detangles')
+#residuals_x = plot_root(cnn1d_x_det,'x','1dcnn_detangles')
+#residuals_y = plot_root(cnn1d_y_det,'y','1dcnn_detangles')
 #plot_by_clustersize(residuals_x,residuals_y,'1dcnn',img_ext)
 
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
@@ -208,16 +208,16 @@ residuals_y = plot_root(cnn1d_y_det,'y','1dcnn_detangles')
 residuals_x = plot_root(gen_x,'x','gen')
 residuals_y = plot_root(gen_y,'y','gen')
 
-residuals_x = plot_root(gen_x_det,'x','gen_detangles')
-residuals_y = plot_root(gen_y_det,'y','gen_detangles')
+#residuals_x = plot_root(gen_x_det,'x','gen_detangles')
+#residuals_y = plot_root(gen_y_det,'y','gen_detangles')
 
 residuals_x = plot_root(template_x,'x','template')
 residuals_y = plot_root(template_y,'y','template')
-
+'''
 residuals_x = plot_root(cnn2d_x,'x','2dcnn')
 residuals_y = plot_root(cnn2d_y,'y','2dcnn')
 
 residuals_x = plot_root(cnn2d_x_det,'x','2dcnn_detangles')
 residuals_y = plot_root(cnn2d_y_det,'y','2dcnn_detangles')
-
+'''
 #plot_by_clustersize(residuals_x,residuals_y,'2dcnn',img_ext)

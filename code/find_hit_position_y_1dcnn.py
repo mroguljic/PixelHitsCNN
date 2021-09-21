@@ -41,8 +41,8 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "092021"
-h5_ext = "p1_2018_irrad_BPIXL1_double"
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1_file2"
 img_ext = "1dcnn_%s_sep20"%h5_ext
 
 # Load data
@@ -60,6 +60,8 @@ inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newax
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 #print(inputs_x_train[0])
+
+h5_ext = "p1_2018_irrad_BPIXL1"
 
 f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
