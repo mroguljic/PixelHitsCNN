@@ -311,9 +311,10 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	so on and so forth
 	'''
 	#choose clusters whose size is not 1 in x or y
-	double_idx_x = np.argwhere(clustersize_x!=1)[:,0]
-	double_idx_y = np.argwhere(clustersize_y!=1)[:,0]
-	double_idx = rng.choice(np.intersect1d(double_idx_x,double_idx_y),size=n_double,replace=False)
+	double_idx_1 = np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_y!=1)[:,0])
+	double_idx_2 = np.intersect1d(np.argwhere(clustersize_x!=2)[:,0],np.argwhere(clustersize_y!=2)[:,0])
+	print("no of available choices: ", np.intersect1d(double_idx_1,double_idx_2))
+	double_idx = rng.choice(np.intersect1d(double_idx_1,double_idx_2),size=n_double,replace=False)
 
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
 	x_flat = np.vstack((x_flat,x_flat[double_idx]))
