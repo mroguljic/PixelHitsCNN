@@ -311,23 +311,27 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	so on and so forth
 	'''
 	#choose clusters whose size is not 1 in x or y
-	double_idx_1 = np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_y!=1)[:,0])
-	double_idx_2 = np.intersect1d(np.argwhere(clustersize_x!=2)[:,0],np.argwhere(clustersize_y!=2)[:,0])
-	print("no of available choices: ", np.intersect1d(double_idx_1,double_idx_2))
-	double_idx = rng.choice(np.intersect1d(double_idx_1,double_idx_2),size=n_double,replace=False)
+	
+	double_idx_x = rng.choice(np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),size=n_double,replace=False)
+
+	double_idx_y = rng.choice(np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]),size=n_double,replace=False)
+	print("no of available choices: ",np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]))
+	
 
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
-	x_flat = np.vstack((x_flat,x_flat[double_idx]))
-	y_flat = np.vstack((y_flat,y_flat[double_idx]))
+	x_flat = np.vstack((x_flat,x_flat[double_idx_x]))
+	y_flat = np.vstack((y_flat,y_flat[double_idx_x]))
 	print("new x_flat shape = ",x_flat.shape,"new y_flat shape = ",y_flat.shape)
-	clustersize_x = np.vstack((clustersize_x,clustersize_x[double_idx]))
-	clustersize_y = np.vstack((clustersize_y,clustersize_y[double_idx]))
-	x_position = np.vstack((x_position,x_position[double_idx]))
-	y_position = np.vstack((y_position,y_position[double_idx]))
-	cota = np.vstack((cota,cota[double_idx]))
-	cotb = np.vstack((cotb,cotb[double_idx]))
+	clustersize_x = np.vstack((clustersize_x,clustersize_x[double_idx_x]))
+	clustersize_y = np.vstack((clustersize_y,clustersize_y[double_idx_y]))
+	x_position = np.vstack((x_position,x_position[double_idx_x]))
+	y_position = np.vstack((y_position,y_position[double_idx_y]))
+	cota_x = np.vstack((cota,cota[double_idx_x]))
+	cotb_x = np.vstack((cotb,cotb[double_idx_x]))
+	cota_y = np.vstack((cota,cota[double_idx_y]))
+	cotb_y = np.vstack((cotb,cotb[double_idx_y]))
 
-	for i in double_idx:
+	for i in double_idx_x:
 		# for x matrices
 		#if clustersize_x[i]==1: print(x_flat[i])
 		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((int(clustersize_x[i]),))
@@ -336,6 +340,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		x_flat[i][double_col] = x_flat[i][double_col+1] = (x_flat[i][double_col]+x_flat[i][double_col+1])/2.
 		clustersize_x[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
 
+	for i in double_idx_y:
 		# for y matrices
 		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((int(clustersize_y[i]),))
 		#choose a random column to make double width
@@ -343,9 +348,11 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		y_flat[i][double_col] = y_flat[i][double_col+1] = (y_flat[i][double_col]+y_flat[i][double_col+1])/2.
 		clustersize_y[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
 
-	return x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb
+	print("simulated double width pix in x and y for 1D")
 
-def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
+	return x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y
+
+def create_datasets(f_x,f_y,cluster_matrices,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,dset_type):
 
 	#normalize inputs
 	for index in range(len(cluster_matrices)):
@@ -358,20 +365,25 @@ def create_datasets(f,cluster_matrices,x_flat,y_flat,dset_type):
 		max_c = x_flat[index].max()
 		x_flat[index] = x_flat[index]/max_c		
 
+	for index in range(len(y_flat)):
+
 		max_c = y_flat[index].max()
 		y_flat[index] = y_flat[index]/max_c
 
-	clusters_dset = f.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
-	x_dset = f.create_dataset("x", np.shape(x_position), data=x_position)
-	y_dset = f.create_dataset("y", np.shape(y_position), data=y_position)
-	cota_dset = f.create_dataset("cota", np.shape(cota), data=cota)
-	cotb_dset = f.create_dataset("cotb", np.shape(cotb), data=cotb)
-	clustersize_x_dset = f.create_dataset("clustersize_x", np.shape(clustersize_x), data=clustersize_x)
-	clustersize_y_dset = f.create_dataset("clustersize_y", np.shape(clustersize_y), data=clustersize_y)
-	x_flat_dset = f.create_dataset("%s_x_flat"%(dset_type), np.shape(x_flat), data=x_flat)
-	y_flat_dset = f.create_dataset("%s_y_flat"%(dset_type), np.shape(y_flat), data=y_flat)
+	clusters_dset = f_x.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
+	clusters_dset = f_y.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
+	x_dset = f_x.create_dataset("x", np.shape(x_position), data=x_position)
+	y_dset = f_x.create_dataset("y", np.shape(y_position), data=y_position)
+	cota_x_dset = f_x.create_dataset("cota", np.shape(cota_x), data=cota_x)
+	cotb_x_dset = f_x.create_dataset("cotb", np.shape(cotb_x), data=cotb_x)
+	cota_y_dset = f_y.create_dataset("cota", np.shape(cota_y), data=cota_y)
+	cotb_y_dset = f_y.create_dataset("cotb", np.shape(cotb_y), data=cotb_y)
+	clustersize_x_dset = f_x.create_dataset("clustersize_x", np.shape(clustersize_x), data=clustersize_x)
+	clustersize_y_dset = f_y.create_dataset("clustersize_y", np.shape(clustersize_y), data=clustersize_y)
+	x_flat_dset = f_x.create_dataset("%s_x_flat"%(dset_type), np.shape(x_flat), data=x_flat)
+	y_flat_dset = f_y.create_dataset("%s_y_flat"%(dset_type), np.shape(y_flat), data=y_flat)
 
-	print("made %s h5 file. no. of events to %s on: %i"%(dset_type,dset_type,len(cluster_matrices)))
+	print("made %s h5 files for x and y. no. of events to %s on for x: %i and y: %i"%(dset_type,dset_type,len(x_flat),len(y_flat)))
 
 fe_type = 1
 gain_frac     = 0.08;
@@ -419,7 +431,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -471,11 +483,12 @@ project_matrices_xy(train_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
 
-x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 
-f = h5py.File("h5_files/train_%s_%s.hdf5"%(filename,date), "w")
+f_x = h5py.File("h5_files/train_x_%s_%s.hdf5"%(filename,date), "w")
+f_y = h5py.File("h5_files/train_y_%s_%s.hdf5"%(filename,date), "w")
 
-create_datasets(f,train_data,x_flat,y_flat,"train")
+create_datasets(f_x,f_y,train_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
 '''
 #====== test files ========
 
@@ -537,10 +550,11 @@ project_matrices_xy(test_data)
 #for i in range(30):
 #       print("======== Modified Cluster %i ========\n"%i)
 #       print(test_data[i].reshape((21,13)).astype(int))
-x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 
-f = h5py.File("h5_files/test_%s_%s.hdf5"%(filename,date), "w")
+f_x = h5py.File("h5_files/test_x_%s_%s.hdf5"%(filename,date), "w")
+f_y = h5py.File("h5_files/test_y_%s_%s.hdf5"%(filename,date), "w")
 
-create_datasets(f,test_data,x_flat,y_flat,"test")
-'''
+create_datasets(f,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
+
 

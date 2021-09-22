@@ -41,39 +41,39 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "082821"
-h5_ext = "p1_2018_irrad_BPIXL1_file2"
+h5_date = "092021"
+h5_ext = "p1_2018_irrad_BPIXL1_double"
 img_ext = "1dcnn_%s_sep20"%h5_ext
 
 # Load data
-f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_x_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
-ypix_flat_train = f['train_y_flat'][...]
+#ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
 x_train = f['x'][...] 
-y_train = f['y'][...]
+#y_train = f['y'][...]
 clustersize_x_train = f['clustersize_x'][...]
-clustersize_y_train = f['clustersize_y'][...]
+#clustersize_y_train = f['clustersize_y'][...]
 inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+#inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 #print(inputs_x_train[0])
 
-h5_ext = "p1_2018_irrad_BPIXL1"
+#h5_ext = "p1_2018_irrad_BPIXL1"
 
-f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/test_x_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
-ypix_flat_test = f['test_y_flat'][...]
+#ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
 x_test = f['x'][...] 
-y_test = f['y'][...]
+#y_test = f['y'][...]
 clustersize_x_test = f['clustersize_x'][...]
-clustersize_y_test = f['clustersize_y'][...]
+#clustersize_y_test = f['clustersize_y'][...]
 inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
-inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
+#inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
 '''
