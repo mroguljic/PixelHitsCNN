@@ -311,11 +311,12 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	so on and so forth
 	'''
 	#choose clusters whose size is not 1 in x or y
-	
-	double_idx_x = rng.choice(np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),size=n_double,replace=False)
-
-	double_idx_y = rng.choice(np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]),size=n_double,replace=False)
-	print("no of available choices: ",np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]))
+	print("no of available choices: ",len(np.argwhere(clustersize_x>2)[:,0]))	
+	if len(np.argwhere(clustersize_x>2)[:,0]) < n_double: double_idx_x = np.argwhere(clustersize_x>2)[:,0]
+	else: double_idx_x = rng.choice(np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),size=n_double,replace=False)
+	if len(np.argwhere(clustersize_y>2)[:,0]) < n_double: double_idx_y = np.argwhere(clustersize_y>2)[:,0]
+	else: double_idx_y = rng.choice(np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]),size=n_double,replace=False)
+	#print("no of available choices: ",np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]))
 	
 
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
@@ -370,17 +371,17 @@ def create_datasets(f_x,f_y,cluster_matrices,x_flat,y_flat,cota_x,cotb_x,cota_y,
 		max_c = y_flat[index].max()
 		y_flat[index] = y_flat[index]/max_c
 
-	clusters_dset = f_x.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
+	#clusters_dset = f_x.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
 	clusters_dset = f_y.create_dataset("%s_hits"%(dset_type), np.shape(cluster_matrices), data=cluster_matrices)
-	x_dset = f_x.create_dataset("x", np.shape(x_position), data=x_position)
-	y_dset = f_x.create_dataset("y", np.shape(y_position), data=y_position)
-	cota_x_dset = f_x.create_dataset("cota", np.shape(cota_x), data=cota_x)
-	cotb_x_dset = f_x.create_dataset("cotb", np.shape(cotb_x), data=cotb_x)
+	#x_dset = f_x.create_dataset("x", np.shape(x_position), data=x_position)
+	y_dset = f_y.create_dataset("y", np.shape(y_position), data=y_position)
+	#cota_x_dset = f_x.create_dataset("cota", np.shape(cota_x), data=cota_x)
+	#cotb_x_dset = f_x.create_dataset("cotb", np.shape(cotb_x), data=cotb_x)
 	cota_y_dset = f_y.create_dataset("cota", np.shape(cota_y), data=cota_y)
 	cotb_y_dset = f_y.create_dataset("cotb", np.shape(cotb_y), data=cotb_y)
-	clustersize_x_dset = f_x.create_dataset("clustersize_x", np.shape(clustersize_x), data=clustersize_x)
+	#clustersize_x_dset = f_x.create_dataset("clustersize_x", np.shape(clustersize_x), data=clustersize_x)
 	clustersize_y_dset = f_y.create_dataset("clustersize_y", np.shape(clustersize_y), data=clustersize_y)
-	x_flat_dset = f_x.create_dataset("%s_x_flat"%(dset_type), np.shape(x_flat), data=x_flat)
+	#x_flat_dset = f_x.create_dataset("%s_x_flat"%(dset_type), np.shape(x_flat), data=x_flat)
 	y_flat_dset = f_y.create_dataset("%s_y_flat"%(dset_type), np.shape(y_flat), data=y_flat)
 
 	print("made %s h5 files for x and y. no. of events to %s on for x: %i and y: %i"%(dset_type,dset_type,len(x_flat),len(y_flat)))
@@ -431,7 +432,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
+
 #=====train files===== 
 
 #print("making train h5 file")
@@ -485,7 +486,7 @@ project_matrices_xy(train_data)
 
 x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 
-f_x = h5py.File("h5_files/train_x_%s_%s.hdf5"%(filename,date), "w")
+f_x = h5py.File("h5_files/train_x_%s_%s_EMPTY.hdf5"%(filename,date), "w")
 f_y = h5py.File("h5_files/train_y_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,train_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
@@ -555,6 +556,6 @@ x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,co
 f_x = h5py.File("h5_files/test_x_%s_%s.hdf5"%(filename,date), "w")
 f_y = h5py.File("h5_files/test_y_%s_%s.hdf5"%(filename,date), "w")
 
-create_datasets(f,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
-
+create_datasets(f_x,f_y,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
+'''
 
