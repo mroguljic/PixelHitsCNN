@@ -336,7 +336,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((int(clustersize_x[i]),))
 		clustersize_x[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
 		#simulate all configs of double width
-		for j in nonzero[:-1]:
+		for j in rng.choice(nonzero_idx[:-1],size=2,replace=False):
 			one_mat = np.copy(x_flat[i])
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
 			x_flat = np.vstack((x_flat,one_mat))
@@ -352,7 +352,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((int(clustersize_y[i]),))
 		clustersize_y[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
 		#simulate all configs of double width
-		for j in nonzero[:-1]:
+		for j in rng.choice(nonzero_idx[:-1],size=2,replace=False):
 			one_mat = np.copy(y_flat[i])
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
 			y_flat = np.vstack((y_flat,one_mat))
@@ -445,7 +445,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
+
 #=====train files===== 
 
 #print("making train h5 file")
@@ -571,4 +571,4 @@ f_y = h5py.File("h5_files/test_y_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
 
-
+'''
