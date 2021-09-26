@@ -313,9 +313,9 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	#choose clusters whose size is not 1 in x or y
 	print("no of available choices: ",len(np.argwhere(clustersize_x>2)[:,0]))	
 	if len(np.argwhere(clustersize_x>2)[:,0]) < n_double: double_idx_x = np.argwhere(clustersize_x>2)[:,0]
-	else: double_idx_x = rng.choice(np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),size=n_double,replace=False)
+	else: double_idx_x = rng.choice(np.argwhere(clustersize_x>2)[:,0],size=n_double,replace=False)
 	if len(np.argwhere(clustersize_y>2)[:,0]) < n_double: double_idx_y = np.argwhere(clustersize_y>2)[:,0]
-	else: double_idx_y = rng.choice(np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]),size=n_double,replace=False)
+	else: double_idx_y = rng.choice(np.argwhere(clustersize_y>2)[:,0],size=n_double,replace=False)
 	#print("no of available choices: ",np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]))
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
 	'''
@@ -330,6 +330,8 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	cota_y = np.vstack((cota,cota[double_idx_y]))
 	cotb_y = np.vstack((cotb,cotb[double_idx_y]))
 	'''
+	flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
+
 	for i in double_idx_x:
 		# for x matrices
 		#if clustersize_x[i]==1: print(x_flat[i])
@@ -339,11 +341,21 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		for j in rng.choice(nonzero_idx[:-1],size=2,replace=False):
 			one_mat = np.copy(x_flat[i])
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
-			x_flat = np.vstack((x_flat,one_mat))
-			clustersize_x = np.vstack((clustersize_x,clustersize_x[i]))
-			x_position = np.vstack((x_position,x_position[i]))
-			cota_x = np.vstack((cota,cota[i]))
-			cotb_x = np.vstack((cotb,cotb[i]))
+			flat_list.append(one_mat.tolist())
+			clustersize_list.append(clustersize_x[i].tolist())
+			pos_list.append(x_position[i].tolist())
+			cota_list.append(cota[i].tolist())
+			cotb_list.append(cotb[i].tolist())
+
+
+
+	x_flat = np.vstack((x_flat,np.array(flat_list).reshape((len(double_idx_x)*2,13))))
+	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_list).reshape((len(double_idx_x)*2,1))))
+	x_position = np.vstack((x_position,np.array(pos_list).reshape((len(double_idx_x)*2,1))))
+	cota_x = np.vstack((cota,np.array(cota_list).reshape((len(double_idx_x)*2,1))))
+	cotb_x = np.vstack((cotb,np.array(cotb_list).reshape((len(double_idx_x)*2,1))))
+
+	flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
 
 
 	for i in double_idx_y:
@@ -355,11 +367,19 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		for j in rng.choice(nonzero_idx[:-1],size=2,replace=False):
 			one_mat = np.copy(y_flat[i])
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
-			y_flat = np.vstack((y_flat,one_mat))
-			clustersize_y = np.vstack((clustersize_y,clustersize_y[i]))
-			y_position = np.vstack((y_position,y_position[i]))
-			cota_y = np.vstack((cota,cota[i]))
-			cotb_y = np.vstack((cotb,cotb[i]))
+			flat_list.append(one_mat.tolist())
+			clustersize_list.append(clustersize_x[i].tolist())
+			pos_list.append(x_position[i].tolist())
+			cota_list.append(cota[i].tolist())
+			cotb_list.append(cotb[i].tolist())
+
+
+	y_flat = np.vstack((y_flat,np.array(flat_list).reshape((len(double_idx_y)*2,21))))
+	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_list).reshape((len(double_idx_y)*2,1))))
+	y_position = np.vstack((y_position,np.array(pos_list).reshape((len(double_idx_y)*2,1))))
+	cota_y = np.vstack((cota,np.array(cota_list).reshape((len(double_idx_y)*2,1))))
+	cotb_y = np.vstack((cotb,np.array(cotb_list).reshape((len(double_idx_y)*2,1))))
+
 
 	print("new x_flat shape = ",x_flat.shape,"new y_flat shape = ",y_flat.shape)
 	print("simulated double width pix in x and y for 1D")
@@ -445,7 +465,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -571,4 +591,4 @@ f_y = h5py.File("h5_files/test_y_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
 
-'''
+
