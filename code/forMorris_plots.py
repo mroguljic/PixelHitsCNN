@@ -35,7 +35,7 @@ for l in [1,2,3,4]:
 		res.Fill(entry,weight)
 
 	res.Scale(1./n[l-1])
-	canvas = ROOT.TCanvas (" canvas ","canvas",1500,1000)
+	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
 	res.SetMarkerColor(ROOT.kRed);
     	res.SetMarkerStyle(20)
@@ -53,7 +53,7 @@ for l in [1,2,3,4]:
 		res2.Fill(entry,weight)
 
 	res2.Scale(1./n[l-1])
-	canvas = ROOT.TCanvas (" canvas ","canvas",1500,1000)
+	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
 	res2.SetMarkerColor(ROOT.kRed);
     	res2.SetMarkerStyle(20)
@@ -71,7 +71,7 @@ for entry,weight in zip(eta[layer==9],n_double[layer==9]):
 	res.Fill(entry,weight)
 
 res.Scale(1./n_end)
-canvas = ROOT.TCanvas (" canvas ","canvas",1500,1000)
+canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
 res.SetMarkerColor(ROOT.kRed);
 res.SetMarkerStyle(20)
@@ -89,7 +89,7 @@ for entry,weight in zip(phi[layer==9],n_double[layer==9]):
 	res.Fill(entry,weight)
 
 res.Scale(1./n_end)
-canvas = ROOT.TCanvas (" canvas ","canvas",1500,1000)
+canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
 res.SetMarkerColor(ROOT.kRed);
 res.SetMarkerStyle(20)
