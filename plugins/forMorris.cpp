@@ -130,7 +130,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
 	float eta[MAXCLUSTER], phi[MAXCLUSTER]; int layer[MAXCLUSTER], n_double[MAXCLUSTER]; 
-	int count=0, total_count = 0, idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
+	int count=0, total_count = 0, n_L1 = 0, n_L2 = 0, n_L3 = 0, n_L4 = 0, n_end = 0,idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
@@ -268,9 +268,9 @@ private:
 		// get geometry
 	
 		std::vector<PSimHit> vec_simhits_assoc;
-		TrackerHitAssociator *associate(0);
+//		TrackerHitAssociator *associate(0);
 
-		associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
+	//	associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
 
 	//get the map
 		edm::Handle<reco::TrackCollection> tracks;
@@ -295,7 +295,7 @@ private:
 			return;
 		}
 
-		float clusbuf[TXSIZE][TYSIZE], clusbuf_x_temp[TXSIZE], clusbuf_x[TXSIZE];
+//		float clusbuf[TXSIZE][TYSIZE], clusbuf_x_temp[TXSIZE], clusbuf_x[TXSIZE];
 
 		static int ix,iy;
 		int prev_count = count;
@@ -337,15 +337,6 @@ private:
 				continue;
 
 
-			//some initialization
-			for(int j=0; j<TXSIZE; ++j) {
-				for(int i=0; i<TYSIZE; ++i) {
-				clusbuf[j][i] = 0.;
-				//clusbuf_y[i] = 0.;
-				} 
-				clusbuf_x_temp[j] = 0.;
-				clusbuf_x[j] = 0.;
-			} 
 			for(int i=0;i<SIMHITPERCLMAX;i++){
 				fClSimHitLx[i] = -999.0;
 				fClSimHitLy[i] = -999.0;
@@ -439,8 +430,8 @@ private:
 				if ((int)pix.x == 79 || (int)pix.x == 80){
 				if(irow!=double_row){	
 				 n_double_x++; 
-				double_row=irow;
-				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));} 
+				double_row=irow;}
+//				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));} 
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 				if(icol!=double_col){ 
@@ -452,10 +443,6 @@ private:
 				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
-			}
-			if(n_double_x==0 && n_double_y==0){
-			printf("NO DOUBLE COL, SKIPPING\n");
-			 continue; //currently can only deal with single double pix
 			}
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
@@ -472,12 +459,20 @@ private:
 			n_double[count] = n_double_x+n_double_y;
             count++;
     		}
+		switch(tkTpl.pxbLayer(hit_detId)){
+		case 1: n_L1++; break;
+		case 2: n_L2++; break;
+		case 3: n_L3++; break;
+		case 4: n_L4++; break;
+		default: n_end++;
+		}
     		total_count++;
         }
     }
 
     printf("double width count = %i\n",count);
     printf("total count = %i\n",total_count);
+    printf("n_L1 = %i, n_L2 = %i, n_L3 = %i, n_L4 = %i, n_end = %i\n",n_L1,n_L2,n_L3,n_L4,n_end);
     for(int i=prev_count;i<count;i++){
     	/*
     	for(int j=0; j<SIMHITPERCLMAX;j++){
@@ -488,7 +483,7 @@ private:
     	//}
     	fprintf(sim_file,"\n");
     	*/
-    	fprintf(nn_file,"%i %f\n", layer[i],eta[i],phi[i],n_double[i]);
+    	fprintf(nn_file,"%i %f %f %i\n", layer[i],eta[i],phi[i],n_double[i]);
     	
     }
     

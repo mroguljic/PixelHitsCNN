@@ -17,7 +17,7 @@ gStyle.SetOptFit(1);
 n = [50966,43488,36097,28673] 
 n_end = 80853
 
-double_info = np.genfromtext("txt_files/forMorris_doublepix.txt")
+double_info = np.genfromtxt("txt_files/forMorris_doublepix.txt")
 layer = double_info[:,0]
 eta = double_info[:,1]
 phi = double_info[:,2]
@@ -34,11 +34,11 @@ for l in [1,2,3,4]:
 	for entry,weight in zip(eta[layer==l],n_double[layer==l]):
 		res.Fill(entry,weight)
 
-	res.Scale(n[l])
+	res.Scale(1./n[l-1])
 	canvas = ROOT.TCanvas (" canvas ")
 	canvas.cd()
 	res.SetMarkerColor(ROOT.kRed);
-    res.SetMarkerStyle(20)
+    	res.SetMarkerStyle(20)
 	res.SetMarkerSize(0.6)
 	res.SetLineColor(ROOT.kRed)
 	res.GetXaxis().SetTitle("eta")
@@ -52,11 +52,11 @@ for l in [1,2,3,4]:
 	for entry,weight in zip(phi[layer==l],n_double[layer==l]):
 		res2.Fill(entry,weight)
 
-	res2.Scale(n[l])
+	res2.Scale(1./n[l-1])
 	canvas = ROOT.TCanvas (" canvas ")
 	canvas.cd()
 	res2.SetMarkerColor(ROOT.kRed);
-    res2.SetMarkerStyle(20)
+    	res2.SetMarkerStyle(20)
 	res2.SetMarkerSize(0.6)
 	res2.SetLineColor(ROOT.kRed)
 	res2.GetXaxis().SetTitle("phi")
