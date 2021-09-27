@@ -55,11 +55,20 @@ cotb_train = f['cotb'][...]
 y_train = f['y'][...]
 #clustersize_x_train = f['clustersize_x'][...]
 clustersize_y_train = f['clustersize_y'][...]
-#inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
-angles_train = np.hstack((cota_train,cotb_train))
+
 f.close()
 #print(inputs_x_train[0])
+
+perm = np.random.shuffle(np.arange(len(ypix_flat_train)))
+ypix_flat_train = ypix_flat_train[perm]
+cota_train = cota_train[perm]
+cotb_train = cotb_train[perm]
+y_train = y_train[perm]
+clustersize_y_train = clustersize_y_train[perm]
+
+inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+#inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+angles_train = np.hstack((cota_train,cotb_train))
 
 #h5_ext = "p1_2018_irrad_BPIXL1"
 
