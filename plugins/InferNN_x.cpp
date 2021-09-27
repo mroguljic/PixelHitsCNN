@@ -543,10 +543,10 @@ private:
                 printf("%f ",clusbuf_x_temp[i]);
             }
 			printf("\n");}
-
+			*/
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
-			
+			/*
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset + offset_x;
