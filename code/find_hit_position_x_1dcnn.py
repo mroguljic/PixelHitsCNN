@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "092021"
 h5_ext = "p1_2018_irrad_BPIXL1_double"
-img_ext = "1dcnn_%s_sep20"%h5_ext
+img_ext = "1dcnn_%s_sep26"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_x_%s_%s.hdf5'%(h5_ext,h5_date), 'r')

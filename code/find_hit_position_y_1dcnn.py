@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "092021"
 h5_ext = "p1_2018_irrad_BPIXL1_double"
-img_ext = "1dcnn_%s_sep20"%h5_ext
+img_ext = "1dcnn_%s_sep26"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_y_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -97,7 +97,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 '''
 print(angles_train.shape)
-print(xpix_flat_test[:30])
+#print(xpix_flat_test[:30])
 print(ypix_flat_test[:30])
 print("clustersize of 1: ",len(np.argwhere(clustersize_y_train==1)))
 '''
@@ -122,7 +122,7 @@ test_cy = test_c.sum(axis=0).reshape((1,21))
 batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 20
-n_epochs_y = 20
+n_epochs_y = 15
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 
@@ -186,7 +186,7 @@ model.compile(loss=loss_function,
 
 
 callbacks = [
-EarlyStopping(patience=7),
+#EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
 		save_best_only=True,

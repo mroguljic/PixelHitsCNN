@@ -331,54 +331,63 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	cotb_y = np.vstack((cotb,cotb[double_idx_y]))
 	'''
 	flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
+	count=0
 
 	for i in double_idx_x:
 		# for x matrices
 		#if clustersize_x[i]==1: print(x_flat[i])
 		nonzero_idx = np.array(np.nonzero(x_flat[i])).reshape((int(clustersize_x[i]),))
-		clustersize_x[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
+		#clustersize_x[i]-=1 
+		#since this now simulates a double col pix, the cluster size goes down by 1
+		#if clustersize_x[i][0]-1>5: n_choices = 5
+                n_choices = clustersize_x[i][0]-1
+
 		#simulate all configs of double width
-		for j in rng.choice(nonzero_idx[:-1],size=2,replace=False):
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
 			one_mat = np.copy(x_flat[i])
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
 			flat_list.append(one_mat.tolist())
-			clustersize_list.append(clustersize_x[i].tolist())
+			clustersize_list.append((clustersize_x[i]-1).tolist())
 			pos_list.append(x_position[i].tolist())
 			cota_list.append(cota[i].tolist())
 			cotb_list.append(cotb[i].tolist())
+			count+=1
 
 
-
-	x_flat = np.vstack((x_flat,np.array(flat_list).reshape((len(double_idx_x)*2,13))))
-	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_list).reshape((len(double_idx_x)*2,1))))
-	x_position = np.vstack((x_position,np.array(pos_list).reshape((len(double_idx_x)*2,1))))
-	cota_x = np.vstack((cota,np.array(cota_list).reshape((len(double_idx_x)*2,1))))
-	cotb_x = np.vstack((cotb,np.array(cotb_list).reshape((len(double_idx_x)*2,1))))
+	x_flat = np.vstack((x_flat,np.array(flat_list).reshape((count,13))))
+	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_list).reshape((count,1))))
+	x_position = np.vstack((x_position,np.array(pos_list).reshape((count,1))))
+	cota_x = np.vstack((cota,np.array(cota_list).reshape((count,1))))
+	cotb_x = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
 
 	flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
-
+	count=0
 
 	for i in double_idx_y:
 		# for y matrices
 		#if clustersize_y[i]==1: print(y_flat[i])
 		nonzero_idx = np.array(np.nonzero(y_flat[i])).reshape((int(clustersize_y[i]),))
-		clustersize_y[i]-=1 #since this now simulates a double col pix, the cluster size goes down by 1
+		#clustersize_y[i]-=1 
+		#since this now simulates a double col pix, the cluster size goes down by 1
+		if clustersize_y[i][0]-1>5: n_choices = 5
+		else: n_choices = clustersize_y[i][0]-1
+
 		#simulate all configs of double width
-		for j in rng.choice(nonzero_idx[:-1],size=2,replace=False):
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
 			one_mat = np.copy(y_flat[i])
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
 			flat_list.append(one_mat.tolist())
-			clustersize_list.append(clustersize_x[i].tolist())
-			pos_list.append(x_position[i].tolist())
+			clustersize_list.append(clustersize_y[i].tolist())
+			pos_list.append(y_position[i].tolist())
 			cota_list.append(cota[i].tolist())
 			cotb_list.append(cotb[i].tolist())
+			count+=1
 
-
-	y_flat = np.vstack((y_flat,np.array(flat_list).reshape((len(double_idx_y)*2,21))))
-	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_list).reshape((len(double_idx_y)*2,1))))
-	y_position = np.vstack((y_position,np.array(pos_list).reshape((len(double_idx_y)*2,1))))
-	cota_y = np.vstack((cota,np.array(cota_list).reshape((len(double_idx_y)*2,1))))
-	cotb_y = np.vstack((cotb,np.array(cotb_list).reshape((len(double_idx_y)*2,1))))
+	y_flat = np.vstack((y_flat,np.array(flat_list).reshape((count,21))))
+	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_list).reshape((count,1))))
+	y_position = np.vstack((y_position,np.array(pos_list).reshape((count,1))))
+	cota_y = np.vstack((cota,np.array(cota_list).reshape((count,1))))
+	cotb_y = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
 
 
 	print("new x_flat shape = ",x_flat.shape,"new y_flat shape = ",y_flat.shape)
@@ -465,7 +474,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
+
 #=====train files===== 
 
 #print("making train h5 file")
@@ -591,4 +600,4 @@ f_y = h5py.File("h5_files/test_y_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
 
-
+'''
