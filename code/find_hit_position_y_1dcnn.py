@@ -59,7 +59,8 @@ clustersize_y_train = f['clustersize_y'][...]
 f.close()
 #print(inputs_x_train[0])
 
-perm = np.random.shuffle(np.arange(len(ypix_flat_train)))
+perm = np.arange(len(ypix_flat_train)) 
+np.random.shuffle(perm)
 ypix_flat_train = ypix_flat_train[perm]
 cota_train = cota_train[perm]
 cotb_train = cotb_train[perm]

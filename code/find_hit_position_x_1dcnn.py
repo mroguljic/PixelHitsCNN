@@ -59,13 +59,14 @@ clustersize_x_train = f['clustersize_x'][...]
 f.close()
 #print(inputs_x_train[0])
 
-perm = np.random.shuffle(np.arange(len(xpix_flat_train)))
+perm = np.arange(len(xpix_flat_train)) 
+np.random.shuffle(perm)
 xpix_flat_train = xpix_flat_train[perm]
 cota_train = cota_train[perm]
 cotb_train = cotb_train[perm]
 x_train = x_train[perm]
 clustersize_x_train = clustersize_x_train[perm]
-
+print(xpix_flat_train.shape, cota_train.shape, cotb_train.shape)
 inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 #inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
