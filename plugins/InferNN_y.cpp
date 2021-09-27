@@ -556,7 +556,7 @@ private:
 			}
 			*/
 			for(int i = 0;i < TYSIZE; i++){
-                if(i==double_row){
+                if(n_double_y==1 && i==double_col && clustersize_y>1){
                 	clusbuf_y[i] = clusbuf_y_temp[j]/2.;
 					clusbuf_y[i+1] = clusbuf_y_temp[j]/2.;
 					i++;

@@ -536,6 +536,7 @@ private:
 				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
 			}
 			if(n_double_x==1 && clustersize_x>12) continue;
+			/*
 			if(n_double_x==1){
 			printf("double width cluster\n");
 			for(int i = 0;i < TXSIZE; i++){
@@ -545,7 +546,7 @@ private:
 
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
-			/*
+			
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset + offset_x;
@@ -562,7 +563,7 @@ private:
 			}
 			*/
 			for(int i = 0;i < TXSIZE; i++){
-                if(i==double_row){
+                if(n_double_x==1 && i==double_row && clustersize_x>1){
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
 					i++;
@@ -570,12 +571,14 @@ private:
                 else clusbuf_x[i] = clusbuf_x_temp[j];
 		j++;
             }
+            /*
 			if(n_double_x==1){
                          printf("MODIFIED double width cluster\n");
                          for(int i = 0;i < TXSIZE; i++){
                           printf("%f ",clusbuf_x[i]);
                           }
                          printf("\n");}
+            */
 			//compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TXSIZE; i++){
