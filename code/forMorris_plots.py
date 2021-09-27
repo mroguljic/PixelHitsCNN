@@ -29,13 +29,13 @@ print(phi.min(),phi.max())
 
 for l in [1,2,3,4]:
 	
-	res = ROOT.TH1F("Fraction of double width pixels vs track eta - BPIX %i"%l,"Fraction of double width pixels vs track eta - BPIX %i"%l,50,eta.min(),eta.max())
+	res = ROOT.TH1F("double pixels vs eta - BPIX %i"%l,"double pixels vs eta - BPIX %i"%l,50,eta.min(),eta.max())
 	res.SetDirectory(0)
 	for entry,weight in zip(eta[layer==l],n_double[layer==l]):
 		res.Fill(entry,weight)
 
 	res.Scale(1./n[l-1])
-	canvas = ROOT.TCanvas (" canvas ")
+	canvas = ROOT.TCanvas (" canvas ","canvas",1000,1000)
 	canvas.cd()
 	res.SetMarkerColor(ROOT.kRed);
     	res.SetMarkerStyle(20)
@@ -43,17 +43,17 @@ for l in [1,2,3,4]:
 	res.SetLineColor(ROOT.kRed)
 	res.GetXaxis().SetTitle("eta")
 	res.GetYaxis().SetTitle("Fraction of double width pixels")
-	res.SetTitle("Fraction of double width pixels vs track eta - BPIX %i - Total %f%%"%(l,(res.GetEntries()/n[l-1])*100))
+	res.SetTitle("Fraction of double width pixels vs track eta - BPIX %i - Total %.2f%%"%(l,(res.GetEntries()/n[l-1])*100))
 	res.Draw("pe")
 	canvas.Print("plots/forMorris/dpix_eta_%s.png"%l)
 
-	res2 = ROOT.TH1F("Fraction of double width pixels vs track phi - BPIX %i"%l,"Fraction of double width pixels vs track phi - BPIX %i"%l,50,phi.min(),phi.max())
+	res2 = ROOT.TH1F("double pixels vs eta - BPIX %i"%l,"double pixels vs eta - BPIX %i"%l,50,phi.min(),phi.max())
 	res2.SetDirectory(0)
 	for entry,weight in zip(phi[layer==l],n_double[layer==l]):
 		res2.Fill(entry,weight)
 
 	res2.Scale(1./n[l-1])
-	canvas = ROOT.TCanvas (" canvas ")
+	canvas = ROOT.TCanvas (" canvas ","canvas",1000,1000)
 	canvas.cd()
 	res2.SetMarkerColor(ROOT.kRed);
     	res2.SetMarkerStyle(20)
@@ -61,17 +61,17 @@ for l in [1,2,3,4]:
 	res2.SetLineColor(ROOT.kRed)
 	res2.GetXaxis().SetTitle("phi")
 	res2.GetYaxis().SetTitle("Fraction of double width pixels")
-	res2.SetTitle("Fraction of double width pixels vs track phi - BPIX %i - Total %f%%"%(l,(res2.GetEntries()*100)/n[l-1]))
+	res2.SetTitle("Fraction of double width pixels vs track phi - BPIX %i - Total %.2f%%"%(l,(res2.GetEntries()*100)/n[l-1]))
 	res2.Draw("pe")
 	canvas.Print("plots/forMorris/dpix_phi_%s.png"%l)
 
-res = ROOT.TH1F("Fraction of double width pixels vs track eta - FPIX","Fraction of double width pixels vs track eta - FPIX",50,eta.min(),eta.max())
+res = ROOT.TH1F("double pixels vs eta - FPIX","double pixels vs eta - FPIX",50,eta.min(),eta.max())
 res.SetDirectory(0)
 for entry,weight in zip(eta[layer==9],n_double[layer==9]):
 	res.Fill(entry,weight)
 
 res.Scale(1./n_end)
-canvas = ROOT.TCanvas (" canvas ")
+canvas = ROOT.TCanvas (" canvas ","canvas",1000,1000)
 canvas.cd()
 res.SetMarkerColor(ROOT.kRed);
 res.SetMarkerStyle(20)
@@ -79,17 +79,17 @@ res.SetMarkerSize(0.6)
 res.SetLineColor(ROOT.kRed)
 res.GetXaxis().SetTitle("eta")
 res.GetYaxis().SetTitle("Fraction of double width pixels")
-res.SetTitle("Fraction of double width pixels vs track eta - FPIX - Total %f%%"%((res.GetEntries()*100)/n_end))
+res.SetTitle("Fraction of double width pixels vs track eta - FPIX - Total %.2f%%"%((res.GetEntries()*100)/n_end))
 res.Draw("pe")
 canvas.Print("plots/forMorris/dpix_eta_fpix.png")
 
-res = ROOT.TH1F("Fraction of double width pixels vs track phi - FPIX","Fraction of double width pixels vs track phi - FPIX",50,phi.min(),phi.max())
+res = ROOT.TH1F("double pixels vs phi - FPIX","double pixels vs phi - FPIX",50,phi.min(),phi.max())
 res.SetDirectory(0)
 for entry,weight in zip(phi[layer==9],n_double[layer==9]):
 	res.Fill(entry,weight)
 
 res.Scale(1./n_end)
-canvas = ROOT.TCanvas (" canvas ")
+canvas = ROOT.TCanvas (" canvas ","canvas",1000,1000)
 canvas.cd()
 res.SetMarkerColor(ROOT.kRed);
 res.SetMarkerStyle(20)
@@ -97,6 +97,6 @@ res.SetMarkerSize(0.6)
 res.SetLineColor(ROOT.kRed)
 res.GetXaxis().SetTitle("phi")
 res.GetYaxis().SetTitle("Fraction of double width pixels")
-res.SetTitle("Fraction of double width pixels vs track phi - FPIX - Total %f%%"%((res.GetEntries()*100)/n_end))
+res.SetTitle("Fraction of double width pixels vs track phi - FPIX - Total %.2f%%"%((res.GetEntries()*100)/n_end))
 res.Draw("pe")
 canvas.Print("plots/forMorris/dpix_phi_fpix.png")
