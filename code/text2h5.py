@@ -508,7 +508,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -566,7 +566,7 @@ f_x = h5py.File("h5_files/train_x_%s_%s.hdf5"%(filename,date), "w")
 f_y = h5py.File("h5_files/train_y_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,train_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
-
+'''
 #====== test files ========
 
 #print("making test h5 file.")

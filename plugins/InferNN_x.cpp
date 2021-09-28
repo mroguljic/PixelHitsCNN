@@ -472,7 +472,7 @@ private:
 			float cluster_max = 0.;
 			int n_double_x = 0, n_double_y = 0;
 
-			
+			int double_row_=-1,double_col=-1;	
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -480,29 +480,29 @@ private:
 				int icol = int(pix.y) - col_offset;
 					//double pixels skip
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-				if(irow!=double_row){	
+				if(irow!=double_row_){	
 				 n_double_x++; 
-				double_row=irow;}
-	//			printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));} 
-				}
+				double_row_=irow;
+				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc)); 
+				}}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 				if(icol!=double_col){ 
 				n_double_y++; 
-				double_col = icol;}
-				}
+				double_col = icol;
+				}}
 				irow_sum+=irow;
 				icol_sum+=icol;
 				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
-			/*
-			if(n_double_x>1 || n_double_y>1){
+			
+			if(n_double_x>1 ){
 			printf("MORE THAN 1 DOUBLE COL - %i  in x and %i in y, SKIPPING\n",n_double_x,n_double_y);
 			double_count++;	
-			 continue; //currently can only deal with single double pix
+			// continue; //currently can only deal with single double pix
 			}
-			*/
+			
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
@@ -524,7 +524,7 @@ private:
 				if ((int)pix.x == 79 || (int)pix.x == 80){
 					if(irow!=double_row[k]){
 					double_row[k] = irow; k++;
-					printf("double pixel at row: %i\n",irow)
+					printf("double pixel at row: %i\n",irow);
 				}}
 				//normalized value
 				//if(cluster_max!=cluster_min)
