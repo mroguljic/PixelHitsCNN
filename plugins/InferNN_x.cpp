@@ -472,7 +472,7 @@ private:
 			float cluster_max = 0.;
 			int n_double_x = 0, n_double_y = 0;
 
-			int double_row = -1, double_col = -1;
+			
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -496,11 +496,13 @@ private:
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
+			/*
 			if(n_double_x>1 || n_double_y>1){
 			printf("MORE THAN 1 DOUBLE COL - %i  in x and %i in y, SKIPPING\n",n_double_x,n_double_y);
 			double_count++;	
 			 continue; //currently can only deal with single double pix
 			}
+			*/
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
@@ -508,7 +510,8 @@ private:
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
 
-			double_row = 0;
+			int double_row[3]; double_row[0] = -1,double_row[1] = -1,double_row[2] = -1;
+			int k=0;
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -519,8 +522,10 @@ private:
 
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-					double_row = irow;
-				}
+					if(irow!=double_row[k]){
+					double_row[k] = irow; k++;
+					printf("double pixel at row: %i\n",irow)
+				}}
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
@@ -537,6 +542,9 @@ private:
 				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
 			}
 			if(n_double_x==1 && clustersize_x>12) continue;
+			if(n_double_x==2 && clustersize_x>11) continue;
+			if(n_double_x>2) continue;
+
 			/*
 			if(n_double_x==1){
 			printf("double width cluster\n");
@@ -564,7 +572,7 @@ private:
 			}
 			*/
 			for(int i = 0;i < TXSIZE; i++){
-                if(n_double_x==1 && i==double_row && clustersize_x>1){
+                if(n_double_x!=0 && i==double_row[k-1] && clustersize_x>1){
 			printf("TREATING A DOUBLE WIDTH PIX");
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
