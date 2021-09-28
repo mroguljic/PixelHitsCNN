@@ -41,12 +41,12 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "092021"
-h5_ext = "p1_2018_irrad_BPIXL1_double"
-img_ext = "1dcnn_%s_sep26"%h5_ext
+h5_date = "082821"
+h5_ext = "p1_2018_irrad_BPIXL1_file2"
+img_ext = "1dcnn_%s_sep20"%h5_ext
 
 # Load data
-f = h5py.File('h5_files/train_y_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 #xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -70,8 +70,8 @@ clustersize_y_train = clustersize_y_train[perm]
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 #inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
-
-#h5_ext = "p1_2018_irrad_BPIXL1"
+h5_date = "092021"
+h5_ext = "p1_2018_irrad_BPIXL1_double"
 
 f = h5py.File('h5_files/test_y_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 #xpix_flat_test = f['test_x_flat'][...]
@@ -185,7 +185,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -193,10 +193,9 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-
-
+'''
 callbacks = [
-#EarlyStopping(patience=7),
+EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
 		save_best_only=True,
@@ -216,7 +215,7 @@ cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables
 plot_dnn_loss(history.history,'y',img_ext)
 
 print("y training time for dnn",time.clock()-train_time_y)
-
+'''
 start = time.clock()
 y_pred = model.predict([ypix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_y = time.clock() - start
@@ -230,7 +229,7 @@ print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
 
-plot_residuals(residuals_y,'1dcnn','y',img_ext)
+plot_residuals(residuals_y,'1dcnn','y',img_ext+"testingondouble")
 
 #plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 

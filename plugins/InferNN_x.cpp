@@ -482,8 +482,8 @@ private:
 				if ((int)pix.x == 79 || (int)pix.x == 80){
 				if(irow!=double_row){	
 				 n_double_x++; 
-				double_row=irow;
-				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));} 
+				double_row=irow;}
+	//			printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));} 
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
 				if(icol!=double_col){ 
@@ -497,7 +497,8 @@ private:
 
 			}
 			if(n_double_x>1 || n_double_y>1){
-			printf("MORE THAN 1 DOUBLE COL, SKIPPING\n");
+			printf("MORE THAN 1 DOUBLE COL - %i  in x and %i in y, SKIPPING\n",n_double_x,n_double_y);
+			double_count++;	
 			 continue; //currently can only deal with single double pix
 			}
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
@@ -564,6 +565,7 @@ private:
 			*/
 			for(int i = 0;i < TXSIZE; i++){
                 if(n_double_x==1 && i==double_row && clustersize_x>1){
+			printf("TREATING A DOUBLE WIDTH PIX");
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
 					i++;
@@ -704,8 +706,8 @@ private:
         }
     }
 
-    printf("double width count = %i\n",double_count);
-    printf("single width count = %i\n",count);
+    printf("cluster count with >1 double width pix = %i\n",double_count);
+    printf("total count = %i\n",count);
     for(int i=prev_count;i<count;i++){
     	/*
     	for(int j=0; j<SIMHITPERCLMAX;j++){
