@@ -302,13 +302,19 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	# simulate n_double matrices for case 1 and 2
 	'''
 	general algo: 
-	skip clsize = 1
-	for N >=2, clsize N simulates double width pix of clsize_d = N-1
+	skip clsize = 1 and 2
+	for N >2, clsize N simulates double width pix of clsize_d = N-1
 	this only works for clsize_d <= 12/20 ie if there is a double width pixel in a cluster of size 13 or 20 -> skip it for now
 	simulation: 
 	clsize = 2: let choice of i only be the first idx x[i]+x[i+1]/2, clsize--;
 	clsize = 3: let choice of i only be the first,second idx x[i]+x[i+1]/2, clsize--;
 	so on and so forth
+	
+	for simulating 2 double width next to each other:
+	clsize N in single -> simulates clsize N-3 in 2 double
+	start with clsize 4
+	only a maximum of clsize 10/18 can be simulated with 2 double width
+
 	'''
 	#choose clusters whose size is not 1 in x or y
 	print("no of available choices: ",len(np.argwhere(clustersize_x>2)[:,0]))	
@@ -318,18 +324,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 	else: double_idx_y = rng.choice(np.argwhere(clustersize_y>2)[:,0],size=n_double,replace=False)
 	#print("no of available choices: ",np.intersect1d(np.argwhere(clustersize_x!=1)[:,0],np.argwhere(clustersize_x!=2)[:,0]),np.intersect1d(np.argwhere(clustersize_y!=1)[:,0],np.argwhere(clustersize_y!=2)[:,0]))
 	print("old x_flat shape = ",x_flat.shape,"old y_flat shape = ",y_flat.shape)
-	'''
-	x_flat = np.vstack((x_flat,x_flat[double_idx_x]))
-	y_flat = np.vstack((y_flat,y_flat[double_idx_y]))
-	clustersize_x = np.vstack((clustersize_x,clustersize_x[double_idx_x]))
-	clustersize_y = np.vstack((clustersize_y,clustersize_y[double_idx_y]))
-	x_position = np.vstack((x_position,x_position[double_idx_x]))
-	y_position = np.vstack((y_position,y_position[double_idx_y]))
-	cota_x = np.vstack((cota,cota[double_idx_x]))
-	cotb_x = np.vstack((cotb,cotb[double_idx_x]))
-	cota_y = np.vstack((cota,cota[double_idx_y]))
-	cotb_y = np.vstack((cotb,cotb[double_idx_y]))
-	'''
+	
 	flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
 	count=0
 
@@ -340,11 +335,14 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		#clustersize_x[i]-=1 
 		#since this now simulates a double col pix, the cluster size goes down by 1
 		#if clustersize_x[i][0]-1>5: n_choices = 5
-                n_choices = clustersize_x[i][0]-1
+		n_choices = clustersize_x[i][0]-1
 
 		#simulate all configs of double width
 		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
 			one_mat = np.copy(x_flat[i])
+			if count < 30:
+				print("cluster x")
+				print(one_mat)
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
 			flat_list.append(one_mat.tolist())
 			clustersize_list.append((clustersize_x[i]-1).tolist())
@@ -352,6 +350,23 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 			cota_list.append(cota[i].tolist())
 			cotb_list.append(cotb[i].tolist())
 			count+=1
+			if count < 30:
+				print("1 dpix cluster x")
+				print(one_mat)
+
+			# ==================== simulate 2 dpix =====================================
+			if j<clustersize_x[i][0]-3 and clustersize_x[i][0] > 3:
+				one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+				flat_list.append(one_mat.tolist())
+				clustersize_list.append((clustersize_y[i]-3).tolist())
+				pos_list.append(y_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
+
+				if count < 30:
+					print("2 dpix cluster x")
+					print(one_mat)
 
 
 	x_flat = np.vstack((x_flat,np.array(flat_list).reshape((count,13))))
@@ -375,13 +390,32 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 		#simulate all configs of double width
 		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
 			one_mat = np.copy(y_flat[i])
+			if count < 30:
+				print("cluster y")
+				print(one_mat)
 			one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
 			flat_list.append(one_mat.tolist())
-			clustersize_list.append(clustersize_y[i].tolist())
+			clustersize_list.append((clustersize_y[i]-1).tolist())
 			pos_list.append(y_position[i].tolist())
 			cota_list.append(cota[i].tolist())
 			cotb_list.append(cotb[i].tolist())
 			count+=1
+			if count < 30:
+				print("1 dpix cluster y")
+				print(one_mat)
+			# ==================== simulate 2 dpix =====================================
+			if j<clustersize_y[i][0]-3 and clustersize_y[i][0] > 3:
+				one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+				flat_list.append(one_mat.tolist())
+				clustersize_list.append((clustersize_y[i]-3).tolist())
+				pos_list.append(y_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
+
+				if count < 30:
+					print("2 dpix cluster y")
+					print(one_mat)
 
 	y_flat = np.vstack((y_flat,np.array(flat_list).reshape((count,21))))
 	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_list).reshape((count,1))))
@@ -391,7 +425,7 @@ def simulate_double_width(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y
 
 
 	print("new x_flat shape = ",x_flat.shape,"new y_flat shape = ",y_flat.shape)
-	print("simulated double width pix in x and y for 1D")
+	print("simulated 1 and 2 double width pix in x and y for 1D")
 
 	return x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y
 
@@ -466,15 +500,15 @@ p2 = 203.
 p3 = 148.
 
 
-date = "092021"
-filename = "p1_2018_irrad_BPIXL1_double"
+date = "092821"
+filename = "p1_2018_irrad_BPIXL1_doubledouble"
 phase1 = True
 
 if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-
+'''
 #=====train files===== 
 
 #print("making train h5 file")
@@ -600,4 +634,4 @@ f_y = h5py.File("h5_files/test_y_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,test_data,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
 
-'''
+
