@@ -130,6 +130,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
 	float eta[MAXCLUSTER], phi[MAXCLUSTER]; int layer[MAXCLUSTER], n_double[MAXCLUSTER]; 
+	float eta_all[MAXCLUSTER], phi_all[MAXCLUSTER]; int layer_all[MAXCLUSTER];
 	int count=0, total_count = 0, n_L1 = 0, n_L2 = 0, n_L3 = 0, n_L4 = 0, n_end = 0,idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
@@ -231,6 +232,9 @@ private:
 			
 		}
 		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
+
+		sprintf(infile2,"%s/forMorris_allclusters.txt",path);
+		gen_file = fopen(infile2, "w");
 		
 		sprintf(infile3,"%s/forMorris_doublepix.txt",path);
 		nn_file = fopen(infile3, "w");
@@ -299,6 +303,7 @@ private:
 
 		static int ix,iy;
 		int prev_count = count;
+		int prev_total_count = total_count;
 		//int id = count-1;
 		for (auto const& track : *tracks) {
 
@@ -466,6 +471,9 @@ private:
 		case 4: n_L4++; break;
 		default: n_end++;
 		}
+			layer_all[total_count] = tkTpl.pxbLayer(hit_detId);
+			eta_all[total_count] = etatk;
+			phi_all[total_count] = phitk;
     		total_count++;
         }
     }
@@ -484,6 +492,10 @@ private:
     	fprintf(sim_file,"\n");
     	*/
     	fprintf(nn_file,"%i %f %f %i\n", layer[i],eta[i],phi[i],n_double[i]);
+
+    }
+    for(int i=prev_total_count;i<total_count;i++){
+    	fprintf(gen_file,"%i %f %f\n", layer[i],eta[i],phi[i]);
     	
     }
     
