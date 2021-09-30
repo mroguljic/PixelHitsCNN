@@ -7,9 +7,9 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-gStyle.SetOptStat(1)
+#gStyle.SetOptStat(1)
 gROOT.SetBatch(1)
-gStyle.SetOptFit(1);
+#gStyle.SetOptFit(1);
 
 
 # double width count = 32967
@@ -59,7 +59,7 @@ for l in [1,2,3,4]:
 	canvas.cd()
 	res_frac.SetMarkerColor(ROOT.kRed);
 	res_frac.SetMarkerStyle(20)
-	res_frac.SetMarkerSize(0.6)
+	res_frac.SetMarkerSize(1)
 	res_frac.SetLineColor(ROOT.kRed)
 	res_frac.GetXaxis().SetTitle("eta")
 	res_frac.GetYaxis().SetTitle("Fraction of double width pixels")
@@ -92,7 +92,7 @@ for l in [1,2,3,4]:
 	canvas.cd()
 	res_frac.SetMarkerColor(ROOT.kRed);
 	res_frac.SetMarkerStyle(20)
-	res_frac.SetMarkerSize(0.6)
+	res_frac.SetMarkerSize(1)
 	res_frac.SetLineColor(ROOT.kRed)
 	res_frac.GetXaxis().SetTitle("phi")
 	res_frac.GetYaxis().SetTitle("Fraction of double width pixels")
@@ -125,7 +125,7 @@ canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
 res_frac.SetMarkerColor(ROOT.kRed);
 res_frac.SetMarkerStyle(20)
-res_frac.SetMarkerSize(0.6)
+res_frac.SetMarkerSize(1)
 res_frac.SetLineColor(ROOT.kRed)
 res_frac.GetXaxis().SetTitle("eta")
 res_frac.GetYaxis().SetTitle("Fraction of double width pixels")
@@ -158,7 +158,7 @@ canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
 res_frac.SetMarkerColor(ROOT.kRed);
 res_frac.SetMarkerStyle(20)
-res_frac.SetMarkerSize(0.6)
+res_frac.SetMarkerSize(1)
 res_frac.SetLineColor(ROOT.kRed)
 res_frac.GetXaxis().SetTitle("phi")
 res_frac.GetYaxis().SetTitle("Fraction of double width pixels")
