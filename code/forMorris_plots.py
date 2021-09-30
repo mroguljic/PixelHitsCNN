@@ -53,8 +53,7 @@ for l in [1,2,3,4]:
 		else: res_frac.SetBinContent(i,0.)
 		a_err = res.GetBinError(i)
 		b_err = res_all.GetBinError(i)
-		if b!=0: res_frac.SetBinError(i,b*a_err-(a*b_err/b**2))
-		else: res_frac.SetBinError(i,0.)
+		res_frac.SetBinError(i,0.)
 
 	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
@@ -87,19 +86,18 @@ for l in [1,2,3,4]:
 		else: res_frac.SetBinContent(i,0.)
 		a_err = res.GetBinError(i)
 		b_err = res_all.GetBinError(i)
-		if b!=0: res_frac.SetBinError(i,b*a_err-(a*b_err/b**2))
-		else: res_frac.SetBinError(i,0.)
+		res_frac.SetBinError(i,0.)
 	
 	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
-	res_all.SetMarkerColor(ROOT.kRed);
-	res_all.SetMarkerStyle(20)
-	res_all.SetMarkerSize(0.6)
-	res_all.SetLineColor(ROOT.kRed)
-	res_all.GetXaxis().SetTitle("phi")
-	res_all.GetYaxis().SetTitle("Fraction of double width pixels")
-	res_all.SetTitle("Fraction of double width pixels vs track phi - BPIX L%i"%l)
-	res_all.Draw("pe")
+	res_frac.SetMarkerColor(ROOT.kRed);
+	res_frac.SetMarkerStyle(20)
+	res_frac.SetMarkerSize(0.6)
+	res_frac.SetLineColor(ROOT.kRed)
+	res_frac.GetXaxis().SetTitle("phi")
+	res_frac.GetYaxis().SetTitle("Fraction of double width pixels")
+	res_frac.SetTitle("Fraction of double width pixels vs track phi - BPIX L%i"%l)
+	res_frac.Draw("pe")
 	canvas.Print("plots/forMorris/dpix_phi_%s.png"%l)
 
 res = ROOT.TH1F("double pixels vs eta - FPIX","double pixels vs eta - FPIX",50,eta.min(),eta.max())
@@ -121,8 +119,7 @@ for i in range(1,51):
 	else: res_frac.SetBinContent(i,0.)
 	a_err = res.GetBinError(i)
 	b_err = res_all.GetBinError(i)
-	if b!=0: res_frac.SetBinError(i,b*a_err-(a*b_err/b**2))
-	else: res_frac.SetBinError(i,0.)
+	res_frac.SetBinError(i,0.)
 
 canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
@@ -155,8 +152,7 @@ for i in range(1,51):
 	else: res_frac.SetBinContent(i,0.)
 	a_err = res.GetBinError(i)
 	b_err = res_all.GetBinError(i)
-	if b!=0: res_frac.SetBinError(i,b*a_err-(a*b_err/b**2))
-	else: res_frac.SetBinError(i,0.)
+	res_frac.SetBinError(i,0.)
 
 canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
