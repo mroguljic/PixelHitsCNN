@@ -228,6 +228,9 @@ private:
 			eta[i]=9999.0;
 			layer[i]=-999;
 			n_double[i]=-999;
+			phi_all[i]=9999.0;
+			eta_all[i]=9999.0;
+			layer_all[i]=-999;
 			
 			
 		}
@@ -471,7 +474,8 @@ private:
 		case 4: n_L4++; break;
 		default: n_end++;
 		}
-			layer_all[total_count] = tkTpl.pxbLayer(hit_detId);
+			if (subdetid != PixelSubdetector::PixelBarrel) layer_all[total_count] = 9; 
+            else layer_all[total_count] = tkTpl.pxbLayer(hit_detId);
 			eta_all[total_count] = etatk;
 			phi_all[total_count] = phitk;
     		total_count++;
@@ -495,7 +499,7 @@ private:
 
     }
     for(int i=prev_total_count;i<total_count;i++){
-    	fprintf(gen_file,"%i %f %f\n", layer[i],eta[i],phi[i]);
+    	fprintf(gen_file,"%i %f %f\n", layer_all[i],eta_all[i],phi_all[i]);
     	
     }
     
