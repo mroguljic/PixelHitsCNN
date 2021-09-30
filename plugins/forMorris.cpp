@@ -121,7 +121,7 @@ private:
 	std::string cpe;
 	bool use_generic, use_generic_detangles;
 	TFile *fFile; TTree *fTree;
-	static const int MAXCLUSTER = 50000;
+	static const int MAXCLUSTER = 500000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
 	//float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
 	//float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];

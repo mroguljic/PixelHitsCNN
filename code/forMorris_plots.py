@@ -41,7 +41,7 @@ for l in [1,2,3,4]:
 
 	res_all = ROOT.TH1F("all pixels vs eta - BPIX L%i"%l,"all pixels vs eta - BPIX L%i"%l,50,eta.min(),eta.max())
 	res_all.SetDirectory(0)
-	for entry in eta_all[layer==l]:
+	for entry in eta_all[layer_all==l]:
 		res_all.Fill(entry)
 
 	res_frac = ROOT.TH1F("double pixel fraction vs eta - BPIX L%i"%l,"double pixel fraction vs eta - BPIX L%i"%l,50,eta.min(),eta.max())
@@ -71,7 +71,7 @@ for l in [1,2,3,4]:
 
 	res_all = ROOT.TH1F("all pixels vs phi - BPIX L%i"%l,"all pixels vs phi - BPIX L%i"%l,50,phi.min(),phi.max())
 	res_all.SetDirectory(0)
-	for entry in phi_all[layer==l]:
+	for entry in phi_all[layer_all==l]:
 		res_all.Fill(entry)
 
 	res_frac = ROOT.TH1F("double pixel fraction vs phi - BPIX L%i"%l,"double pixel fraction vs phi - BPIX L%i"%l,50,phi.min(),phi.max())
@@ -101,7 +101,7 @@ for entry in eta[layer==9]:
 
 res_all = ROOT.TH1F("all pixels vs eta - FPIX","all pixels vs eta - FPIX",50,eta.min(),eta.max())
 res_all.SetDirectory(0)
-for entry in eta_all[layer==9]:
+for entry in eta_all[layer_all==9]:
 	res_all.Fill(entry)
 
 res_frac = ROOT.TH1F("double pixel fraction vs eta - FPIX","double pixel fraction vs eta - FPIX",50,eta.min(),eta.max())
@@ -131,7 +131,7 @@ for entry in phi[layer==9]:
 
 res_all = ROOT.TH1F("all pixels vs phi - FPIX","all pixels vs phi - FPIX",50,phi.min(),phi.max())
 res_all.SetDirectory(0)
-for entry in phi_all[layer==9]:
+for entry in phi_all[layer_all==9]:
 	res_all.Fill(entry)
 
 res_frac = ROOT.TH1F("double pixel fraction vs phi - FPIX","double pixel fraction vs phi - FPIX",50,phi.min(),phi.max())
