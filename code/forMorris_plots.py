@@ -36,16 +36,22 @@ for l in [1,2,3,4]:
 	
 	res = ROOT.TH1F("double pixels vs eta - BPIX L%i"%l,"double pixels vs eta - BPIX L%i"%l,50,eta.min(),eta.max())
 	res.SetDirectory(0)
+	res.Sumw2()
 	for entry in eta[layer==l]:
 		res.Fill(entry)
 
 	res_all = ROOT.TH1F("all pixels vs eta - BPIX L%i"%l,"all pixels vs eta - BPIX L%i"%l,50,eta.min(),eta.max())
 	res_all.SetDirectory(0)
+	res_all.Sumw2()
 	for entry in eta_all[layer_all==l]:
 		res_all.Fill(entry)
 
 	res_frac = ROOT.TH1F("double pixel fraction vs eta - BPIX L%i"%l,"double pixel fraction vs eta - BPIX L%i"%l,50,eta.min(),eta.max())
 	res_frac.SetDirectory(0)
+	res_frac.Sumw2()
+	res_frac = res.Clone()
+	res_frac.Divide(res_all)
+	'''
 	for i in range(1,51):
 		a = res.GetBinContent(i)
 		b = res_all.GetBinContent(i)
@@ -54,7 +60,7 @@ for l in [1,2,3,4]:
 		a_err = res.GetBinError(i)
 		b_err = res_all.GetBinError(i)
 		res_frac.SetBinError(i,0.)
-
+	'''
 	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
 	res_frac.SetMarkerColor(ROOT.kRed);
@@ -69,16 +75,22 @@ for l in [1,2,3,4]:
 
 	res = ROOT.TH1F("double pixels vs phi - BPIX L%i"%l,"double pixels vs phi - BPIX L%i"%l,50,phi.min(),phi.max())
 	res.SetDirectory(0)
+	res.Sumw2()
 	for entry in phi[layer==l]:
 		res.Fill(entry)
 
 	res_all = ROOT.TH1F("all pixels vs phi - BPIX L%i"%l,"all pixels vs phi - BPIX L%i"%l,50,phi.min(),phi.max())
 	res_all.SetDirectory(0)
+	res_all.Sumw2()
 	for entry in phi_all[layer_all==l]:
 		res_all.Fill(entry)
 
 	res_frac = ROOT.TH1F("double pixel fraction vs phi - BPIX L%i"%l,"double pixel fraction vs phi - BPIX L%i"%l,50,phi.min(),phi.max())
 	res_frac.SetDirectory(0)
+	res_frac.Sumw2()
+	res_frac = res.Clone()
+	res_frac.Divide(res_all)
+	'''
 	for i in range(1,51):
 		a = res.GetBinContent(i)
 		b = res_all.GetBinContent(i)
@@ -87,7 +99,7 @@ for l in [1,2,3,4]:
 		a_err = res.GetBinError(i)
 		b_err = res_all.GetBinError(i)
 		res_frac.SetBinError(i,0.)
-	
+	'''
 	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
 	res_frac.SetMarkerColor(ROOT.kRed);
@@ -102,16 +114,23 @@ for l in [1,2,3,4]:
 
 res = ROOT.TH1F("double pixels vs eta - FPIX","double pixels vs eta - FPIX",50,eta.min(),eta.max())
 res.SetDirectory(0)
+res.Sumw2()
 for entry in eta[layer==9]:
 	res.Fill(entry)
 
 res_all = ROOT.TH1F("all pixels vs eta - FPIX","all pixels vs eta - FPIX",50,eta.min(),eta.max())
 res_all.SetDirectory(0)
+res_all.Sumw2()
 for entry in eta_all[layer_all==9]:
 	res_all.Fill(entry)
 
 res_frac = ROOT.TH1F("double pixel fraction vs eta - FPIX","double pixel fraction vs eta - FPIX",50,eta.min(),eta.max())
 res_frac.SetDirectory(0)
+res_frac.SetDirectory(0)
+res_frac.Sumw2()
+res_frac = res.Clone()
+res_frac.Divide(res_all)
+'''
 for i in range(1,51):
 	a = res.GetBinContent(i)
 	b = res_all.GetBinContent(i)
@@ -120,7 +139,7 @@ for i in range(1,51):
 	a_err = res.GetBinError(i)
 	b_err = res_all.GetBinError(i)
 	res_frac.SetBinError(i,0.)
-
+'''
 canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
 res_frac.SetMarkerColor(ROOT.kRed);
@@ -135,16 +154,23 @@ canvas.Print("plots/forMorris/dpix_eta_fpix.png")
 
 res = ROOT.TH1F("double pixels vs phi - FPIX","double pixels vs phi - FPIX",50,phi.min(),phi.max())
 res.SetDirectory(0)
+res.Sumw2()
 for entry in phi[layer==9]:
 	res.Fill(entry)
 
 res_all = ROOT.TH1F("all pixels vs phi - FPIX","all pixels vs phi - FPIX",50,phi.min(),phi.max())
 res_all.SetDirectory(0)
+res_all.Sumw2()
 for entry in phi_all[layer_all==9]:
 	res_all.Fill(entry)
 
 res_frac = ROOT.TH1F("double pixel fraction vs phi - FPIX","double pixel fraction vs phi - FPIX",50,phi.min(),phi.max())
 res_frac.SetDirectory(0)
+res_frac.SetDirectory(0)
+res_frac.Sumw2()
+res_frac = res.Clone()
+res_frac.Divide(res_all)
+'''
 for i in range(1,51):
 	a = res.GetBinContent(i)
 	b = res_all.GetBinContent(i)
@@ -153,7 +179,7 @@ for i in range(1,51):
 	a_err = res.GetBinError(i)
 	b_err = res_all.GetBinError(i)
 	res_frac.SetBinError(i,0.)
-
+'''
 canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
 res_frac.SetMarkerColor(ROOT.kRed);
