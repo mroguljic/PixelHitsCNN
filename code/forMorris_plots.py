@@ -51,7 +51,9 @@ for l in [1,2,3,4]:
 		b = res_all.GetBinContent(i)
 		if b!=0: res_frac.SetBinContent(i,a/b)
 		else: res_frac.SetBinContent(i,0.)
-
+		a_err = res.GetBinError(i)
+                b_err = res_all.GetBinError(i)
+                res_frac.SetBinError(i,np.sqrt(a_err**2+b_err**2))
 	#res.Scale(1./n[l-1])
 	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
@@ -82,7 +84,9 @@ for l in [1,2,3,4]:
 		b = res_all.GetBinContent(i)
 		if b!=0: res_frac.SetBinContent(i,a/b)
                 else: res_frac.SetBinContent(i,0.)
-
+		a_err = res.GetBinError(i)
+                b_err = res_all.GetBinError(i)
+                res_frac.SetBinError(i,np.sqrt(a_err**2+b_err**2))
 	#res_all.Scale(1./n[l-1])
 	canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 	canvas.cd()
@@ -113,7 +117,9 @@ for i in range(1,51):
 	b = res_all.GetBinContent(i)
 	if b!=0: res_frac.SetBinContent(i,a/b)
         else: res_frac.SetBinContent(i,0.)
-
+	a_err = res.GetBinError(i)
+        b_err = res_all.GetBinError(i)
+        res_frac.SetBinError(i,np.sqrt(a_err**2+b_err**2))
 #res.Scale(1./n_end)
 canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
@@ -144,7 +150,9 @@ for i in range(1,51):
 	b = res_all.GetBinContent(i)
 	if b!=0: res_frac.SetBinContent(i,a/b)
         else: res_frac.SetBinContent(i,0.)
-
+	a_err = res.GetBinError(i)
+	b_err = res_all.GetBinError(i)
+	res_frac.SetBinError(i,np.sqrt(a_err**2+b_err**2))
 #res.Scale(1./n_end)
 canvas = ROOT.TCanvas (" canvas ","canvas",1700,1000)
 canvas.cd()
