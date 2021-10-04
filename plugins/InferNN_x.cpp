@@ -471,8 +471,9 @@ private:
 			assert(mcol > 0);
 			float cluster_max = 0.;
 			int n_double_x = 0, n_double_y = 0;
-
-			int double_row_=-1,double_col=-1;	
+	
+			int double_row[5]; for(int i=0;i<5;i++)double_row[i]=-1;
+			int k=0;
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -480,16 +481,12 @@ private:
 				int icol = int(pix.y) - col_offset;
 					//double pixels skip
 				if ((int)pix.x == 79 || (int)pix.x == 80){
-				if(irow!=double_row_){	
-				 n_double_x++; 
-				double_row_=irow;
-				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc)); 
-				}}
-				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-				if(icol!=double_col){ 
-				n_double_y++; 
-				double_col = icol;
-				}}
+				int flag=0;
+				for(i=0;i<5;i++){
+				 	if(irow==double_row[i]) {flag = 1; break;}
+				}
+				if(flag!=1) {double_row[k]=irow; k++;}
+				}
 				irow_sum+=irow;
 				icol_sum+=icol;
 				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
@@ -497,10 +494,9 @@ private:
 
 			}
 			
-			if(n_double_x>1 ){
-			printf("MORE THAN 1 DOUBLE COL - %i  in x and %i in y, SKIPPING\n",n_double_x,n_double_y);
-			double_count++;	
-			// continue; //currently can only deal with single double pix
+			if(k>2){
+			printf("MORE THAN 2 DOUBLE COL in X - k = %i, SKIPPING\n",k);
+			continue; //currently can only deal with single double pix
 			}
 			
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
@@ -510,8 +506,7 @@ private:
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
 
-			int double_row[3]; double_row[0] = -1,double_row[1] = -1,double_row[2] = -1;
-			int k=0;
+			
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -521,11 +516,6 @@ private:
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
 				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
-				if ((int)pix.x == 79 || (int)pix.x == 80){
-					if(irow!=double_row[k]){
-					double_row[k] = irow; k++;
-					printf("double pixel at row: %i\n",irow);
-				}}
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
@@ -541,54 +531,52 @@ private:
 				}
 				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
 			}
-			if(n_double_x==1 && clustersize_x>12) continue;
-			if(n_double_x==2 && clustersize_x>11) continue;
-			if(n_double_x>2) continue;
+			if(k==1 && clustersize_x>12) continue;
+			if(k==2 && clustersize_x>11) continue;
 
-			/*
-			if(n_double_x==1){
-			printf("double width cluster\n");
+			
+			if(k<3){
+			printf("double width cluster of size %i\n",k);
 			for(int i = 0;i < TXSIZE; i++){
                 printf("%f ",clusbuf_x_temp[i]);
             }
-			printf("\n");}
-			*/
-			int j = 0;
-			//convert double pixels to single - ONLY WORKS FOR 1D
-			/*
-			for (int i = 0; i < cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x) - row_offset + offset_x;
-				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));
-				if ((int)pix.x == 79 || (int)pix.x == 80){
-					clusbuf_x[irow] = clusbuf_x_temp[j]/2.;
-					clusbuf_x[irow+1] = clusbuf_x_temp[j]/2.;
-					offset_x++;
-
-				}
-				else clusbuf_x[irow] = clusbuf_x_temp[j];
-
-				j++;
+			printf("\n");
 			}
-			*/
+			
+			int j = 0;
 			for(int i = 0;i < TXSIZE; i++){
-                if(n_double_x!=0 && i==double_row[k-1] && clustersize_x>1){
-			printf("TREATING A DOUBLE WIDTH PIX");
+                if(k<3 && i==double_row[0] && clustersize_x>1){
+				printf("TREATING first DOUBLE WIDTH PIX");
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
 					i++;
                 }
                 else clusbuf_x[i] = clusbuf_x_temp[j];
-		j++;
+				j++;
             }
-            /*
-			if(n_double_x==1){
-                         printf("MODIFIED double width cluster\n");
-                         for(int i = 0;i < TXSIZE; i++){
-                          printf("%f ",clusbuf_x[i]);
-                          }
-                         printf("\n");}
-            */
+            if(k==2){
+	            j=TXSIZE-1;
+	            for(int i=0;i<TXSIZE;i++){clusbuf_x_temp[i] = clusbuf_x[i];}
+	            for(int i = TXSIZE-1;i >=0; i--){
+	                if(i==double_row[1] && clustersize_x>1){
+					printf("TREATING second DOUBLE WIDTH PIX");
+	                	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
+						clusbuf_x[i-1] = clusbuf_x_temp[j]/2.;
+						i--;
+	                }
+	                else clusbuf_x[i] = clusbuf_x_temp[j];
+					j--;
+	            }
+        	}
+            
+			if(k<3){
+	         	printf("MODIFIED double width cluster\n");
+	         	for(int i = 0;i < TXSIZE; i++){
+	          	printf("%f ",clusbuf_x[i]);
+	          	}
+	         	printf("\n");
+     		}
+            
 			//compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TXSIZE; i++){
