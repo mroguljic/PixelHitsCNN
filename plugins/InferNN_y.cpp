@@ -470,25 +470,22 @@ private:
 			assert(mcol > 0);
 			float cluster_max = 0.;
 
-			int n_double_x = 0, n_double_y = 0;
+			int n_double = 0, n_double_y = 0;
 
-			int double_row = -1, double_col = -1;
+			int double_col[5]; for(int i=0;i<5;i++)double_col[i]=-1;
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset;
 				int icol = int(pix.y) - col_offset;
-				if ((int)pix.x == 79 || (int)pix.x == 80){
-				if(irow!=double_row){	
-				 n_double_x++; 
-				double_row=irow;
-				//printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));
-				} 
+				if ((int)pix.x == 79 || (int)pix.x == 80){ 
 				}
-				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-				if(icol!=double_col){ 
-				n_double_y++; 
-				double_col = icol;}
+				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51){
+				int flag=0;
+				for(int j=0;j<5;j++){
+				 	if(icol==double_col[j]) {flag = 1; break;}
+				}
+				if(flag!=1) {double_col[n_double]=icol; n_double++;}
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
@@ -496,10 +493,11 @@ private:
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
-			if(n_double_x>1 || n_double_y>1){
-			//printf("MORE THAN 1 DOUBLE COL, SKIPPING\n");
-			 continue; //currently can only deal with single double pix
+			if(n_double>2){
+			printf("MORE THAN 2 DOUBLE COL in Y = %i, SKIPPING\n",n_double);
+			continue; //currently can only deal with single double pix
 			}
+			k=0;
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
 			mid_y = round(float(icol_sum)/float(cluster.size()));
@@ -515,10 +513,18 @@ private:
 					//printf("irow = %i, icol = %i\n",irow,icol);
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
-				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
-				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-					double_col=icol;
+				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)){
+				printf("irow or icol exceeded, SKIPPING");
+				 continue;
 				}
+				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
+					int flag=0;
+                     for(int j=0;j<5;j++){
+                             if(icol==double_col[j]) {flag = 1; break;}
+                     }
+                     if(flag!=1) {double_col[k]=icol; k++;}
+                     }
+				
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
@@ -535,7 +541,8 @@ private:
 				//if(clusbuf_y[i] > cluster_max) cluster_max = clusbuf_y[i]; 
 				//if(clusbuf_y[i] < cluster_min) cluster_min = clusbuf_y[i] ;
 			}
-			if(n_double_y==1 && clustersize_y>20) continue;
+			if(k==1 && clustersize_y>20) continue;
+			if(k==2 && clustersize_x>19) continue;
 			
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
@@ -556,15 +563,33 @@ private:
 			}
 			*/
 			for(int i = 0;i < TYSIZE; i++){
-                if(n_double_y==1 && i==double_col && clustersize_y>1){
+               if((k==1 || k==2) && i==double_col[0] && clustersize_y>1){
                 printf("TREATING A DOUBLE WIDTH PIXEL");	
 		clusbuf_y[i] = clusbuf_y_temp[j]/2.;
 					clusbuf_y[i+1] = clusbuf_y_temp[j]/2.;
 					i++;
+					if(k==2) double_col[1]++;
                 }
                 else clusbuf_y[i] = clusbuf_y_temp[j];
 		j++;
             }
+            if(k==2){
+	            j=TYSIZE-1;
+	            for(int i=0;i<TYSIZE;i++){
+			clusbuf_y_temp[i] = clusbuf_y[i];
+			clusbuf_y[i]=0.;
+			}
+	            for(int i = TYSIZE-1;i >=0; i--){
+	                if(i==double_col[1] && clustersize_y>1){
+					//printf("TREATING second DOUBLE WIDTH PIX\n");
+	                	clusbuf_y[i] = clusbuf_y_temp[j]/2.;
+						clusbuf_y[i-1] = clusbuf_y_temp[j]/2.;
+						i--;
+	                }
+	                else clusbuf_y[i] = clusbuf_y_temp[j];
+					j--;
+	            }
+        	}
             //compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TYSIZE; i++){

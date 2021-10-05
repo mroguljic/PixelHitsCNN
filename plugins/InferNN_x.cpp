@@ -495,7 +495,7 @@ private:
 			}
 			
 			if(n_double>2){
-			printf("MORE THAN 2 DOUBLE COL in X - k = %i, SKIPPING\n",k);
+			printf("MORE THAN 2 DOUBLE COL in X  = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
 			}
 			k=0;
@@ -531,7 +531,7 @@ private:
                                  }
 				clusbuf[irow][icol] = float(pix.adc);
 				//else clusbuf[irow][icol] = 1.;
- 				if(n_double>0) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
+ 				//if(n_double>0) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 			}
 			
@@ -544,7 +544,7 @@ private:
 			if(k==1 && clustersize_x>12) continue;
 			if(k==2 && clustersize_x>11) continue;
 
-			
+			/*
 			if(k==1 or k==2){
 			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
 			for(int i=0;i<TXSIZE;i++){
@@ -557,11 +557,11 @@ private:
             }
 			printf("\n");
 			}
-			
+			*/
 			int j = 0;
 			for(int i = 0;i < TXSIZE; i++){
                 if((k==1 || k==2) && i==double_row[0] && clustersize_x>1){
-				printf("TREATING first DOUBLE WIDTH PIX\n");
+				//printf("TREATING first DOUBLE WIDTH PIX\n");
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
 					i++;
@@ -578,7 +578,7 @@ private:
 			}
 	            for(int i = TXSIZE-1;i >=0; i--){
 	                if(i==double_row[1] && clustersize_x>1){
-					printf("TREATING second DOUBLE WIDTH PIX\n");
+					//printf("TREATING second DOUBLE WIDTH PIX\n");
 	                	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 						clusbuf_x[i-1] = clusbuf_x_temp[j]/2.;
 						i--;
@@ -587,7 +587,7 @@ private:
 					j--;
 	            }
         	}
-            
+            /*
 			if(k==1 or k==2){
 	         	printf("MODIFIED double width cluster\n");
 	         	for(int i = 0;i < TXSIZE; i++){
@@ -595,7 +595,7 @@ private:
 	          	}
 	         	printf("\n");
      		}
-            
+            */
 			//compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TXSIZE; i++){

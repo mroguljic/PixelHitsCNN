@@ -9,14 +9,14 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-h5_ext = "p1_2018_irrad_BPIXL1_double"
+h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
 cpe = "cnn1d"
-n_events = 5
+n_events = 500
 use_generic = True
 use_generic_detangles = False
 use_det_angles = False
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_sep26"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_sep28"%h5_ext
 elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug31"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 
