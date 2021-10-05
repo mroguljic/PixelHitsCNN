@@ -470,7 +470,7 @@ private:
 			assert(mrow > 0);
 			assert(mcol > 0);
 			float cluster_max = 0.;
-			int n_double_x = 0, n_double_y = 0;
+			int n_double = 0, n_double_y = 0;
 	
 			int double_row[5]; for(int i=0;i<5;i++)double_row[i]=-1;
 			int k=0;
@@ -482,10 +482,10 @@ private:
 					//double pixels skip
 				if ((int)pix.x == 79 || (int)pix.x == 80){
 				int flag=0;
-				for(i=0;i<5;i++){
-				 	if(irow==double_row[i]) {flag = 1; break;}
+				for(int j=0;j<5;j++){
+				 	if(irow==double_row[j]) {flag = 1; break;}
 				}
-				if(flag!=1) {double_row[k]=irow; k++;}
+				if(flag!=1) {double_row[n_double]=irow; n_double++;}
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
@@ -494,11 +494,11 @@ private:
 
 			}
 			
-			if(k>2){
+			if(n_double>2){
 			printf("MORE THAN 2 DOUBLE COL in X - k = %i, SKIPPING\n",k);
 			continue; //currently can only deal with single double pix
 			}
-			
+			k=0;
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
 			mid_x = round(float(irow_sum)/float(cluster.size()));
@@ -506,7 +506,7 @@ private:
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
 
-			
+			//printf("clustersize_x = %i\n",clustersize_x);	
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -515,13 +515,23 @@ private:
 					//printf("irow = %i, icol = %i\n",irow,icol);
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
-				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)) continue;
+				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)){
+				printf("irow or icol exceeded, SKIPPING");
+				 continue;
+				}
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
+				if ((int)pix.x == 79 || (int)pix.x == 80){
+                                 int flag=0;
+                                 for(int j=0;j<5;j++){
+                                         if(irow==double_row[j]) {flag = 1; break;}
+                                 }
+                                 if(flag!=1) {double_row[k]=irow; k++;}
+                                 }
 				clusbuf[irow][icol] = float(pix.adc);
 				//else clusbuf[irow][icol] = 1.;
- 				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
+ 				if(n_double>0) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 			}
 			
@@ -535,8 +545,13 @@ private:
 			if(k==2 && clustersize_x>11) continue;
 
 			
-			if(k<3){
-			printf("double width cluster of size %i\n",k);
+			if(k==1 or k==2){
+			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
+			for(int i=0;i<TXSIZE;i++){
+				for(int f=0;f<TYSIZE;f++)
+				printf("%f ",clusbuf[i][f]);
+			printf("\n");
+			}
 			for(int i = 0;i < TXSIZE; i++){
                 printf("%f ",clusbuf_x_temp[i]);
             }
@@ -545,21 +560,25 @@ private:
 			
 			int j = 0;
 			for(int i = 0;i < TXSIZE; i++){
-                if(k<3 && i==double_row[0] && clustersize_x>1){
-				printf("TREATING first DOUBLE WIDTH PIX");
+                if((k==1 || k==2) && i==double_row[0] && clustersize_x>1){
+				printf("TREATING first DOUBLE WIDTH PIX\n");
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
 					i++;
+					if(k==2) double_row[1]++;
                 }
                 else clusbuf_x[i] = clusbuf_x_temp[j];
 				j++;
             }
             if(k==2){
 	            j=TXSIZE-1;
-	            for(int i=0;i<TXSIZE;i++){clusbuf_x_temp[i] = clusbuf_x[i];}
+	            for(int i=0;i<TXSIZE;i++){
+			clusbuf_x_temp[i] = clusbuf_x[i];
+			clusbuf_x[i]=0.;
+			}
 	            for(int i = TXSIZE-1;i >=0; i--){
 	                if(i==double_row[1] && clustersize_x>1){
-					printf("TREATING second DOUBLE WIDTH PIX");
+					printf("TREATING second DOUBLE WIDTH PIX\n");
 	                	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 						clusbuf_x[i-1] = clusbuf_x_temp[j]/2.;
 						i--;
@@ -569,7 +588,7 @@ private:
 	            }
         	}
             
-			if(k<3){
+			if(k==1 or k==2){
 	         	printf("MODIFIED double width cluster\n");
 	         	for(int i = 0;i < TXSIZE; i++){
 	          	printf("%f ",clusbuf_x[i]);
@@ -632,12 +651,12 @@ private:
 			//printf("\n");}
 			x_nn = (x_nn+pixelsize_x*(mid_x))*micronsToCm; 
 
-			//	printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);
+				//printf("cota = %f, cotb = %f, x_nn = %f\n",cotAlpha,cotBeta,x_nn[count]);
 				// go back to module coordinate system
 			x_nn+=lp.x(); 
 			//gettimeofday(&now1, &timz);
 			float deltaus = now1.tv_usec - now0.tv_usec;
-	//		printf("elapsed time = %f us\n",deltaus);
+			//printf("elapsed time = %f us\n",deltaus);
 				// get the generic position
 			x_gen = pixhit->localPosition().x();
 				//get sim hits

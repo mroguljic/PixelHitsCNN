@@ -68,7 +68,7 @@ process.source = cms.Source("PoolSource",
 #fileNames=cms.untracked.vstring("file:MC_5000_111X_upgrade2018_realistic_v3.root"),   
 #fileNames=cms.untracked.vstring("file:MC_15000_phase1_2018_realistic.root"),
 fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_500_phase1_2018_realistic.root"),
-eventsToSkip=cms.untracked.VEventRange('1:442-1:446')
+eventsToSkip=cms.untracked.VEventRange('1:442-1:444')
 # data
   #fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
 #skipEvents=cms.untracked.uint32(15)

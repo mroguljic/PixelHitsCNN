@@ -31,7 +31,8 @@ phi_all = all_info[:,2]
 
 print(eta.min(),eta.max())
 print(phi.min(),phi.max())
-
+print(eta[layer==1].shape,eta[layer==2].shape,eta[layer==3].shape,eta[layer==4].shape)
+print(eta_all[layer_all==1].shape,eta_all[layer_all==2].shape,eta_all[layer_all==3].shape,eta_all[layer_all==4].shape)
 for l in [1,2,3,4]:
 	
 	res = ROOT.TH1F("double pixels vs eta - BPIX L%i"%l,"double pixels vs eta - BPIX L%i"%l,50,eta.min(),eta.max())
