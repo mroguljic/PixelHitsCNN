@@ -121,7 +121,7 @@ private:
 	std::string cpe;
 	bool use_generic, use_generic_detangles;
 	TFile *fFile; TTree *fTree;
-	static const int MAXCLUSTER = 50000;
+	static const int MAXCLUSTER = 80000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
 	//float fClSimHitLx[MAXCLUSTER][SIMHITPERCLMAX];    // X local position of simhit 
 	//float fClSimHitLy[MAXCLUSTER][SIMHITPERCLMAX];
@@ -451,7 +451,7 @@ private:
 				cotBeta = gvy * gvz;
 				//printf("detangles: %f %f\n",cotAlpha,cotBeta);
 			}
-
+			printf("count = %i\n",count);
 				  // first compute matrix size
 			int mrow = 0, mcol = 0;
 			for (int i = 0; i != cluster.size(); ++i) {
@@ -471,7 +471,7 @@ private:
 			assert(mcol > 0);
 			float cluster_max = 0.;
 			int n_double = 0, n_double_y = 0;
-	
+			int clustersize = 0;
 			int double_row[5]; for(int i=0;i<5;i++)double_row[i]=-1;
 			int k=0;
 			int irow_sum = 0, icol_sum = 0;
@@ -479,7 +479,7 @@ private:
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset;
 				int icol = int(pix.y) - col_offset;
-					//double pixels skip
+				if ((irow >= mrow) || (icol >= mcol)) continue;	
 				if ((int)pix.x == 79 || (int)pix.x == 80){
 				int flag=0;
 				for(int j=0;j<5;j++){
@@ -489,11 +489,12 @@ private:
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
+				clustersize++;
 				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
-			
+			if(clustersize==0){printf("EMPTY CLUSTER, SKIPPING\n");continue;}	
 			if(n_double>2){
 			printf("MORE THAN 2 DOUBLE COL in X  = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
@@ -501,11 +502,12 @@ private:
 			k=0;
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
-			mid_x = round(float(irow_sum)/float(cluster.size()));
-			mid_y = round(float(icol_sum)/float(cluster.size()));
+			mid_x = round(float(irow_sum)/float(clustersize));
+			mid_y = round(float(icol_sum)/float(clustersize));
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
-
+			//printf("mid_x = %i, mid_y = %i, cluster.size = %i, clustersize = %i\n",mid_x,mid_y,cluster.size(),clustersize); 
+			
 			//printf("clustersize_x = %i\n",clustersize_x);	
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
@@ -515,8 +517,8 @@ private:
 					//printf("irow = %i, icol = %i\n",irow,icol);
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
-				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)){
-				printf("irow or icol exceeded, SKIPPING");
+				if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
+				printf("irow or icol exceeded, SKIPPING. irow = %i, mrow = %i, offset_x = %i,icol = %i, mcol = %i, offset_y = %i\n",irow,mrow,offset_x,icol,mcol,offset_y);
 				 continue;
 				}
 				//normalized value
@@ -541,9 +543,16 @@ private:
 				}
 				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
 			}
-			if(k==1 && clustersize_x>12) continue;
-			if(k==2 && clustersize_x>11) continue;
-
+			if(k==1 && clustersize_x>12) {printf("clustersize_x > 12, SKIPPING\n"); continue;}
+			if(k==2 && clustersize_x>11) {printf("clustersize_x > 11, SKIPPING\n"); continue;}
+			if(clustersize>30){
+			printf("clustersize = %i > 30, PRINTING\n",clustersize); 
+			for(int i=0;i<TXSIZE;i++){
+                                 for(int f=0;f<TYSIZE;f++)
+                                 printf("%f ",clusbuf[i][f]);
+                         printf("\n");
+                          }
+			}
 			/*
 			if(k==1 or k==2){
 			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
@@ -688,8 +697,13 @@ private:
 				dx_gen[count] = x_gen - fClSimHitLx[i];
 			}	
 			if(dx_gen[count] >= 999.0 || dx_nn[count] >= 999.0){
-				printf("ERROR: Residual is %f %f >= 999.0\n",dx_gen[count],dx_nn[count]);
-				return;
+				printf("ERROR: Residual is dx_gen=%f dx_nn=%f \n",dx_gen[count],dx_nn[count]);
+				//for(int i=0;i<TXSIZE;i++){
+                                 //for(int f=0;f<TYSIZE;f++)
+                                 //printf("%f ",clusbuf[i][f]);
+                        // printf("\n");
+                         //}
+			//	return;
 			} 
 		//	printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
 		//	printf("nn position: %f\n ",(x_nn[count]-lp.x())*1e4);
@@ -721,7 +735,7 @@ private:
         }
     }
 
-    printf("cluster count with >1 double width pix = %i\n",double_count);
+    //printf("cluster count with >1 double width pix = %i\n",double_count);
     printf("total count = %i\n",count);
     for(int i=prev_count;i<count;i++){
     	/*

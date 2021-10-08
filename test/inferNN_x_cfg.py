@@ -11,8 +11,8 @@ from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitig
 
 h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
 cpe = "cnn1d"
-n_events = 500
-use_generic = True
+n_events = 400
+use_generic = False
 use_generic_detangles = False
 use_det_angles = False
 
@@ -68,10 +68,10 @@ process.source = cms.Source("PoolSource",
 #fileNames=cms.untracked.vstring("file:MC_5000_111X_upgrade2018_realistic_v3.root"),   
 #fileNames=cms.untracked.vstring("file:MC_15000_phase1_2018_realistic.root"),
 fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_500_phase1_2018_realistic.root"),
-eventsToSkip=cms.untracked.VEventRange('1:442-1:444')
+eventsToSkip=cms.untracked.VEventRange('1:8-1:10','1:67-1:69','1:388-1:390'),
 # data
   #fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
-#skipEvents=cms.untracked.uint32(15)
+#skipEvents=cms.untracked.uint32(385)
 
 )
 print("Using global tag "+process.GlobalTag.globaltag._value)

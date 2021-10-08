@@ -121,7 +121,7 @@ private:
 	std::string cpe;
 	bool use_generic, use_generic_detangles;
 	TFile *fFile; TTree *fTree;
-	static const int MAXCLUSTER = 50000;
+	static const int MAXCLUSTER = 80000;
 	static const int SIMHITPERCLMAX = 10;             // max number of simhits associated with a cluster/rechit
 	float fClSimHitLx[SIMHITPERCLMAX];    // X local position of simhit 
 	float fClSimHitLy[SIMHITPERCLMAX];
@@ -471,13 +471,14 @@ private:
 			float cluster_max = 0.;
 
 			int n_double = 0, n_double_y = 0;
-
+			int clustersize=0;
 			int double_col[5]; for(int i=0;i<5;i++)double_col[i]=-1;
 			int irow_sum = 0, icol_sum = 0;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
 				int irow = int(pix.x) - row_offset;
 				int icol = int(pix.y) - col_offset;
+				if ((irow >= mrow) || (icol >= mcol)) continue;
 				if ((int)pix.x == 79 || (int)pix.x == 80){ 
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51){
@@ -489,6 +490,7 @@ private:
 				}
 				irow_sum+=irow;
 				icol_sum+=icol;
+				clustersize++;
 				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
@@ -497,14 +499,15 @@ private:
 			printf("MORE THAN 2 DOUBLE COL in Y = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
 			}
-			k=0;
+			if(clustersize==0) {printf("EMPTY CLUSTER, SKIPPING\n");continue;}
+			int k=0;
 			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
-			mid_x = round(float(irow_sum)/float(cluster.size()));
-			mid_y = round(float(icol_sum)/float(cluster.size()));
+			mid_x = round(float(irow_sum)/float(clustersize));
+			mid_y = round(float(icol_sum)/float(clustersize));
 			int offset_x = 6 - mid_x;
 			int offset_y = 10 - mid_y;
 
-			double_col = 0;
+			//double_col = 0;
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
 			for (int i = 0; i < cluster.size(); ++i) {
 				auto pix = cluster.pixel(i);
@@ -513,7 +516,7 @@ private:
 					//printf("irow = %i, icol = %i\n",irow,icol);
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
-				if ((irow > mrow+offset_x) || (icol > mcol+offset_y)){
+				if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
 				printf("irow or icol exceeded, SKIPPING");
 				 continue;
 				}
@@ -541,8 +544,8 @@ private:
 				//if(clusbuf_y[i] > cluster_max) cluster_max = clusbuf_y[i]; 
 				//if(clusbuf_y[i] < cluster_min) cluster_min = clusbuf_y[i] ;
 			}
-			if(k==1 && clustersize_y>20) continue;
-			if(k==2 && clustersize_x>19) continue;
+			if(k==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
+			if(k==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
 			
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
