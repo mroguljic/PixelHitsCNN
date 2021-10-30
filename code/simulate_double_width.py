@@ -155,6 +155,12 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	1 in x 2 in y - DONE
 	2 in x 1 in y - DONE
 	'''
+	temp_idx_x = np.argwhere(clustersize_x>2)[:,0]
+	temp_idx_y = np.argwhere(clustersize_y>2)[:,0]
+
+	temp_idx_x2 = np.argwhere(clustersize_x>3)[:,0]
+	temp_idx_y2 = np.argwhere(clustersize_y>3)[:,0]
+
 	double_idx_x = np.argwhere(clustersize_x>2)[:,0]
 	double_idx_y = rng.choice(np.argwhere(clustersize_y>2)[:,0],size=25000,replace=False)
 	
@@ -236,7 +242,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	
 	flat_list,clustersize_x_list,pos_x_list,clustersize_y_list,pos_y_list,cota_list,cotb_list = [],[],[],[],[],[],[]
 	count=0
-	double_idx_xy = np.intersect1d(double_idx_x,np.argwhere(clustersize_y>2)[:,0])
+	double_idx_xy = np.intersect1d(temp_idx_x,temp_idx_y)
 	print("no of choices in 1x1y = ",len(double_idx_xy))
 
 	for i in double_idx_xy:
@@ -260,7 +266,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 
 	print("simulated 1 in x + 1 in y double width pix for 2D")
 
-	double_idx_xy = np.intersect1d(np.argwhere(clustersize_y>2)[:,0],np.argwhere(clustersize_y>3)[:,0])
+	double_idx_xy = np.intersect1d(temp_idx_x,temp_idx_y2)
 	print("no of choices in 1x2y = ",len(double_idx_xy))
 
 	for i in double_idx_xy:
@@ -285,7 +291,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 
 	print("simulated 1 in x + 2 in y double width pix for 2D")
 
-	double_idx_xy = np.intersect1d(np.argwhere(clustersize_y>3)[:,0],np.argwhere(clustersize_y>2)[:,0])
+	double_idx_xy = np.intersect1d(temp_idx_x2,temp_idx_y)
 	print("no of choices in 2x1y = ",len(double_idx_xy))
 
 	for i in double_idx_xy:
@@ -311,7 +317,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 
 	print("simulated 2 in x + 1 in y double width pix for 2D")
 
-	double_idx_xy = np.intersect1d(np.argwhere(clustersize_y>3)[:,0],np.argwhere(clustersize_y>3)[:,0])
+	double_idx_xy = np.intersect1d(temp_idx_x2,temp_idx_y2)
 	print("no of choices in 2x2y = ",len(double_idx_xy))
 
 	for i in double_idx_xy:
