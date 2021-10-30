@@ -346,12 +346,12 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	cluster_matrices_y = np.vstack((cluster_matrices_y,np.array(flat_list).reshape((count,13,21,1))))
 	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_x_list).reshape((count,1))))
 	x_position = np.vstack((x_position,np.array(pos_x_list).reshape((count,1))))
-	cota_x = np.vstack((cota,np.array(cota_list).reshape((count,1))))
-	cotb_x = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
+	cota_x = np.vstack((cota_x,np.array(cota_list).reshape((count,1))))
+	cotb_x = np.vstack((cotb_x,np.array(cotb_list).reshape((count,1))))
 	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_y_list).reshape((count,1))))
 	y_position = np.vstack((y_position,np.array(pos_y_list).reshape((count,1))))
-	cota_y = np.vstack((cota,np.array(cota_list).reshape((count,1))))
-	cotb_y = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
+	cota_y = np.vstack((cota_y,np.array(cota_list).reshape((count,1))))
+	cotb_y = np.vstack((cotb_y,np.array(cotb_list).reshape((count,1))))
 
 	print("simulated 2 in x + 2 in y double width pix for 2D")
 
