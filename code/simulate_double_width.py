@@ -196,7 +196,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 			cotb_list.append(cotb[i].tolist())
 			count+=1
 
-	cluster_matrices = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
+	cluster_matrices_x = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
 	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_list).reshape((count,1))))
 	x_position = np.vstack((x_position,np.array(pos_list).reshape((count,1))))
 	cota_x = np.vstack((cota,np.array(cota_list).reshape((count,1))))
@@ -232,7 +232,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 			cotb_list.append(cotb[i].tolist())
 			count+=1
 
-	cluster_matrices = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
+	cluster_matrices_y = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
 	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_list).reshape((count,1))))
 	y_position = np.vstack((y_position,np.array(pos_list).reshape((count,1))))
 	cota_y = np.vstack((cota,np.array(cota_list).reshape((count,1))))
@@ -342,7 +342,8 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		cotb_list.append(cotb[i].tolist())
 		count+=1
 
-	cluster_matrices = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
+	cluster_matrices_x = np.vstack((cluster_matrices_x,np.array(flat_list).reshape((count,13,21,1))))
+	cluster_matrices_y = np.vstack((cluster_matrices_y,np.array(flat_list).reshape((count,13,21,1))))
 	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_x_list).reshape((count,1))))
 	x_position = np.vstack((x_position,np.array(pos_x_list).reshape((count,1))))
 	cota_x = np.vstack((cota,np.array(cota_list).reshape((count,1))))
@@ -354,5 +355,5 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 
 	print("simulated 2 in x + 2 in y double width pix for 2D")
 
-	print("total no of 2d clusters = ",len(cluster_matrices))
-	return cluster_matrices,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y
+	print("total no of 2d x clusters = ",len(cluster_matrices_x)," total no of 2d x clusters = ",len(cluster_matrices_y))
+	return cluster_matrices_x,cluster_matrices_y, clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y
