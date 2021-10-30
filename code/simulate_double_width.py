@@ -3,7 +3,8 @@
 # Author: Sanjana Sekhar
 # Date: 10/29/21
 #-----------------
-
+import numpy as np
+import numpy.random as rng
 
 def simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double):
 
@@ -159,7 +160,8 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 
 	double_idx_x = np.argwhere(clustersize_x>2)[:,0]
 	double_idx_y = np.argwhere(clustersize_y>2)[:,0]
-
+	print("no of choices in x = ",len(double_idx_x))
+	print("no of choices in y = ",len(double_idx_y))
 
 	for i in double_idx_x:
 		# simulate 1 in x	
@@ -225,3 +227,6 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	y_position = np.vstack((y_position,np.array(pos_list).reshape((count,1))))
 	cota_y = np.vstack((cota,np.array(cota_list).reshape((count,1))))
 	cotb_y = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
+	
+	print("total no of 2d clusters = ",len(cluster_matrices))
+	return cluster_matrices,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y
