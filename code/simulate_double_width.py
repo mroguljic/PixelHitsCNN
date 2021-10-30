@@ -159,14 +159,14 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	count=0
 
 	double_idx_x = np.argwhere(clustersize_x>2)[:,0]
-	double_idx_y = np.argwhere(clustersize_y>2)[:,0]
+	double_idx_y = rng.choice(np.argwhere(clustersize_y>2)[:,0],size=25000,replace=False)
 	print("no of choices in x = ",len(double_idx_x))
 	print("no of choices in y = ",len(double_idx_y))
 
 	for i in double_idx_x:
 		# simulate 1 in x	
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
-		nonzero_idx = np.array(np.nonzero(one_mat))[0] #choose 1 x double col 
+		nonzero_idx = np.unique(np.array(np.nonzero(one_mat))[0]) #choose 1 x double col 
 		n_choices = 1
 		j = rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
 		
@@ -200,11 +200,12 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	for i in double_idx_y:
 		# simulate 1 in y	
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
-		nonzero_idx = np.array(np.nonzero(one_mat))[0] #choose 1 x double col 
+		nonzero_idx = np.unique(np.array(np.nonzero(one_mat))[1]) #choose 1 y double col 
 		n_choices = 1
 		j = rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
-		
-		one_mat[j]=one_mat[j+1]=(one_mat[j]+one_mat[j+1])/2
+		if(count<30): print(one_mat)	
+		one_mat[:,j]=one_mat[:,j+1]=(one_mat[:,j]+one_mat[:,j+1])/2
+		if(count<30): print(one_mat)
 		flat_list.append(one_mat.flatten().tolist())
 		clustersize_list.append((clustersize_y[i]-1).tolist())
 		pos_list.append(y_position[i].tolist())
@@ -212,9 +213,10 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		cotb_list.append(cotb[i].tolist())
 		count+=1
 
-		# simulate 2 in x	
+		# simulate 2 in y	
 		if j<nonzero_idx[-3] and clustersize_y[i][0] > 3:
-			one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+			one_mat[:,j+2] = one_mat[:,j+3] = (one_mat[:,j+2]+one_mat[:,j+3])/2.
+			if(count<30): print(one_mat)
 			flat_list.append(one_mat.flatten().tolist())
 			clustersize_list.append((clustersize_y[i]-3).tolist())
 			pos_list.append(y_position[i].tolist())
