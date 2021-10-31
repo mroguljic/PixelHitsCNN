@@ -42,34 +42,37 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-
+'''
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1"
 img_ext = "2dcnn_%s_sep6"%h5_ext
-
+'''
+h5_date = "103021"
+h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
+img_ext = "2dcnn_%s_oct30"%h5_ext
 # Load data
-f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_y_2d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_train = (f['train_hits'][...])
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
-x_train = f['x'][...] 
+#x_train = f['x'][...] 
 y_train = f['y'][...]
-clustersize_x_train = f['clustersize_x'][...]
+#clustersize_x_train = f['clustersize_x'][...]
 clustersize_y_train = f['clustersize_y'][...]
-#angles_train = np.hstack((cota_train,cotb_train))
+angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
-f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/test_y_2d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_test = (f['test_hits'][...])
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
-x_test = f['x'][...]
+#x_test = f['x'][...]
 y_test = f['y'][...]
-clustersize_x_test = f['clustersize_x'][...]
+#clustersize_x_test = f['clustersize_x'][...]
 clustersize_y_test = f['clustersize_y'][...]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-
+'''
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1_file2"
 
@@ -84,7 +87,7 @@ clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:5000000
 clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:5000000]))
 
 angles_train = np.hstack((cota_train,cotb_train))
-
+'''
 
 #print("max train = ",np.amax(pix_train))
 #print("max test = ",np.amax(pix_test))
@@ -94,12 +97,12 @@ angles_train = np.hstack((cota_train,cotb_train))
 
 
 # Model configuration
-batch_size = 800
+batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
-optimizer = Adam(lr=0.0001)
-validation_split = 0.3
+optimizer = Adam(lr=0.001)
+validation_split = 0.2
 
 
 train_time_y = time.clock()
@@ -176,13 +179,13 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-'''
+
 
 callbacks = [
-EarlyStopping(patience=5),
+EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
-		save_best_only=True,
+		        save_best_only=True,
                 monitor='val_loss')
 ]
 
@@ -197,7 +200,7 @@ cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
-'''
+
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
@@ -215,7 +218,7 @@ print(np.amin(residuals_y),np.amax(residuals_y))
 print("RMS_y = %f\n"%(RMS_y))
 
 
-plot_residuals(residuals_y,'2dcnn','y',img_ext)
+plot_residuals(residuals_y,'2dcnn','y',img_ext+"testingondoubledouble")
 
 #plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 

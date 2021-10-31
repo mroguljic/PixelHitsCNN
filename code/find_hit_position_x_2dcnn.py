@@ -42,34 +42,38 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-
+'''
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1"
 img_ext = "2dcnn_%s_aug31"%h5_ext
+'''
+h5_date = "103021"
+h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
+img_ext = "2dcnn_%s_oct30"%h5_ext
 
 # Load data
-f = h5py.File('h5_files/train_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_x_2d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_train = (f['train_hits'][...])
 cota_train = f['cota'][...]
 cotb_train = f['cotb'][...]
 x_train = f['x'][...] 
-y_train = f['y'][...]
+#y_train = f['y'][...]
 clustersize_x_train = f['clustersize_x'][...]
-clustersize_y_train = f['clustersize_y'][...]
-#angles_train = np.hstack((cota_train,cotb_train))
+#clustersize_y_train = f['clustersize_y'][...]
+angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 
-f = h5py.File('h5_files/test_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/test_x_2d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_test = (f['test_hits'][...])
 cota_test = f['cota'][...]
 cotb_test = f['cotb'][...]
 x_test = f['x'][...]
-y_test = f['y'][...]
+#y_test = f['y'][...]
 clustersize_x_test = f['clustersize_x'][...]
-clustersize_y_test = f['clustersize_y'][...]
+#clustersize_y_test = f['clustersize_y'][...]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
-
+'''
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1_file2"
 
@@ -84,7 +88,7 @@ clustersize_x_train = np.vstack((clustersize_x_train,f['clustersize_x'][:3000000
 clustersize_y_train = np.vstack((clustersize_y_train,f['clustersize_y'][:3000000]))
 
 angles_train = np.hstack((cota_train,cotb_train))
-
+'''
 #print("max train = ",np.amax(pix_train))
 #print("max test = ",np.amax(pix_test))
 #pix_train/=np.amax(pix_train)
@@ -97,8 +101,8 @@ batch_size = 512
 loss_function = 'mse'
 n_epochs_x = 15
 n_epochs_y = 15
-optimizer = Adam(lr=0.0001)
-validation_split = 0.3
+optimizer = Adam(lr=0.001)
+validation_split = 0.2
 
 train_time_x = time.clock()
 #Conv2D -> BatchNormalization -> Pooling -> Dropout
@@ -167,17 +171,18 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 callbacks = [
-EarlyStopping(patience=5),
+EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
+                save_best_only=True,
                 save_weights_only=True,
                 monitor='val_loss')
 ]
@@ -193,7 +198,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for 2dcnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -205,5 +210,5 @@ RMS_x = np.std(residuals_x)
 print(np.amin(residuals_x),np.amax(residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 
-plot_residuals(residuals_x,'2dcnn','x',img_ext)
+plot_residuals(residuals_x,'2dcnn','x',img_ext+"testingondoubledouble")
 #plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
