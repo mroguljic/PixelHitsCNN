@@ -127,7 +127,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float y_nn,y_gen;
 	float dy_gen[MAXCLUSTER], dy_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
-	int idx=-1,count=0; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
+	int idx=-1,count=0,double_count=0,doubledouble_count=0; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -517,7 +517,7 @@ private:
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
 				if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
-				printf("irow or icol exceeded, SKIPPING");
+				printf("irow or icol exceeded, SKIPPING\n");
 				 continue;
 				}
 				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
@@ -546,7 +546,8 @@ private:
 			}
 			if(k==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
 			if(k==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
-			
+			if(k==1) double_count++;
+			if(k==2) doubledouble_count++;
 			int j = 0;
 			//convert double pixels to single - ONLY WORKS FOR 1D
 			/*
@@ -566,8 +567,8 @@ private:
 			}
 			*/
 			for(int i = 0;i < TYSIZE; i++){
-               if((k==1 || k==2) && i==double_col[0] && clustersize_y>1){
-                printf("TREATING A DOUBLE WIDTH PIXEL");	
+               if(((k==1 || k==2) && i==double_col[0] && clustersize_y>1)||(k==2 && i==double_col[1])){
+                printf("TREATING A DOUBLE WIDTH PIXEL\n");	
 		clusbuf_y[i] = clusbuf_y_temp[j]/2.;
 					clusbuf_y[i+1] = clusbuf_y_temp[j]/2.;
 					i++;
@@ -576,6 +577,7 @@ private:
                 else clusbuf_y[i] = clusbuf_y_temp[j];
 		j++;
             }
+	    /*
             if(k==2){
 	            j=TYSIZE-1;
 	            for(int i=0;i<TYSIZE;i++){
@@ -584,7 +586,7 @@ private:
 			}
 	            for(int i = TYSIZE-1;i >=0; i--){
 	                if(i==double_col[1] && clustersize_y>1){
-					//printf("TREATING second DOUBLE WIDTH PIX\n");
+					printf("TREATING second DOUBLE WIDTH PIX\n");
 	                	clusbuf_y[i] = clusbuf_y_temp[j]/2.;
 						clusbuf_y[i-1] = clusbuf_y_temp[j]/2.;
 						i--;
@@ -593,6 +595,7 @@ private:
 					j--;
 	            }
         	}
+		*/
             //compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TYSIZE; i++){
@@ -625,12 +628,12 @@ private:
 			
 				// define the output and run
 			std::vector<tensorflow::Tensor> output_y;
-			if(cpe=="cnn2d") tensorflow::run(session_y, {{inputTensorName_y,cluster_}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
-			else tensorflow::run(session_y, {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
+			//if(cpe=="cnn2d") tensorflow::run(session_y, {{inputTensorName_y,cluster_}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
+			//else tensorflow::run(session_y, {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
 				// convert microns to cms
-			y_nn = output_y[0].matrix<float>()(0,0);
+			//y_nn = output_y[0].matrix<float>()(0,0);
 				//printf("x = %f\n",y_nn[count]);
-
+			y_nn=0;
 			y_nn = (y_nn+pixelsize_y*(mid_y))*micronsToCm; 
 
 			//	printf("cota = %f, cotb = %f, y_nn = %f\n",cotAlpha,cotBeta,y_nn[count]);
@@ -671,7 +674,15 @@ private:
 			if(dy_gen[count] >= 999.0 || dy_nn[count] >= 999.0){
 				printf("ERROR: Residual is %f %f >= 999.0\n",dy_gen[count],dy_nn[count]);
 				return;
-			} 
+			}
+			//if(abs(dy_nn[count]*1e4)>100){
+			//printf("residual > 100. no of double pixels = %i at cols = %i,%i\n",k,double_col[0],double_col[1]);
+			//printf("dy_nn = %f, dy_gen = %f\n",dy_nn[count]*1e4,dy_gen[count]*1e4);
+			
+			  //for(int j=0;j<TYSIZE;j++) printf("%f ",clusbuf_y[j]);
+			//printf("\n");
+			
+			//}
 		//	printf("Generic position: %f\n ",(y_gen[count]-lp.x())*1e4);
 		//	printf("nn position: %f\n ",(y_nn[count]-lp.x())*1e4);
 		//	printf("simhit_x =");
@@ -702,7 +713,9 @@ private:
         }
     }
 
-
+    printf("cluster count with 1 double width pix = %i\n",double_count);
+    printf("cluster count with 2 double width pix = %i\n",doubledouble_count);
+    printf("total count = %i\n",count);
     for(int i=prev_count;i<count;i++){
     	//for(int j=0; j<SIMHITPERCLMAX;j++){
     	//	fprintf(sim_file,"%f ", fClSimHitLx[i][j]);

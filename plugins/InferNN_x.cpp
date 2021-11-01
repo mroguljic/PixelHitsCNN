@@ -130,7 +130,7 @@ private:
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
 	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
-	int count=0, double_count = 0, idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
+	int count=0, double_count = 0, doubledouble_count = 0,idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
 	edm::EDGetTokenT<std::vector<reco::Track>> TrackToken;
@@ -172,6 +172,8 @@ private:
 
 	void InferNN_x::globalEndJob(const CacheData* cacheData) {
 	// reset the graphDef
+	printf("in global end job\n");
+		//tensorflow::closeSession(session_x);		
 		if (cacheData->graphDef != nullptr) {
 			delete cacheData->graphDef;
 		}
@@ -284,8 +286,8 @@ private:
 
 	void InferNN_x::endJob() {
 	// close the session
-		tensorflow::closeSession(session_x);
-
+		//tensorflow::closeSession(session_x);
+		printf("in end job\n");
 		//fclose(nn_file);
 		//fclose(sim_file);
 
@@ -342,8 +344,8 @@ private:
 		//int id = count-1;
 		for (auto const& track : *tracks) {
 
-			//id++;
-			//index[count] = id;
+			idx++;
+			index[count] = idx;
 
 			auto etatk = track.eta();
 
@@ -352,8 +354,8 @@ private:
 			auto hb = track.recHitsBegin();
 
 			for (unsigned int h = 0; h < track.recHitsSize(); h++) {
-				idx++;
-                index[count] = idx;
+		//		idx++;
+                //index[count] = idx;
 
 				auto hit = *(hb + h);
 				if (!hit->isValid())
@@ -451,7 +453,7 @@ private:
 				cotBeta = gvy * gvz;
 				//printf("detangles: %f %f\n",cotAlpha,cotBeta);
 			}
-			printf("count = %i\n",count);
+//			printf("count = %i\n",count);
 				  // first compute matrix size
 			int mrow = 0, mcol = 0;
 			for (int i = 0; i != cluster.size(); ++i) {
@@ -569,7 +571,7 @@ private:
 			*/
 			int j = 0;
 			for(int i = 0;i < TXSIZE; i++){
-                if((k==1 || k==2) && i==double_row[0] && clustersize_x>1){
+                if(((k==1 || k==2) && i==double_row[0] && clustersize_x>1)||(k==2 && i==double_row[1])){
 				//printf("TREATING first DOUBLE WIDTH PIX\n");
                 	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
 					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
@@ -578,7 +580,7 @@ private:
                 }
                 else clusbuf_x[i] = clusbuf_x_temp[j];
 				j++;
-            }
+            }/*
             if(k==2){
 	            j=TXSIZE-1;
 	            for(int i=0;i<TXSIZE;i++){
@@ -595,7 +597,7 @@ private:
 	                else clusbuf_x[i] = clusbuf_x_temp[j];
 					j--;
 	            }
-        	}
+        	}*/
             /*
 			if(k==1 or k==2){
 	         	printf("MODIFIED double width cluster\n");
@@ -735,7 +737,8 @@ private:
         }
     }
 
-    //printf("cluster count with >1 double width pix = %i\n",double_count);
+    printf("cluster count with 1 double width pix = %i\n",double_count);
+    printf("cluster count with 2 double width pix = %i\n",doubledouble_count);
     printf("total count = %i\n",count);
     for(int i=prev_count;i<count;i++){
     	/*

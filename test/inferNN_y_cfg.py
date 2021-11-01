@@ -6,13 +6,14 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
+#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+from Configuration.Eras.Era_Run3_cff import Run3
+#from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
 h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
 cpe = "cnn1d"
-n_events = 400
-use_generic = False
+n_events = 250
+use_generic = True
 use_generic_detangles = False
 use_det_angles = False
 
@@ -26,7 +27,8 @@ datadir = "/uscms_data/d3/ssekhar/CMSSW_11_1_2/src/TrackerStuff/PixelHitsCNN/dat
 
 
 # define the process to run
-process = cms.Process('REC',Run2_2018)
+#process = cms.Process('REC',Run2_2018)
+process = cms.Process('REC',Run3)
 #pf_badHcalMitigation)
 # -- Conditions
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -43,7 +45,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # MC
 #process.GlobalTag = GlobalTag(process.GlobalTag, '105X_upgrade2018_design_v3', '') #phase-1 2018 unirradiated
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2024_realistic', '')
 # data
 #process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun2_v7', '')
 # force Generic reco
@@ -62,8 +64,13 @@ process.source = cms.Source("PoolSource",
   # MC
  # fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/RunIIWinter19PFCalibDR/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-2018Conditions_ideal_105X_upgrade2018_design_v3-v2/130000/03400616-B7CF-2442-92F2-F0EF0CAD8E6F.root")
 #fileNames=cms.untracked.vstring("file:MC_5000_111X_upgrade2018_realistic_v3.root"),   
-fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_500_phase1_2018_realistic.root"),
-eventsToSkip=cms.untracked.VEventRange('1:67-1:69','1:388-1:390'),
+#fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_500_phase1_2018_realistic.root"),
+#fileNames=cms.untracked.vstring("file:TTbar_13TeV_TuneCUETP8M1_cfi_MC_500_phase1_2018_realistic.root"),
+fileNames=cms.untracked.vstring("file:TTbar_14TeV_TuneCP5_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT_MC_500_phase1_2024_realistic.root"),
+#eventsToSkip=cms.untracked.VEventRange('1:8-1:10','1:67-1:69','1:388-1:390'),
+eventsToSkip=cms.untracked.VEventRange('1:40-1:43','1:94-1:96','1:173-1:175','1:234-1:236'),
+#eventsToSkip=cms.untracked.VEventRange('1:67-1:69','1:388-1:390'),
+#eventsToSkip=cms.untracked.VEventRange('1:67-1:69','1:388-1:390'),
 # data
   #fileNames=cms.untracked.vstring("file:52A3B4C3-328E-E811-85D6-FA163E3AB92A.root")
 #skipEvents=cms.untracked.uint32(15)

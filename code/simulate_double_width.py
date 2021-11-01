@@ -162,7 +162,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 	temp_idx_y2 = np.argwhere(clustersize_y>3)[:,0]
 
 	double_idx_x = np.argwhere(clustersize_x>2)[:,0]
-	double_idx_y = rng.choice(np.argwhere(clustersize_y>2)[:,0],size=25000,replace=False)
+	double_idx_y = rng.choice(np.argwhere(clustersize_y>2)[:,0],size=len(double_idx_x),replace=False)
 	
 	print("no of choices in x = ",len(double_idx_x))
 	print("no of choices in y = ",len(double_idx_y))

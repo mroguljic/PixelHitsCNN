@@ -1,0 +1,97 @@
+read in matrices from txt file
+flipped all matrices
+converted labels from pixelav coords to cms coords 
+computed cota cotb
+applied noise and threshold
+applied tanh gain
+0
+100000
+200000
+300000
+400000
+500000
+600000
+700000
+800000
+900000
+1000000
+1100000
+1200000
+1300000
+1400000
+1500000
+1600000
+1700000
+1800000
+1900000
+2000000
+2100000
+2200000
+2300000
+2400000
+2500000
+2600000
+2700000
+2800000
+2900000
+3000000
+3100000
+3200000
+3300000
+3400000
+3500000
+3600000
+3700000
+3800000
+3900000
+4000000
+4100000
+4200000
+4300000
+4400000
+4500000
+4600000
+4700000
+4800000
+4900000
+5000000
+5100000
+5200000
+5300000
+5400000
+5500000
+5600000
+5700000
+5800000
+5900000
+6000000
+6100000
+6200000
+6300000
+6400000
+6500000
+6600000
+6700000
+6800000
+6900000
+7000000
+7100000
+7200000
+7300000
+7400000
+('no of empty matrices: ', 0)
+shifted centre of clusters to matrix centres
+took x and y projections of all matrices
+('no of choices in x = ', 512290)
+('no of choices in y = ', 512290)
+simulated 1 and 2 double width pix in x and y for 2D
+('no of choices in 1x1y = ', 505592)
+simulated 1 in x + 1 in y double width pix for 2D
+('no of choices in 1x2y = ', 496868)
+simulated 1 in x + 2 in y double width pix for 2D
+('no of choices in 2x1y = ', 133537)
+simulated 2 in x + 1 in y double width pix for 2D
+('no of choices in 2x2y = ', 131076)
+simulated 2 in x + 2 in y double width pix for 2D
+('total no of 2d x clusters = ', 9338780, ' total no of 2d x clusters = ', 9629397)
+made train h5 files for x and y. no. of events to train on for x: 9338780 and y: 9629397
