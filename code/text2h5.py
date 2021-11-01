@@ -381,66 +381,7 @@ if(phase1):
 	#threshold = 2000; # threshold in e-
 	threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
-#=====train files===== 
 
-#print("making train h5 file")
-
-train_out = open("templates/template_events_d83710.out", "r")
-##print("writing to file %i \n",i)
-lines = train_out.readlines()
-train_out.close()
-
-n_train = int((len(lines)-2)/14)
-n_double = int(0.3*n_train)
-#print("n_train = ",n_train)
-
-#"image" size = 13x21x1
-train_data = np.zeros((n_train,13,21,1))
-x_position_pav = np.zeros((n_train,1))
-y_position_pav = np.zeros((n_train,1))
-cosx = np.zeros((n_train,1))
-cosy = np.zeros((n_train,1))
-cosz = np.zeros((n_train,1))
-pixelsize_x = np.zeros((n_train,1))
-pixelsize_y = np.zeros((n_train,1))
-pixelsize_z = np.zeros((n_train,1))
-clustersize_x = np.zeros((n_train,1))
-clustersize_y = np.zeros((n_train,1))
-
-
-extract_matrices(lines,train_data)
-#print(train_data[0].reshape((13,21)))
-cota,cotb,x_position,y_position = convert_pav_to_cms()
-#print(x_position_pav[0],y_position_pav[0])
-#print(x_position[0],y_position[0])
-#n_elec were scaled down by 10 so multiply
-train_data = 10*train_data
-#print("multiplied all elements by 10")
-#print(train_data[0].reshape((13,21)))
-
-train_data = apply_noise_threshold(train_data,threshold,noise,threshold_noise_frac)
-#print(test_data[0].reshape((21,13)).astype(int))
-train_data = apply_gain(train_data,fe_type,common_noise_frac)
-#print(test_data[0].reshape((21,13)).astype(int))
-
-train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= center_clusters(train_data,threshold)
-#print(train_data[0].reshape((13,21)))
-#print(x_position[0],y_position[0])
-x_flat = np.zeros((len(train_data),13))
-y_flat = np.zeros((len(train_data),21))
-project_matrices_xy(train_data)
-#print(x_flat[0],y_flat[0])
-#print(clustersize_x[0],clustersize_y[0])
-
-#x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
-train_data_x,train_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
-
-f_x = h5py.File("h5_files/train_x_2d_%s_%s.hdf5"%(filename,date), "w")
-f_y = h5py.File("h5_files/train_y_2d_%s_%s.hdf5"%(filename,date), "w")
-
-create_datasets(f_x,f_y,train_data_x,train_data_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
-'''
 #====== test files ========
 
 #print("making test h5 file.")
@@ -509,5 +450,65 @@ f_x = h5py.File("h5_files/test_x_2d_%s_%s.hdf5"%(filename,date), "w")
 f_y = h5py.File("h5_files/test_y_2d_%s_%s.hdf5"%(filename,date), "w")
 
 create_datasets(f_x,f_y,test_data_x,test_data_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
+
+#=====train files===== 
+
+#print("making train h5 file")
+
+train_out = open("templates/template_events_d83710.out", "r")
+##print("writing to file %i \n",i)
+lines = train_out.readlines()
+train_out.close()
+
+n_train = int((len(lines)-2)/14)
+n_double = int(0.3*n_train)
+#print("n_train = ",n_train)
+
+#"image" size = 13x21x1
+train_data = np.zeros((n_train,13,21,1))
+x_position_pav = np.zeros((n_train,1))
+y_position_pav = np.zeros((n_train,1))
+cosx = np.zeros((n_train,1))
+cosy = np.zeros((n_train,1))
+cosz = np.zeros((n_train,1))
+pixelsize_x = np.zeros((n_train,1))
+pixelsize_y = np.zeros((n_train,1))
+pixelsize_z = np.zeros((n_train,1))
+clustersize_x = np.zeros((n_train,1))
+clustersize_y = np.zeros((n_train,1))
+
+
+extract_matrices(lines,train_data)
+#print(train_data[0].reshape((13,21)))
+cota,cotb,x_position,y_position = convert_pav_to_cms()
+#print(x_position_pav[0],y_position_pav[0])
+#print(x_position[0],y_position[0])
+#n_elec were scaled down by 10 so multiply
+train_data = 10*train_data
+#print("multiplied all elements by 10")
+#print(train_data[0].reshape((13,21)))
+
+train_data = apply_noise_threshold(train_data,threshold,noise,threshold_noise_frac)
+#print(test_data[0].reshape((21,13)).astype(int))
+train_data = apply_gain(train_data,fe_type,common_noise_frac)
+#print(test_data[0].reshape((21,13)).astype(int))
+
+train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb= center_clusters(train_data,threshold)
+#print(train_data[0].reshape((13,21)))
+#print(x_position[0],y_position[0])
+x_flat = np.zeros((len(train_data),13))
+y_flat = np.zeros((len(train_data),21))
+project_matrices_xy(train_data)
+#print(x_flat[0],y_flat[0])
+#print(clustersize_x[0],clustersize_y[0])
+
+#x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+train_data_x,train_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+
+f_x = h5py.File("h5_files/train_x_2d_%s_%s.hdf5"%(filename,date), "w")
+f_y = h5py.File("h5_files/train_y_2d_%s_%s.hdf5"%(filename,date), "w")
+
+create_datasets(f_x,f_y,train_data_x,train_data_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
+
 
 

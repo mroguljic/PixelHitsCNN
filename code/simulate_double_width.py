@@ -175,26 +175,26 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		# simulate 1 in x	
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx = np.unique(np.array(np.nonzero(one_mat))[0]) #choose 1 x double col 
-		n_choices = 1
-		j = rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
+		n_choices = 2
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
 		
-		one_mat[j]=one_mat[j+1]=(one_mat[j]+one_mat[j+1])/2
-		flat_list.append(one_mat.flatten().tolist())
-		clustersize_list.append((clustersize_x[i]-1).tolist())
-		pos_list.append(x_position[i].tolist())
-		cota_list.append(cota[i].tolist())
-		cotb_list.append(cotb[i].tolist())
-		count+=1
-
-		# simulate 2 in x	
-		if j<nonzero_idx[-3] and clustersize_x[i][0] > 3:
-			one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+			one_mat[j]=one_mat[j+1]=(one_mat[j]+one_mat[j+1])/2
 			flat_list.append(one_mat.flatten().tolist())
-			clustersize_list.append((clustersize_x[i]-3).tolist())
+			clustersize_list.append((clustersize_x[i]-1).tolist())
 			pos_list.append(x_position[i].tolist())
 			cota_list.append(cota[i].tolist())
 			cotb_list.append(cotb[i].tolist())
 			count+=1
+
+			# simulate 2 in x	
+			if j<nonzero_idx[-3] and clustersize_x[i][0] > 3:
+				one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+				flat_list.append(one_mat.flatten().tolist())
+				clustersize_list.append((clustersize_x[i]-3).tolist())
+				pos_list.append(x_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
 
 	cluster_matrices_x = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
 	clustersize_x = np.vstack((clustersize_x,np.array(clustersize_list).reshape((count,1))))
@@ -209,28 +209,28 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		# simulate 1 in y	
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx = np.unique(np.array(np.nonzero(one_mat))[1]) #choose 1 y double col 
-		n_choices = 1
-		j = rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
-		#if(count<30): print(one_mat)	
-		one_mat[:,j]=one_mat[:,j+1]=(one_mat[:,j]+one_mat[:,j+1])/2
-		#if(count<30): print(one_mat)
-		flat_list.append(one_mat.flatten().tolist())
-		clustersize_list.append((clustersize_y[i]-1).tolist())
-		pos_list.append(y_position[i].tolist())
-		cota_list.append(cota[i].tolist())
-		cotb_list.append(cotb[i].tolist())
-		count+=1
-
-		# simulate 2 in y	
-		if j<nonzero_idx[-3] and clustersize_y[i][0] > 3:
-			one_mat[:,j+2] = one_mat[:,j+3] = (one_mat[:,j+2]+one_mat[:,j+3])/2.
+		n_choices = 2
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
+			#if(count<30): print(one_mat)	
+			one_mat[:,j]=one_mat[:,j+1]=(one_mat[:,j]+one_mat[:,j+1])/2
 			#if(count<30): print(one_mat)
 			flat_list.append(one_mat.flatten().tolist())
-			clustersize_list.append((clustersize_y[i]-3).tolist())
+			clustersize_list.append((clustersize_y[i]-1).tolist())
 			pos_list.append(y_position[i].tolist())
 			cota_list.append(cota[i].tolist())
 			cotb_list.append(cotb[i].tolist())
 			count+=1
+
+			# simulate 2 in y	
+			if j<nonzero_idx[-3] and clustersize_y[i][0] > 3:
+				one_mat[:,j+2] = one_mat[:,j+3] = (one_mat[:,j+2]+one_mat[:,j+3])/2.
+				#if(count<30): print(one_mat)
+				flat_list.append(one_mat.flatten().tolist())
+				clustersize_list.append((clustersize_y[i]-3).tolist())
+				pos_list.append(y_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
 
 	cluster_matrices_y = np.vstack((cluster_matrices,np.array(flat_list).reshape((count,13,21,1))))
 	clustersize_y = np.vstack((clustersize_y,np.array(clustersize_list).reshape((count,1))))
@@ -274,20 +274,20 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx_x = np.unique(np.array(np.nonzero(one_mat))[0]) 
 		nonzero_idx_y = np.unique(np.array(np.nonzero(one_mat))[1]) 
-		n_choices = 1
-		j1 = rng.choice(nonzero_idx_x[:-1],size=int(n_choices),replace=False)
-		j2 = rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False)
-		one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
-		one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
-		one_mat[:,j2+2]=one_mat[:,j2+3]=(one_mat[:,j2+2]+one_mat[:,j2+3])/2
-		flat_list.append(one_mat.flatten().tolist())
-		clustersize_x_list.append((clustersize_x[i]-1).tolist())
-		clustersize_y_list.append((clustersize_y[i]-3).tolist())
-		pos_x_list.append(x_position[i].tolist())
-		pos_y_list.append(y_position[i].tolist())
-		cota_list.append(cota[i].tolist())
-		cotb_list.append(cotb[i].tolist())
-		count+=1
+		n_choices = 2
+		for j1 in rng.choice(nonzero_idx_x[:-1],size=int(n_choices),replace=False)
+			for j2 in rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False)
+				one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
+				one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
+				one_mat[:,j2+2]=one_mat[:,j2+3]=(one_mat[:,j2+2]+one_mat[:,j2+3])/2
+				flat_list.append(one_mat.flatten().tolist())
+				clustersize_x_list.append((clustersize_x[i]-1).tolist())
+				clustersize_y_list.append((clustersize_y[i]-3).tolist())
+				pos_x_list.append(x_position[i].tolist())
+				pos_y_list.append(y_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
 
 	print("simulated 1 in x + 2 in y double width pix for 2D")
 
@@ -300,20 +300,20 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx_x = np.unique(np.array(np.nonzero(one_mat))[0]) 
 		nonzero_idx_y = np.unique(np.array(np.nonzero(one_mat))[1]) 
-		n_choices = 1
-		j1 = rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False)
-		j2 = rng.choice(nonzero_idx_y[:-1],size=int(n_choices),replace=False)
-		one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
-		one_mat[j1+2]=one_mat[j1+3]=(one_mat[j1+2]+one_mat[j1+3])/2
-		one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
-		flat_list.append(one_mat.flatten().tolist())
-		clustersize_x_list.append((clustersize_x[i]-3).tolist())
-		clustersize_y_list.append((clustersize_y[i]-1).tolist())
-		pos_x_list.append(x_position[i].tolist())
-		pos_y_list.append(y_position[i].tolist())
-		cota_list.append(cota[i].tolist())
-		cotb_list.append(cotb[i].tolist())
-		count+=1
+		n_choices = 2
+		for j1 in rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False)
+			for j2 in rng.choice(nonzero_idx_y[:-1],size=int(n_choices),replace=False)
+				one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
+				one_mat[j1+2]=one_mat[j1+3]=(one_mat[j1+2]+one_mat[j1+3])/2
+				one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
+				flat_list.append(one_mat.flatten().tolist())
+				clustersize_x_list.append((clustersize_x[i]-3).tolist())
+				clustersize_y_list.append((clustersize_y[i]-1).tolist())
+				pos_x_list.append(x_position[i].tolist())
+				pos_y_list.append(y_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
 
 	print("simulated 2 in x + 1 in y double width pix for 2D")
 
@@ -326,21 +326,21 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx_x = np.unique(np.array(np.nonzero(one_mat))[0]) 
 		nonzero_idx_y = np.unique(np.array(np.nonzero(one_mat))[1]) 
-		n_choices = 1
-		j1 = rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False)
-		j2 = rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False)
-		one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
-		one_mat[j1+2]=one_mat[j1+3]=(one_mat[j1+2]+one_mat[j1+3])/2
-		one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
-		one_mat[:,j2+2]=one_mat[:,j2+3]=(one_mat[:,j2+2]+one_mat[:,j2+3])/2
-		flat_list.append(one_mat.flatten().tolist())
-		clustersize_x_list.append((clustersize_x[i]-3).tolist())
-		clustersize_y_list.append((clustersize_y[i]-3).tolist())
-		pos_x_list.append(x_position[i].tolist())
-		pos_y_list.append(y_position[i].tolist())
-		cota_list.append(cota[i].tolist())
-		cotb_list.append(cotb[i].tolist())
-		count+=1
+		n_choices = 2
+		for j1 in rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False)
+			for j2 in rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False)
+				one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
+				one_mat[j1+2]=one_mat[j1+3]=(one_mat[j1+2]+one_mat[j1+3])/2
+				one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
+				one_mat[:,j2+2]=one_mat[:,j2+3]=(one_mat[:,j2+2]+one_mat[:,j2+3])/2
+				flat_list.append(one_mat.flatten().tolist())
+				clustersize_x_list.append((clustersize_x[i]-3).tolist())
+				clustersize_y_list.append((clustersize_y[i]-3).tolist())
+				pos_x_list.append(x_position[i].tolist())
+				pos_y_list.append(y_position[i].tolist())
+				cota_list.append(cota[i].tolist())
+				cotb_list.append(cotb[i].tolist())
+				count+=1
 
 	cluster_matrices_x = np.vstack((cluster_matrices_x,np.array(flat_list).reshape((count,13,21,1))))
 	cluster_matrices_y = np.vstack((cluster_matrices_y,np.array(flat_list).reshape((count,13,21,1))))
