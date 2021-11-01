@@ -176,7 +176,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx = np.unique(np.array(np.nonzero(one_mat))[0]) #choose 1 x double col 
 		n_choices = 2
-		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
 		
 			one_mat[j]=one_mat[j+1]=(one_mat[j]+one_mat[j+1])/2
 			flat_list.append(one_mat.flatten().tolist())
@@ -210,7 +210,7 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx = np.unique(np.array(np.nonzero(one_mat))[1]) #choose 1 y double col 
 		n_choices = 2
-		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False)
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
 			#if(count<30): print(one_mat)	
 			one_mat[:,j]=one_mat[:,j+1]=(one_mat[:,j]+one_mat[:,j+1])/2
 			#if(count<30): print(one_mat)
@@ -274,9 +274,11 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx_x = np.unique(np.array(np.nonzero(one_mat))[0]) 
 		nonzero_idx_y = np.unique(np.array(np.nonzero(one_mat))[1]) 
-		n_choices = 2
-		for j1 in rng.choice(nonzero_idx_x[:-1],size=int(n_choices),replace=False)
-			for j2 in rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False)
+		n_choices_x = 2
+                if clustersize_y[i][0]>4: n_choices_y = 2
+                else: n_choices_y = 1
+		for j1 in rng.choice(nonzero_idx_x[:-1],size=int(n_choices),replace=False):
+			for j2 in rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False):
 				one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
 				one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
 				one_mat[:,j2+2]=one_mat[:,j2+3]=(one_mat[:,j2+2]+one_mat[:,j2+3])/2
@@ -300,9 +302,11 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx_x = np.unique(np.array(np.nonzero(one_mat))[0]) 
 		nonzero_idx_y = np.unique(np.array(np.nonzero(one_mat))[1]) 
-		n_choices = 2
-		for j1 in rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False)
-			for j2 in rng.choice(nonzero_idx_y[:-1],size=int(n_choices),replace=False)
+		if clustersize_x[i][0]>4: n_choices_x = 2
+                else: n_choices_x = 1
+                n_choices_y = 1
+		for j1 in rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False):
+			for j2 in rng.choice(nonzero_idx_y[:-1],size=int(n_choices),replace=False):
 				one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
 				one_mat[j1+2]=one_mat[j1+3]=(one_mat[j1+2]+one_mat[j1+3])/2
 				one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
@@ -326,9 +330,12 @@ def simulate_double_width_2d(cluster_matrices,clustersize_x,clustersize_y,x_posi
 		one_mat = np.copy(cluster_matrices[i]).reshape((13,21))
 		nonzero_idx_x = np.unique(np.array(np.nonzero(one_mat))[0]) 
 		nonzero_idx_y = np.unique(np.array(np.nonzero(one_mat))[1]) 
-		n_choices = 2
-		for j1 in rng.choice(nonzero_idx_x[:-3],size=int(n_choices),replace=False)
-			for j2 in rng.choice(nonzero_idx_y[:-3],size=int(n_choices),replace=False)
+		if clustersize_x[i][0]>4: n_choices_x = 2
+		else: n_choices_x = 1
+		if clustersize_y[i][0]>4: n_choices_y = 2
+		else: n_choices_y = 1
+		for j1 in rng.choice(nonzero_idx_x[:-3],size=int(n_choices_x),replace=False):
+			for j2 in rng.choice(nonzero_idx_y[:-3],size=int(n_choices_y),replace=False):
 				one_mat[j1]=one_mat[j1+1]=(one_mat[j1]+one_mat[j1+1])/2
 				one_mat[j1+2]=one_mat[j1+3]=(one_mat[j1+2]+one_mat[j1+3])/2
 				one_mat[:,j2]=one_mat[:,j2+1]=(one_mat[:,j2]+one_mat[:,j2+1])/2
