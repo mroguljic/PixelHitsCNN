@@ -99,8 +99,8 @@ angles_train = np.hstack((cota_train,cotb_train))
 # Model configuration
 batch_size = 512
 loss_function = 'mse'
-n_epochs_x = 15
-n_epochs_y = 15
+n_epochs_x = 20
+n_epochs_y = 20
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
 

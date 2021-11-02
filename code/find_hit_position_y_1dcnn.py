@@ -41,12 +41,12 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
-h5_date = "092821"
-h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
-img_ext = "1dcnn_%s_sep28"%h5_ext
+h5_date = "110121"
+h5_ext = "p1_2024_irrad_BPIXL1"
+img_ext = "1dcnn_%s_nov1"%h5_ext
 
 # Load data
-f = h5py.File('h5_files/train_y_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_y_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 #xpix_flat_train = f['train_x_flat'][...]
 ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -70,10 +70,10 @@ clustersize_y_train = clustersize_y_train[perm]
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 #inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
-h5_date = "092821"
-h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
+h5_date = "110121"
+h5_ext = "p1_2024_irrad_BPIXL1"
 
-f = h5py.File('h5_files/test_y_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/test_y_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 #xpix_flat_test = f['test_x_flat'][...]
 ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
@@ -185,7 +185,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -193,7 +193,7 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-'''
+
 callbacks = [
 EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
@@ -213,7 +213,7 @@ cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'y',img_ext)
-'''
+
 print("y training time for dnn",time.clock()-train_time_y)
 
 start = time.clock()
