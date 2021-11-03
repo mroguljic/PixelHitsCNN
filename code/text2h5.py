@@ -400,7 +400,7 @@ if(phase1):
 	threshold = 2000; # BPIX L1 Run 3 https://github.com/cms-sw/cmssw/blob/master/SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py#L45
 	#threshold = 3000; # BPIX L1 Phase1
 	fe_type = 2
-'''
+
 #====== test files ========
 
 #print("making test h5 file.")
@@ -476,7 +476,7 @@ create_datasets_1d(f_x,f_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize
 #f_y = h5py.File("h5_files/test_y_2d_%s_%s.hdf5"%(filename,date), "w")
 
 #create_datasets_2d(f_x,f_y,test_data_x,test_data_y,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
-'''
+
 #=====train files===== 
 
 #print("making train h5 file")

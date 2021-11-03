@@ -70,8 +70,8 @@ def simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_positio
 			if j<nonzero_idx[-3] and clustersize_x[i][0] > 3:
 				one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
 				flat_list.append(one_mat.tolist())
-				clustersize_list.append((clustersize_y[i]-3).tolist())
-				pos_list.append(y_position[i].tolist())
+				clustersize_list.append((clustersize_x[i]-3).tolist())
+				pos_list.append(x_position[i].tolist())
 				cota_list.append(cota[i].tolist())
 				cotb_list.append(cotb[i].tolist())
 				count+=1
