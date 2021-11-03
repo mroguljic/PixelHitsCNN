@@ -40,7 +40,7 @@ def plot_dnn_loss(history,label,img_ext):
 
 def plot_residuals(residuals,algo,label,img_ext):
 
-	res = ROOT.TH1F("residuals","%s %s"%(algo,label),100,-300,300)
+	res = ROOT.TH1F("residuals","%s %s"%(algo,label),400,-1000,1000)
 	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
 	'''
 	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
