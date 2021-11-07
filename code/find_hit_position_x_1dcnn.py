@@ -43,7 +43,7 @@ import cmsml
 
 h5_date = "110121"
 h5_ext = "p1_2024_irrad_BPIXL1"
-img_ext = "1dcnn_%s_nov1"%h5_ext
+img_ext = "1dcnn_%s_nov3"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_x_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -112,8 +112,8 @@ f.close()
 #print(ypix_flat_test[:30])
 #print("clustersize of 1: ",len(np.argwhere(clustersize_x_train==1)))
 for i in range(50):
-	if clustersize_x_train[i]==1:
-		print(xpix_flat_train[i])
+#	if clustersize_x_train[i]==1:
+	print(xpix_flat_train[i])
 	
 '''
 norm_x = np.amax(xpix_flat_train)
@@ -136,9 +136,9 @@ test_cy = test_c.sum(axis=0).reshape((1,21))
 # Model configuration
 batch_size = 512
 loss_function = 'mse'
-n_epochs_x = 15
+n_epochs_x = 20
 n_epochs_y = 20
-optimizer = Adam(lr=0.001)
+optimizer = Adam(lr=0.005)
 validation_split = 0.2
 
 train_time_x = time.clock()
@@ -146,11 +146,11 @@ train_time_x = time.clock()
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Conv1D(64, kernel_size=2, padding="same")(inputs)
+x = Conv1D(64, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
 x = Conv1D(128, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
-x = Conv1D(64, kernel_size=2, padding="same")(x)
+x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
@@ -189,16 +189,16 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 callbacks = [
-EarlyStopping(patience=6),
+#EarlyStopping(patience=6),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_best_only=True,
 		            save_weights_only=True,
@@ -216,7 +216,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()

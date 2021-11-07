@@ -195,8 +195,8 @@ print("cnn2d_x_det shape = ",cnn2d_x_det.shape,"cnn2d_y_det shape = ",cnn2d_y_de
 n = min(len(cnn1d_ids),len(template_ids))
 print(len(cnn1d_ids[:n]==template_ids[:n]))
 
-#residuals_x = plot_root(cnn1d_x,'x','1dcnn')
-#residuals_y = plot_root(cnn1d_y,'y','1dcnn')
+residuals_x = plot_root(cnn1d_x,'x','1dcnn')
+residuals_y = plot_root(cnn1d_y,'y','1dcnn')
 
 #residuals_x = plot_root(cnn1d_x_det,'x','1dcnn_detangles')
 #residuals_y = plot_root(cnn1d_y_det,'y','1dcnn_detangles')

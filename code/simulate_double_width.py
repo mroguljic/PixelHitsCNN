@@ -47,10 +47,10 @@ def simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_positio
 		#clustersize_x[i]-=1 
 		#since this now simulates a double col pix, the cluster size goes down by 1
 		#if clustersize_x[i][0]-1>5: n_choices = 5
-		n_choices = clustersize_x[i][0]-1
+		n_choices = clustersize_x[i][0]+3
 
 		#simulate all configs of double width
-		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
+		for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=True):
 			one_mat = np.copy(x_flat[i])
 			#if count < 30:
 			#	print("cluster x")
