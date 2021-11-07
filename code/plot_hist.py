@@ -19,7 +19,7 @@ def gaussian(x, amplitude, mean, stddev):
 
 def plot_residual(residuals,label,algo):
 	
-	bins = np.linspace(-300,300,100)
+	bins = np.linspace(-1000,1000,400)
 	residuals*=1e4
 
 	print("====== %s %s ======"%(algo,label))

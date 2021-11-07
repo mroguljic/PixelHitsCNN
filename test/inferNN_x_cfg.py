@@ -17,7 +17,7 @@ use_generic = True
 use_generic_detangles = False
 use_det_angles = False
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_nov1"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_nov3"%h5_ext
 elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug31"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 
