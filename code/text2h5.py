@@ -460,16 +460,15 @@ y_flat = np.zeros((len(test_data),21))
 project_matrices_xy(test_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
-#for i in range(30):
-#       print("======== Modified Cluster %i ========\n"%i)
-#       print(test_data[i].reshape((21,13)).astype(int))
-f_x = h5py.File("h5_files/test_x_1d_%s_%s.hdf5"%(filename,date), "w")
-f_y = h5py.File("h5_files/test_y_1d_%s_%s.hdf5"%(filename,date), "w")
 
 if simulate_double:
+	f_x = h5py.File("h5_files/test_x_1d_%s_%s.hdf5"%(filename,date), "w")
+	f_y = h5py.File("h5_files/test_y_1d_%s_%s.hdf5"%(filename,date), "w")
 	x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
 else:
+	f_x = h5py.File("h5_files/test_x_1d_nodouble_%s_%s.hdf5"%(filename,date), "w")
+	f_y = h5py.File("h5_files/test_y_1d_nodouble_%s_%s.hdf5"%(filename,date), "w")
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota,cotb,cota,cotb,clustersize_x,clustersize_y,x_position,y_position,"test")
 
 #test_data_x,test_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
@@ -530,13 +529,16 @@ y_flat = np.zeros((len(train_data),21))
 project_matrices_xy(train_data)
 #print(x_flat[0],y_flat[0])
 #print(clustersize_x[0],clustersize_y[0])
-f_x = h5py.File("h5_files/train_x_1d_%s_%s.hdf5"%(filename,date), "w")
-f_y = h5py.File("h5_files/train_y_1d_%s_%s.hdf5"%(filename,date), "w")
+
 
 if simulate_double:
+	f_x = h5py.File("h5_files/train_x_1d_%s_%s.hdf5"%(filename,date), "w")
+	f_y = h5py.File("h5_files/train_y_1d_%s_%s.hdf5"%(filename,date), "w")
 	x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
 else:
+	f_x = h5py.File("h5_files/train_x_1d_nodouble_%s_%s.hdf5"%(filename,date), "w")
+	f_y = h5py.File("h5_files/train_y_1d_nodouble_%s_%s.hdf5"%(filename,date), "w")
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota,cotb,cota,cotb,clustersize_x,clustersize_y,x_position,y_position,"train")
 
 #train_data_x,train_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
