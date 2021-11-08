@@ -43,10 +43,10 @@ import cmsml
 
 h5_date = "110121"
 h5_ext = "p1_2024_irrad_BPIXL1"
-img_ext = "1dcnn_%s_nov3"%h5_ext
+img_ext = "1dcnn_%s_nov7_nodouble"%h5_ext
 
 # Load data
-f = h5py.File('h5_files/train_x_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/train_x_1d_nodouble_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_train = f['train_x_flat'][...]
 #ypix_flat_train = f['train_y_flat'][...]
 cota_train = f['cota'][...]
@@ -71,10 +71,10 @@ inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newax
 #inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
 
-h5_date = "110121"
-h5_ext = "p1_2024_irrad_BPIXL1"
+#h5_date = "110121"
+#h5_ext = "p1_2024_irrad_BPIXL1"
 
-f = h5py.File('h5_files/test_x_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
+f = h5py.File('h5_files/test_x_1d_nodouble_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 #ypix_flat_test = f['test_y_flat'][...]
 cota_test = f['cota'][...]
@@ -189,16 +189,16 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-
+'''
 callbacks = [
-#EarlyStopping(patience=6),
+EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
                 save_best_only=True,
 		            save_weights_only=True,
@@ -216,7 +216,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
