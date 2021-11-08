@@ -6,7 +6,7 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '103121_2024'
+img_ext = '110721_2024_nodouble'
 SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)

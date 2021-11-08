@@ -495,8 +495,8 @@ private:
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
-			if(n_double>2){
-			printf("MORE THAN 2 DOUBLE COL in Y = %i, SKIPPING\n",n_double);
+			if(n_double>0){
+			//printf("MORE THAN 2 DOUBLE COL in Y = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
 			}
 			if(clustersize==0) {printf("EMPTY CLUSTER, SKIPPING\n");continue;}

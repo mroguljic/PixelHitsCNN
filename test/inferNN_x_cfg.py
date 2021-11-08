@@ -13,11 +13,11 @@ from Configuration.Eras.Era_Run3_cff import Run3
 h5_ext = "p1_2024_irrad_BPIXL1"
 cpe = "cnn1d"
 n_events = 250
-use_generic = True
+use_generic = False
 use_generic_detangles = False
 use_det_angles = False
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_nov3"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_nov7_nodouble"%h5_ext
 elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_aug31"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 

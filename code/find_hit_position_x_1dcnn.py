@@ -211,12 +211,12 @@ history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
                 epochs=n_epochs_x,
                 callbacks=callbacks,
                 validation_split=validation_split)
-
+'''
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
-plot_dnn_loss(history.history,'x',img_ext)
-'''
+#plot_dnn_loss(history.history,'x',img_ext)
+
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
