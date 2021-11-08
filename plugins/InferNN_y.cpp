@@ -495,7 +495,7 @@ private:
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
 			}
-			if(n_double>0){
+			if(n_double>2){
 			//printf("MORE THAN 2 DOUBLE COL in Y = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
 			}
@@ -628,12 +628,12 @@ private:
 			
 				// define the output and run
 			std::vector<tensorflow::Tensor> output_y;
-			//if(cpe=="cnn2d") tensorflow::run(session_y, {{inputTensorName_y,cluster_}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
-			//else tensorflow::run(session_y, {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
+			if(cpe=="cnn2d") tensorflow::run(session_y, {{inputTensorName_y,cluster_}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
+			else tensorflow::run(session_y, {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_}, &output_y);
 				// convert microns to cms
-			//y_nn = output_y[0].matrix<float>()(0,0);
+			y_nn = output_y[0].matrix<float>()(0,0);
 				//printf("x = %f\n",y_nn[count]);
-			y_nn=0;
+			
 			y_nn = (y_nn+pixelsize_y*(mid_y))*micronsToCm; 
 
 			//	printf("cota = %f, cotb = %f, y_nn = %f\n",cotAlpha,cotBeta,y_nn[count]);

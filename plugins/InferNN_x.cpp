@@ -497,7 +497,7 @@ private:
 
 			}
 			if(clustersize==0){printf("EMPTY CLUSTER, SKIPPING\n");continue;}	
-			if(n_double>0){
+			if(n_double>2){
 		//	printf("MORE THAN 2 DOUBLE COL in X  = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
 			}
