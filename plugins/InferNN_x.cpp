@@ -472,7 +472,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				mcol = std::min(mcol, TYSIZE);
 				assert(mrow > 0);
 				assert(mcol > 0);
-				float cluster_max = 0.;
+				
 				int n_double_x = 0, n_double_y = 0;
 				int clustersize = 0;
 				int double_row[5], double_col[5]; 
@@ -563,7 +563,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		if(n_double_x==2 && clustersize_x>11) {printf("clustersize_x > 11, SKIPPING\n"); continue;}
 		if(n_double_y==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
 		if(n_double_y==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
-
+		/*
 		if(n_double_x>0 or n_double_y>0){
 			printf("double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
 			for(int i=0;i<TXSIZE;i++){
@@ -571,7 +571,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				printf("%f ",clusbuf_temp[i][f]);
 			printf("\n");
 			}
-		}
+		}*/
 		//first deal with double width pixels in x
 		int k=0,m=0;
 		for(int i=0;i<TXSIZE;i++){
@@ -621,6 +621,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			}
 			k++;
 		}
+		/*
 		if(n_double_x>0 or n_double_y>0){
 			printf("MODIFIED double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
 			for(int i=0;i<TXSIZE;i++){
@@ -628,7 +629,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				printf("%f ",clusbuf[i][f]);
 			printf("\n");
 			}
-		}
+		}*/
 			/*
 			if(k==1 or k==2){
 			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
@@ -664,22 +665,28 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 	         	printf("\n");
      		}
             */
-			//compute the 1d projection
+			//compute the 1d projection & compute cluster max
+			float cluster_max = 0., cluster_max_2d = 0.;
             for(int i = 0;i < TXSIZE; i++){
 			for(int j = 0; j < TYSIZE; j++){
 				clusbuf_x[i] += clusbuf[i][j];
-			}
-				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
-		    }
-			//compute cluster max
-			cluster_max = 0.;
-			for(int i = 0;i < TXSIZE; i++){
+				if(clusbuf[i][j]>cluster_max_2d) cluster_max_2d = clusbuf[i][j];
+				}
 				if(clusbuf_x[i] > cluster_max) cluster_max = clusbuf_x[i] ; 
-			}
-
+		    }
+			
 			//normalize 1d inputs
 			for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = clusbuf_x[i]/cluster_max;
-				//===============================
+
+			//normalize 2d inputs
+			for(int i = 0;i < TXSIZE; i++){
+				for (int j = 0; i < TYSIZE; j++)
+				{
+					clusbuf[i][j] /= cluster_max_2d;
+				}
+			}
+
+				//========================================================================================
 				// define a tensor and fill it with cluster projection
 				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
 			tensorflow::Tensor cluster_(tensorflow::DT_FLOAT, {1,TXSIZE,TYSIZE,1});
