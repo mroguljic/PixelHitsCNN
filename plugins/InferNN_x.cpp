@@ -148,152 +148,152 @@ private:
 	int mid_x = 0, mid_y = 0;
 	float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
 	struct timeval now0, now1;
-    struct timezone timz;
+	struct timezone timz;
 
 
-	};
+};
 
-	std::unique_ptr<CacheData> InferNN_x::initializeGlobalCache(const edm::ParameterSet& config) 
-	{
+std::unique_ptr<CacheData> InferNN_x::initializeGlobalCache(const edm::ParameterSet& config) 
+{
 
 	// this method is supposed to create, initialize and return a CacheData instance
-		CacheData* cacheData = new CacheData();
+	CacheData* cacheData = new CacheData();
 
 	// load the graph def and save it
-		std::string graphPath_x = config.getParameter<std::string>("graphPath_x");
-		cacheData->graphDef = tensorflow::loadGraphDef(graphPath_x);
+	std::string graphPath_x = config.getParameter<std::string>("graphPath_x");
+	cacheData->graphDef = tensorflow::loadGraphDef(graphPath_x);
 
 	// set tensorflow log leven to warning
-		tensorflow::setLogging("2");
+	tensorflow::setLogging("2");
 	//init();
 
-		return std::unique_ptr<CacheData>(cacheData);
-	}
+	return std::unique_ptr<CacheData>(cacheData);
+}
 
-	void InferNN_x::globalEndJob(const CacheData* cacheData) {
+void InferNN_x::globalEndJob(const CacheData* cacheData) {
 	// reset the graphDef
 	printf("in global end job\n");
 		//tensorflow::closeSession(session_x);		
-		if (cacheData->graphDef != nullptr) {
-			delete cacheData->graphDef;
-		}
-
+	if (cacheData->graphDef != nullptr) {
+		delete cacheData->graphDef;
 	}
 
-	void InferNN_x::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+}
+
+void InferNN_x::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 	// defining this function will lead to a *_cfi file being generated when compiling
-		edm::ParameterSetDescription desc;
-		desc.add<std::string>("graphPath_x");
-		desc.add<std::string>("inputTensorName_x");
-		desc.add<std::string>("anglesTensorName_x");
-		desc.add<std::string>("outputTensorName");
-		desc.add<bool>("use_det_angles");
-		desc.add<std::string>("cpe");
-		desc.add<bool>("use_generic");
-		desc.add<bool>("use_generic_detangles");
-		desc.add<bool>("associatePixel");
-		desc.add<bool>("associateStrip");
-		desc.add<bool>("associateRecoTracks");
-		desc.add<std::string>("pixelSimLinkSrc");
-		desc.add<std::string>("stripSimLinkSrc");
-		desc.add<std::vector<std::string>>("ROUList");
-		descriptions.addWithDefaultLabel(desc);
-	}
+	edm::ParameterSetDescription desc;
+	desc.add<std::string>("graphPath_x");
+	desc.add<std::string>("inputTensorName_x");
+	desc.add<std::string>("anglesTensorName_x");
+	desc.add<std::string>("outputTensorName");
+	desc.add<bool>("use_det_angles");
+	desc.add<std::string>("cpe");
+	desc.add<bool>("use_generic");
+	desc.add<bool>("use_generic_detangles");
+	desc.add<bool>("associatePixel");
+	desc.add<bool>("associateStrip");
+	desc.add<bool>("associateRecoTracks");
+	desc.add<std::string>("pixelSimLinkSrc");
+	desc.add<std::string>("stripSimLinkSrc");
+	desc.add<std::vector<std::string>>("ROUList");
+	descriptions.addWithDefaultLabel(desc);
+}
 
-	InferNN_x::InferNN_x(const edm::ParameterSet& config, const CacheData* cacheData)
-	: inputTensorName_x(config.getParameter<std::string>("inputTensorName_x")),
-	anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
-	outputTensorName_(config.getParameter<std::string>("outputTensorName")),
-	session_x(tensorflow::createSession(cacheData->graphDef)),
-	use_det_angles(config.getParameter<bool>("use_det_angles")),
-	cpe(config.getParameter<std::string>("cpe")),
-	use_generic(config.getParameter<bool>("use_generic")),
-	use_generic_detangles(config.getParameter<bool>("use_generic_detangles")),
-	fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
-	fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
-	trackerHitAssociatorConfig_(config, consumesCollector()) {
+InferNN_x::InferNN_x(const edm::ParameterSet& config, const CacheData* cacheData)
+: inputTensorName_x(config.getParameter<std::string>("inputTensorName_x")),
+anglesTensorName_x(config.getParameter<std::string>("anglesTensorName_x")),
+outputTensorName_(config.getParameter<std::string>("outputTensorName")),
+session_x(tensorflow::createSession(cacheData->graphDef)),
+use_det_angles(config.getParameter<bool>("use_det_angles")),
+cpe(config.getParameter<std::string>("cpe")),
+use_generic(config.getParameter<bool>("use_generic")),
+use_generic_detangles(config.getParameter<bool>("use_generic_detangles")),
+fTrackCollectionLabel(config.getUntrackedParameter<InputTag>("trackCollectionLabel", edm::InputTag("generalTracks"))),
+fPrimaryVertexCollectionLabel(config.getUntrackedParameter<InputTag>("PrimaryVertexCollectionLabel", edm::InputTag("offlinePrimaryVertices"))),
+trackerHitAssociatorConfig_(config, consumesCollector()) {
 
-		TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
-		VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
-		TrackerTopoToken        = esConsumes <TrackerTopology, TrackerTopologyRcd>();
+	TrackToken              = consumes <std::vector<reco::Track>>(fTrackCollectionLabel) ;
+	VertexCollectionToken   = consumes <reco::VertexCollection>(fPrimaryVertexCollectionLabel) ;
+	TrackerTopoToken        = esConsumes <TrackerTopology, TrackerTopologyRcd>();
 
-		PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
-		SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
-		SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
-		count = 0;
+	PixelDigiSimLinkToken   = consumes <edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis")); 
+	SimTrackContainerToken  = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits")); 
+	SimVertexContainerToken = consumes <edm::SimVertexContainer>(edm::InputTag("g4SimHits")); 
+	count = 0;
 
 	//initializations
-		for(int i=0;i<MAXCLUSTER;i++){
-			dx_nn[i]=9999.0;
-			dx_gen[i]=9999.0;
-			index[i]=-999;
+	for(int i=0;i<MAXCLUSTER;i++){
+		dx_nn[i]=9999.0;
+		dx_gen[i]=9999.0;
+		index[i]=-999;
 			//for(int j=0;j<SIMHITPERCLMAX;j++){
 			//	fClSimHitLx[i][j]=-999.0;
 			//	fClSimHitLy[i][j]=-999.0;
 			//}
-			for(int j=0;j<2;j++){
-				clsize_1[i][j]=-999.0;
-				clsize_2[i][j]=-999.0;
-				clsize_3[i][j]=-999.0;
-				clsize_4[i][j]=-999.0;			
-				clsize_5[i][j]=-999.0;
-				clsize_6[i][j]=-999.0;
-			}
-			
+		for(int j=0;j<2;j++){
+			clsize_1[i][j]=-999.0;
+			clsize_2[i][j]=-999.0;
+			clsize_3[i][j]=-999.0;
+			clsize_4[i][j]=-999.0;			
+			clsize_5[i][j]=-999.0;
+			clsize_6[i][j]=-999.0;
 		}
-		sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
-		if(use_generic && !use_generic_detangles){
+
+	}
+	sprintf(path,"TrackerStuff/PixelHitsCNN/txt_files");
+	if(use_generic && !use_generic_detangles){
 		sprintf(infile1,"%s/generic_MC_x.txt",path);
 		gen_file = fopen(infile1, "w");
-		}
-		else if(use_generic && use_generic_detangles){
+	}
+	else if(use_generic && use_generic_detangles){
 		sprintf(infile1,"%s/generic_MC_x_detangles.txt",path);
 		gen_file = fopen(infile1, "w");
-		}
-		else if(!use_generic && !use_generic_detangles){
+	}
+	else if(!use_generic && !use_generic_detangles){
 		sprintf(infile1,"%s/template_MC_x.txt",path);
 		gen_file = fopen(infile1, "w");
-		}
-		else {
+	}
+	else {
 		printf("USING TEMPLATE WITH DETANGLES IS WRONG\n");
 		return;
-		}
+	}
 
 		//sprintf(infile2,"%s/simhits_MC_x.txt",path);
 		//sim_file = fopen(infile2, "w");
 
-		if(use_det_angles){
+	if(use_det_angles){
 		sprintf(infile3,"%s/%s_MC_x_detangles.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_x_detangles.txt",path,cpe.c_str());
 		clustersize_x_file = fopen(infile4, "w");
-		}
-		else{
+	}
+	else{
 		sprintf(infile3,"%s/%s_MC_x.txt",path,cpe.c_str());
 		nn_file = fopen(infile3, "w");
 
 		sprintf(infile4,"%s/%s_MC_perclustersize_x.txt",path,cpe.c_str());
 		clustersize_x_file = fopen(infile4, "w");
-		}
-		
-		
 	}
 
-	void InferNN_x::beginJob() {
 
-	}
+}
 
-	void InferNN_x::endJob() {
+void InferNN_x::beginJob() {
+
+}
+
+void InferNN_x::endJob() {
 	// close the session
 		//tensorflow::closeSession(session_x);
-		printf("in end job\n");
+	printf("in end job\n");
 		//fclose(nn_file);
 		//fclose(sim_file);
 
-	}
+}
 
-	void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 
 		//if (sim_file==NULL) {
@@ -301,109 +301,110 @@ private:
 		//	return ;
 		//}
 	
-		if (nn_file==NULL) {
-			printf("couldn't open residual output file/n");
-			return ;
-		}
-		edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(TrackerTopoToken);
-		auto const& tkTpl = *tTopoHandle;
+	if (nn_file==NULL) {
+		printf("couldn't open residual output file/n");
+		return ;
+	}
+	edm::ESHandle<TrackerTopology> tTopoHandle = setup.getHandle(TrackerTopoToken);
+	auto const& tkTpl = *tTopoHandle;
 		// get geometry
 	
-		std::vector<PSimHit> vec_simhits_assoc;
-		TrackerHitAssociator *associate(0);
+	std::vector<PSimHit> vec_simhits_assoc;
+	TrackerHitAssociator *associate(0);
 
-		associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
+	associate = new TrackerHitAssociator(event,trackerHitAssociatorConfig_);
 
 	//get the map
-		edm::Handle<reco::TrackCollection> tracks;
+	edm::Handle<reco::TrackCollection> tracks;
 
-		try {
-			event.getByToken(TrackToken, tracks);
-		}catch (cms::Exception &ex) {
+	try {
+		event.getByToken(TrackToken, tracks);
+	}catch (cms::Exception &ex) {
 	//if (fVerbose > 1) 
-			cout << "No Track collection with label " << fTrackCollectionLabel << endl;
-		}
-		if (tracks.isValid()) {
-			const std::vector<reco::Track> trackColl = *(tracks.product());
+		cout << "No Track collection with label " << fTrackCollectionLabel << endl;
+	}
+	if (tracks.isValid()) {
+		const std::vector<reco::Track> trackColl = *(tracks.product());
 		//nTk = trackColl.size();
 		//if (fVerbose > 1) 
 		//cout << "--> Track collection size: " << nTk << endl;
-		} else {
+	} else {
   	//if (fVerbose > 1)
-			cout << "--> No valid track collection" << endl;
-		}
-		if (!tracks.isValid()) {
-			cout << "track collection is not valid" <<endl;
-			return;
-		}
+		cout << "--> No valid track collection" << endl;
+	}
+	if (!tracks.isValid()) {
+		cout << "track collection is not valid" <<endl;
+		return;
+	}
 
-		float clusbuf[TXSIZE][TYSIZE], clusbuf_x_temp[TXSIZE], clusbuf_x[TXSIZE];
+	float clusbuf[TXSIZE][TYSIZE], clusbuf_temp[TXSIZE][TYSIZE], clusbuf_x_temp[TXSIZE], clusbuf_x[TXSIZE];
 
-		static int ix,iy;
-		int prev_count = count;
+	static int ix,iy;
+	int prev_count = count;
 		//int id = count-1;
-		for (auto const& track : *tracks) {
+	for (auto const& track : *tracks) {
 
-			idx++;
-			index[count] = idx;
+		idx++;
+		index[count] = idx;
 
-			auto etatk = track.eta();
+		auto etatk = track.eta();
 
-			auto const& trajParams = track.extra()->trajParams();
-			assert(trajParams.size() == track.recHitsSize());
-			auto hb = track.recHitsBegin();
+		auto const& trajParams = track.extra()->trajParams();
+		assert(trajParams.size() == track.recHitsSize());
+		auto hb = track.recHitsBegin();
 
-			for (unsigned int h = 0; h < track.recHitsSize(); h++) {
+		for (unsigned int h = 0; h < track.recHitsSize(); h++) {
 		//		idx++;
                 //index[count] = idx;
 
-				auto hit = *(hb + h);
-				if (!hit->isValid())
-					continue;
-				if (hit->geographicalId().det() != DetId::Tracker) {
-            		continue; 
-         		 }
-				auto id = hit->geographicalId();
-			    DetId hit_detId = hit->geographicalId();
+			auto hit = *(hb + h);
+			if (!hit->isValid())
+				continue;
+			if (hit->geographicalId().det() != DetId::Tracker) {
+				continue; 
+			}
+			auto id = hit->geographicalId();
+			DetId hit_detId = hit->geographicalId();
 
 			// check that we are in the pixel detector
-				auto subdetid = (id.subdetId());
+			auto subdetid = (id.subdetId());
 
-				
+
 
 				if (subdetid != PixelSubdetector::PixelBarrel) //&& subdetid != PixelSubdetector::PixelEndcap)
 					continue;
 				if (tkTpl.pxbLayer(hit_detId) != 1) //only L1
-				continue;
-			
+					continue;
 
-			auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
-			if (!pixhit)
-				continue;
+
+				auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
+				if (!pixhit)
+					continue;
 
 
 			//some initialization
-			for(int j=0; j<TXSIZE; ++j) {
-				for(int i=0; i<TYSIZE; ++i) {
-				clusbuf[j][i] = 0.;
+				for(int j=0; j<TXSIZE; ++j) {
+					for(int i=0; i<TYSIZE; ++i) {
+						clusbuf[j][i] = 0.;
+						clusbuf_temp[j][i] = 0.;
 				//clusbuf_y[i] = 0.;
+					} 
+					clusbuf_x_temp[j] = 0.;
+					clusbuf_x[j] = 0.;
 				} 
-				clusbuf_x_temp[j] = 0.;
-				clusbuf_x[j] = 0.;
-			} 
-			for(int i=0;i<SIMHITPERCLMAX;i++){
-				fClSimHitLx[i] = -999.0;
-				fClSimHitLy[i] = -999.0;
-			}
+				for(int i=0;i<SIMHITPERCLMAX;i++){
+					fClSimHitLx[i] = -999.0;
+					fClSimHitLy[i] = -999.0;
+				}
 
 			// get the cluster
 				auto clustp = pixhit->cluster();
-			if (clustp.isNull())
-				continue;
-			auto const& cluster = *clustp;
-			const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
+				if (clustp.isNull())
+					continue;
+				auto const& cluster = *clustp;
+				const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
 
-			auto const& ltp = trajParams[h];
+				auto const& ltp = trajParams[h];
 
 			 // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
 				  // we have the following:
@@ -415,146 +416,191 @@ private:
 				  // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
 
-			int row_offset = cluster.minPixelRow();
-			int col_offset = cluster.minPixelCol();
+				int row_offset = cluster.minPixelRow();
+				int col_offset = cluster.minPixelCol();
 	         //printf("cluster.minPixelRow() = %i\n",cluster.minPixelRow());
 	         //printf("cluster.minPixelCol() = %i\n",cluster.minPixelCol());
 			// Store the coordinates of the center of the (0,0) pixel of the array that
 			// gets passed to PixelTempReco1D
 			// Will add these values to the output of  PixelTempReco1D
-			float tmp_x = float(row_offset) + 0.5f;
-			float tmp_y = float(col_offset) + 0.5f;
+				float tmp_x = float(row_offset) + 0.5f;
+				float tmp_y = float(col_offset) + 0.5f;
 
-			float cotAlpha=ltp.dxdz();
-			float cotBeta=ltp.dydz();
+				float cotAlpha=ltp.dxdz();
+				float cotBeta=ltp.dydz();
 			//https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEBase.cc#L263-L272
-			LocalPoint trk_lp = ltp.position();
-			float trk_lp_x = trk_lp.x();
-			float trk_lp_y = trk_lp.y();
+				LocalPoint trk_lp = ltp.position();
+				float trk_lp_x = trk_lp.x();
+				float trk_lp_y = trk_lp.y();
 
-			Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
-			LocalPoint lp; 
-			auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-			if(!geomdetunit) continue;
-			auto const& topol = geomdetunit->specificTopology();
-			lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
-			if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
+				Topology::LocalTrackPred loc_trk_pred =Topology::LocalTrackPred(trk_lp_x, trk_lp_y, cotAlpha, cotBeta);
+				LocalPoint lp; 
+				auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+				if(!geomdetunit) continue;
+				auto const& topol = geomdetunit->specificTopology();
+				lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y), loc_trk_pred);
+				if(use_det_angles) lp = topol.localPosition(MeasurementPoint(tmp_x, tmp_y));
 			//printf("%f %f\n",cotAlpha,cotBeta);
 
-			if(use_det_angles){
-				auto const& theOrigin = geomdetunit->surface().toLocal(GlobalPoint(0, 0, 0));
-				LocalPoint lp2 = topol.localPosition(
-					MeasurementPoint(cluster.x(), cluster.y()));
-				auto gvx = lp2.x() - theOrigin.x();
-				auto gvy = lp2.y() - theOrigin.y();
-				auto gvz = -1.f /theOrigin.z();	
+				if(use_det_angles){
+					auto const& theOrigin = geomdetunit->surface().toLocal(GlobalPoint(0, 0, 0));
+					LocalPoint lp2 = topol.localPosition(
+						MeasurementPoint(cluster.x(), cluster.y()));
+					auto gvx = lp2.x() - theOrigin.x();
+					auto gvy = lp2.y() - theOrigin.y();
+					auto gvz = -1.f /theOrigin.z();	
 					// calculate angles
-				cotAlpha = gvx * gvz;
-				cotBeta = gvy * gvz;
+					cotAlpha = gvx * gvz;
+					cotBeta = gvy * gvz;
 				//printf("detangles: %f %f\n",cotAlpha,cotBeta);
-			}
+				}
 //			printf("count = %i\n",count);
 				  // first compute matrix size
-			int mrow = 0, mcol = 0;
-			for (int i = 0; i != cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x);
-				int icol = int(pix.y);
-				mrow = std::max(mrow, irow);
-				mcol = std::max(mcol, icol);
-			}
-			mrow -= row_offset;
-			mrow += 1;
-			mrow = std::min(mrow, TXSIZE);
-			mcol -= col_offset;
-			mcol += 1;
-			mcol = std::min(mcol, TYSIZE);
-			assert(mrow > 0);
-			assert(mcol > 0);
-			float cluster_max = 0.;
-			int n_double = 0, n_double_y = 0;
-			int clustersize = 0;
-			int double_row[5]; for(int i=0;i<5;i++)double_row[i]=-1;
-			int k=0;
-			int irow_sum = 0, icol_sum = 0;
-			for (int i = 0; i < cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x) - row_offset;
-				int icol = int(pix.y) - col_offset;
-				if ((irow >= mrow) || (icol >= mcol)) continue;	
-				if ((int)pix.x == 79 || (int)pix.x == 80){
-				int flag=0;
-				for(int j=0;j<5;j++){
-				 	if(irow==double_row[j]) {flag = 1; break;}
+				int mrow = 0, mcol = 0;
+				for (int i = 0; i != cluster.size(); ++i) {
+					auto pix = cluster.pixel(i);
+					int irow = int(pix.x);
+					int icol = int(pix.y);
+					mrow = std::max(mrow, irow);
+					mcol = std::max(mcol, icol);
 				}
-				if(flag!=1) {double_row[n_double]=irow; n_double++;}
+				mrow -= row_offset;
+				mrow += 1;
+				mrow = std::min(mrow, TXSIZE);
+				mcol -= col_offset;
+				mcol += 1;
+				mcol = std::min(mcol, TYSIZE);
+				assert(mrow > 0);
+				assert(mcol > 0);
+				float cluster_max = 0.;
+				int n_double_x = 0, n_double_y = 0;
+				int clustersize = 0;
+				int double_row[5], double_col[5]; 
+				for(int i=0;i<5;i++){
+					double_row[i]=-1;
+					double_col[i]=-1;
 				}
-				irow_sum+=irow;
-				icol_sum+=icol;
-				clustersize++;
-				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
+				
+				int irow_sum = 0, icol_sum = 0;
+				for (int i = 0; i < cluster.size(); ++i) {
+					auto pix = cluster.pixel(i);
+					int irow = int(pix.x) - row_offset;
+					int icol = int(pix.y) - col_offset;
+					if ((irow >= mrow) || (icol >= mcol)) continue;	
+					if ((int)pix.x == 79 || (int)pix.x == 80){
+						int flag=0;
+						for(int j=0;j<5;j++){
+							if(irow==double_row[j]) {flag = 1; break;}
+						}
+						if(flag!=1) {double_row[n_double_x]=irow; n_double_x++;}
+					}
+					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51){
+						int flag=0;
+						for(int j=0;j<5;j++){
+							if(icol==double_col[j]) {flag = 1; break;}
+						}
+						if(flag!=1) {double_col[n_double_y]=icol; n_double_y++;}
+					}
+					irow_sum+=irow;
+					icol_sum+=icol;
+					clustersize++;
+				//if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
-			}
-			if(clustersize==0){printf("EMPTY CLUSTER, SKIPPING\n");continue;}	
-			if(n_double>2){
+				}
+				if(clustersize==0){printf("EMPTY CLUSTER, SKIPPING\n");continue;}	
+				if(n_double_x>2 or n_double_y>2){
 		//	printf("MORE THAN 2 DOUBLE COL in X  = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
-			}
-			k=0;
+		}
+		n_double_x=0; n_double_y=0;
 			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
-			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
-			mid_x = round(float(irow_sum)/float(clustersize));
-			mid_y = round(float(icol_sum)/float(clustersize));
-			int offset_x = 6 - mid_x;
-			int offset_y = 10 - mid_y;
+		int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
+		mid_x = round(float(irow_sum)/float(clustersize));
+		mid_y = round(float(icol_sum)/float(clustersize));
+		int offset_x = 6 - mid_x;
+		int offset_y = 10 - mid_y;
 			//printf("mid_x = %i, mid_y = %i, cluster.size = %i, clustersize = %i\n",mid_x,mid_y,cluster.size(),clustersize); 
-			
+
 			//printf("clustersize_x = %i\n",clustersize_x);	
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
-			for (int i = 0; i < cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x) - row_offset + offset_x;
-				int icol = int(pix.y) - col_offset + offset_y;
+		for (int i = 0; i < cluster.size(); ++i) {
+			auto pix = cluster.pixel(i);
+			int irow = int(pix.x) - row_offset + offset_x;
+			int icol = int(pix.y) - col_offset + offset_y;
 					//printf("irow = %i, icol = %i\n",irow,icol);
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
-				if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
+			if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
 				printf("irow or icol exceeded, SKIPPING. irow = %i, mrow = %i, offset_x = %i,icol = %i, mcol = %i, offset_y = %i\n",irow,mrow,offset_x,icol,mcol,offset_y);
-				 continue;
-				}
+				continue;
+			}
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
-				if ((int)pix.x == 79 || (int)pix.x == 80){
-                                 int flag=0;
-                                 for(int j=0;j<5;j++){
-                                         if(irow==double_row[j]) {flag = 1; break;}
-                                 }
-                                 if(flag!=1) {double_row[k]=irow; k++;}
-                                 }
-				clusbuf[irow][icol] = float(pix.adc);
+			if ((int)pix.x == 79 || (int)pix.x == 80){
+				int flag=0;
+				for(int j=0;j<5;j++){
+					if(irow==double_row[j]) {flag = 1; break;}
+				}
+				if(flag!=1) {double_row[n_double_x]=irow; n_double_x++;}
+			}
+			if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
+				int flag=0;
+				for(int j=0;j<5;j++){
+					if(icol==double_col[j]) {flag = 1; break;}
+				}
+				if(flag!=1) {double_col[n_double_y]=icol; n_double_y++;}
+			}
+			clusbuf_temp[irow][icol] = float(pix.adc);
 				//else clusbuf[irow][icol] = 1.;
  				//if(n_double>0) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
-			}
-			
-			for(int i = 0;i < TXSIZE; i++){
-				for(int j = 0; j < TYSIZE; j++){
-					clusbuf_x_temp[i] += clusbuf[i][j];
-				}
-				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
-			}
-			if(k==1 && clustersize_x>12) {printf("clustersize_x > 12, SKIPPING\n"); continue;}
-			if(k==2 && clustersize_x>11) {printf("clustersize_x > 11, SKIPPING\n"); continue;}
-			if(clustersize>30){
-			printf("clustersize = %i > 30, PRINTING\n",clustersize); 
+		}
+
+		
+		if(n_double_x==1 && clustersize_x>12) {printf("clustersize_x > 12, SKIPPING\n"); continue;} // NEED TO FIX CLUSTERSIZE COMPUTATION
+		if(n_double_x==2 && clustersize_x>11) {printf("clustersize_x > 11, SKIPPING\n"); continue;}
+		if(n_double_y==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
+		if(n_double_y==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
+
+		if(n_double_x==1 or n_double_x==2){
+			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
 			for(int i=0;i<TXSIZE;i++){
-                                 for(int f=0;f<TYSIZE;f++)
-                                 printf("%f ",clusbuf[i][f]);
-                         printf("\n");
-                          }
+				for(int f=0;f<TYSIZE;f++)
+				printf("%f ",clusbuf_temp[i][f]);
+			printf("\n");
 			}
+		}
+		k=0; int m=0;
+		for(int i=0;i<TXSIZE;i++){
+			if(i==double_row[m]){
+				printf("TREATING DPIX1 IN X\n");
+				for(int j=0;j<TYSIZE;j++){
+					clusbuf[i][j]=clusbuf_temp[k][j]/2.;
+					clusbuf[i+1][j]=clusbuf_temp[k][j]/2.;
+				}
+				i++;
+				if(m==0 and n_double_x==2) {
+					double_row[1]++;
+					m++;
+				}
+			}
+			else{
+				for(int j=0;j<TYSIZE;j++){
+					clusbuf[i][j]=clusbuf_temp[k][j];
+				}
+			}
+			k++;
+		}
+		if(n_double_x==1 or n_double_x==2){
+			printf("MODIFIED double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
+			for(int i=0;i<TXSIZE;i++){
+				for(int f=0;f<TYSIZE;f++)
+				printf("%f ",clusbuf_temp[i][f]);
+			printf("\n");
+			}
+		}
 			/*
 			if(k==1 or k==2){
 			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
@@ -568,37 +614,20 @@ private:
             }
 			printf("\n");
 			}
-			*/
-			int j = 0;
-			for(int i = 0;i < TXSIZE; i++){
-                if(((k==1 || k==2) && i==double_row[0] && clustersize_x>1)||(k==2 && i==double_row[1])){
+			
+		int j = 0;
+		for(int i = 0;i < TXSIZE; i++){
+			if(((k==1 || k==2) && i==double_row[0] && clustersize_x>1)||(k==2 && i==double_row[1])){
 				//printf("TREATING first DOUBLE WIDTH PIX\n");
-                	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
-					clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
-					i++;
-					if(k==2) double_row[1]++;
-                }
-                else clusbuf_x[i] = clusbuf_x_temp[j];
-				j++;
-            }/*
-            if(k==2){
-	            j=TXSIZE-1;
-	            for(int i=0;i<TXSIZE;i++){
-			clusbuf_x_temp[i] = clusbuf_x[i];
-			clusbuf_x[i]=0.;
+				clusbuf_x[i] = clusbuf_x_temp[j]/2.;
+				clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
+				i++;
+				if(k==2) double_row[1]++;
 			}
-	            for(int i = TXSIZE-1;i >=0; i--){
-	                if(i==double_row[1] && clustersize_x>1){
-					//printf("TREATING second DOUBLE WIDTH PIX\n");
-	                	clusbuf_x[i] = clusbuf_x_temp[j]/2.;
-						clusbuf_x[i-1] = clusbuf_x_temp[j]/2.;
-						i--;
-	                }
-	                else clusbuf_x[i] = clusbuf_x_temp[j];
-					j--;
-	            }
-        	}*/
-            /*
+			else clusbuf_x[i] = clusbuf_x_temp[j];
+			j++;
+            }
+            
 			if(k==1 or k==2){
 	         	printf("MODIFIED double width cluster\n");
 	         	for(int i = 0;i < TXSIZE; i++){
@@ -607,17 +636,24 @@ private:
 	         	printf("\n");
      		}
             */
+			//compute the 1d projection
+            for(int i = 0;i < TXSIZE; i++){
+			for(int j = 0; j < TYSIZE; j++){
+				clusbuf_x_temp[i] += clusbuf[i][j];
+			}
+				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
+		    }
 			//compute cluster max
 			cluster_max = 0.;
 			for(int i = 0;i < TXSIZE; i++){
-			if(clusbuf_x[i] > cluster_max) cluster_max = clusbuf_x[i] ; 
+				if(clusbuf_x[i] > cluster_max) cluster_max = clusbuf_x[i] ; 
 			}
 
 			//normalize 1d inputs
 			for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = clusbuf_x[i]/cluster_max;
 				//===============================
 				// define a tensor and fill it with cluster projection
-			tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
+				tensorflow::Tensor cluster_flat_x(tensorflow::DT_FLOAT, {1,TXSIZE,1});
 			tensorflow::Tensor cluster_(tensorflow::DT_FLOAT, {1,TXSIZE,TYSIZE,1});
     		// angles
 			tensorflow::Tensor angles(tensorflow::DT_FLOAT, {1,2});
@@ -642,7 +678,7 @@ private:
 				// define the output and run
 			std::vector<tensorflow::Tensor> output_x;
 			if(cpe=="cnn2d"){ gettimeofday(&now0, &timz);
-				 tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
+				tensorflow::run(session_x, {{inputTensorName_x,cluster_}, {anglesTensorName_x,angles}}, {outputTensorName_}, &output_x);
 				gettimeofday(&now1, &timz);
 			}
 			else {  gettimeofday(&now0, &timz);
@@ -651,7 +687,7 @@ private:
 			}
 			// convert microns to cms
 			x_nn = output_x[0].matrix<float>()(0,0);
-				
+
 			//printf("x_nn[%i] = %f\n",count,x_nn[count]);
 			//if(isnan(x_nn[count])){
 			//for(int i=0;i<TXSIZE;i++){
@@ -686,31 +722,31 @@ private:
 				++iSimHit;
 
             } // end sim hit loop
-		    if(iSimHit==0){ 
-		   		printf("iSimHit = 0 for count = %i\n",count);	
-				return;
-			}
-			for(int i = 0;i<SIMHITPERCLMAX;i++){
+            if(iSimHit==0){ 
+            	printf("iSimHit = 0 for count = %i\n",count);	
+            	return;
+            }
+            for(int i = 0;i<SIMHITPERCLMAX;i++){
 
-				if(fabs(x_nn-fClSimHitLx[i])<fabs(dx_nn[count]))
-				dx_nn[count] = x_nn - fClSimHitLx[i];
-				
-				if(fabs(x_gen-fClSimHitLx[i])<fabs(dx_gen[count]))
-				dx_gen[count] = x_gen - fClSimHitLx[i];
-			}	
-			if(dx_gen[count] >= 999.0 || dx_nn[count] >= 999.0){
-				printf("ERROR: Residual is dx_gen=%f dx_nn=%f \n",dx_gen[count],dx_nn[count]);
+            	if(fabs(x_nn-fClSimHitLx[i])<fabs(dx_nn[count]))
+            		dx_nn[count] = x_nn - fClSimHitLx[i];
+
+            	if(fabs(x_gen-fClSimHitLx[i])<fabs(dx_gen[count]))
+            		dx_gen[count] = x_gen - fClSimHitLx[i];
+            }	
+            if(dx_gen[count] >= 999.0 || dx_nn[count] >= 999.0){
+            	printf("ERROR: Residual is dx_gen=%f dx_nn=%f \n",dx_gen[count],dx_nn[count]);
 				//for(int i=0;i<TXSIZE;i++){
                                  //for(int f=0;f<TYSIZE;f++)
                                  //printf("%f ",clusbuf[i][f]);
                         // printf("\n");
                          //}
 			//	return;
-			} 
+            } 
 		//	printf("Generic position: %f\n ",(x_gen[count]-lp.x())*1e4);
 		//	printf("nn position: %f\n ",(x_nn[count]-lp.x())*1e4);
 		//	printf("simhit_x =");
-	
+
 //			printf("%i\n",count);
             switch(clustersize_x){
             	case 1: 
