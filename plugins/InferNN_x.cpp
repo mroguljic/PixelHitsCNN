@@ -337,7 +337,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		return;
 	}
 
-	float clusbuf[TXSIZE][TYSIZE], clusbuf_temp[TXSIZE][TYSIZE], clusbuf_x_temp[TXSIZE], clusbuf_x[TXSIZE];
+	float clusbuf[TXSIZE][TYSIZE], clusbuf_temp[TXSIZE][TYSIZE], clusbuf_x[TXSIZE];
 
 	static int ix,iy;
 	int prev_count = count;
@@ -389,7 +389,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 						clusbuf_temp[j][i] = 0.;
 				//clusbuf_y[i] = 0.;
 					} 
-					clusbuf_x_temp[j] = 0.;
+				//	clusbuf_x_temp[j] = 0.;
 					clusbuf_x[j] = 0.;
 				} 
 				for(int i=0;i<SIMHITPERCLMAX;i++){
@@ -565,16 +565,16 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		if(n_double_y==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
 
 		if(n_double_x==1 or n_double_x==2){
-			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
+			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,n_double_x);
 			for(int i=0;i<TXSIZE;i++){
 				for(int f=0;f<TYSIZE;f++)
 				printf("%f ",clusbuf_temp[i][f]);
 			printf("\n");
 			}
 		}
-		k=0; int m=0;
+		int k=0,m=0;
 		for(int i=0;i<TXSIZE;i++){
-			if(i==double_row[m]){
+			if(i==double_row[m] and clustersize_x>1){
 				printf("TREATING DPIX1 IN X\n");
 				for(int j=0;j<TYSIZE;j++){
 					clusbuf[i][j]=clusbuf_temp[k][j]/2.;
@@ -594,10 +594,10 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			k++;
 		}
 		if(n_double_x==1 or n_double_x==2){
-			printf("MODIFIED double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
+			printf("MODIFIED double width cluster of size %i containing %i double pixels\n",clustersize_x,n_double_x);
 			for(int i=0;i<TXSIZE;i++){
 				for(int f=0;f<TYSIZE;f++)
-				printf("%f ",clusbuf_temp[i][f]);
+				printf("%f ",clusbuf[i][f]);
 			printf("\n");
 			}
 		}
@@ -639,7 +639,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			//compute the 1d projection
             for(int i = 0;i < TXSIZE; i++){
 			for(int j = 0; j < TYSIZE; j++){
-				clusbuf_x_temp[i] += clusbuf[i][j];
+				clusbuf_x[i] += clusbuf[i][j];
 			}
 				//if(clusbuf_x_temp[i] > cluster_max) cluster_max = clusbuf_x_temp[i] ; 
 		    }
