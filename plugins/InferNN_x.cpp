@@ -680,7 +680,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
 			//normalize 2d inputs
 			for(int i = 0;i < TXSIZE; i++){
-				for (int j = 0; i < TYSIZE; j++)
+				for (int j = 0; j < TYSIZE; j++)
 				{
 					clusbuf[i][j] /= cluster_max_2d;
 				}

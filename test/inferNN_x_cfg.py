@@ -13,7 +13,7 @@ from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
 cpe = "cnn2d"
 n_events = 400
-use_generic = True
+use_generic = False
 use_generic_detangles = False
 use_det_angles = False
 
