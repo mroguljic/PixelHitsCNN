@@ -564,7 +564,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		if(n_double_y==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
 		if(n_double_y==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
 
-		if(n_double_x==1 or n_double_x==2){
+		if(n_double_x>0 or n_double_y>0){
 			printf("double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
 			for(int i=0;i<TXSIZE;i++){
 				for(int f=0;f<TYSIZE;f++)
@@ -621,7 +621,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			}
 			k++;
 		}
-		if(n_double_x==1 or n_double_x==2){
+		if(n_double_x>0 or n_double_y>0){
 			printf("MODIFIED double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
 			for(int i=0;i<TXSIZE;i++){
 				for(int f=0;f<TYSIZE;f++)
