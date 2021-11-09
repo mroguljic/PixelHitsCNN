@@ -565,17 +565,18 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		if(n_double_y==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
 
 		if(n_double_x==1 or n_double_x==2){
-			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,n_double_x);
+			printf("double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
 			for(int i=0;i<TXSIZE;i++){
 				for(int f=0;f<TYSIZE;f++)
 				printf("%f ",clusbuf_temp[i][f]);
 			printf("\n");
 			}
 		}
+		//first deal with double width pixels in x
 		int k=0,m=0;
 		for(int i=0;i<TXSIZE;i++){
 			if(i==double_row[m] and clustersize_x>1){
-				printf("TREATING DPIX1 IN X\n");
+				printf("TREATING DPIX%i IN X\n",m+1);
 				for(int j=0;j<TYSIZE;j++){
 					clusbuf[i][j]=clusbuf_temp[k][j]/2.;
 					clusbuf[i+1][j]=clusbuf_temp[k][j]/2.;
@@ -593,8 +594,35 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			}
 			k++;
 		}
+		k=0;m=0;
+		for(int i=0;i<TXSIZE;i++){
+			for(int j=0;j<TYSIZE;j++){
+				clusbuf_temp[i][j]=clusbuf[i][j];
+				clusbuf[i][j]=0.;
+			}
+		}
+		for(int j=0;j<TYSIZE;j++){
+			if(j==double_col[m] and clustersize_y>1){
+				printf("TREATING DPIX%i IN Y\n",m+1);
+				for(int i=0;i<TXSIZE;i++){
+					clusbuf[i][j]=clusbuf_temp[i][k]/2.;
+					clusbuf[i][j+1]=clusbuf_temp[i][k]/2.;
+				}
+				j++;
+				if(m==0 and n_double_y==2) {
+					double_col[1]++;
+					m++;
+				}
+			}
+			else{
+				for(int i=0;i<TXSIZE;i++){
+					clusbuf[i][j]=clusbuf_temp[i][k];
+				}
+			}
+			k++;
+		}
 		if(n_double_x==1 or n_double_x==2){
-			printf("MODIFIED double width cluster of size %i containing %i double pixels\n",clustersize_x,n_double_x);
+			printf("MODIFIED double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
 			for(int i=0;i<TXSIZE;i++){
 				for(int f=0;f<TYSIZE;f++)
 				printf("%f ",clusbuf[i][f]);
