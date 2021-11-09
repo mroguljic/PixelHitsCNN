@@ -331,7 +331,7 @@ private:
 			return;
 		}
 
-		float clusbuf[TXSIZE][TYSIZE], clusbuf_y[TYSIZE],clusbuf_y_temp[TYSIZE];
+		float clusbuf[TXSIZE][TYSIZE], clusbuf_y[TYSIZE],clusbuf_temp[TXSIZE][TYSIZE];
 
 		static int ix,iy;
 		int prev_count = count;
@@ -383,7 +383,8 @@ private:
 			for(int j=0; j<TXSIZE; ++j) {
 				for(int i=0; i<TYSIZE; ++i) {
 				clusbuf[j][i] = 0.;
-				clusbuf_y_temp[i] = 0.;
+				clusbuf_temp[j][i] = 0.;
+				//clusbuf_y_temp[i] = 0.;
 				clusbuf_y[i] = 0.;
 				} 
 				//clusbuf_x[j] = 0.;
@@ -468,141 +469,219 @@ private:
 			mcol = std::min(mcol, TYSIZE);
 			assert(mrow > 0);
 			assert(mcol > 0);
-			float cluster_max = 0.;
-
-			int n_double = 0, n_double_y = 0;
-			int clustersize=0;
-			int double_col[5]; for(int i=0;i<5;i++)double_col[i]=-1;
-			int irow_sum = 0, icol_sum = 0;
-			for (int i = 0; i < cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x) - row_offset;
-				int icol = int(pix.y) - col_offset;
-				if ((irow >= mrow) || (icol >= mcol)) continue;
-				if ((int)pix.x == 79 || (int)pix.x == 80){ 
+			int n_double_x = 0, n_double_y = 0;
+				int clustersize = 0;
+				int double_row[5], double_col[5]; 
+				for(int i=0;i<5;i++){
+					double_row[i]=-1;
+					double_col[i]=-1;
 				}
-				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51){
-				int flag=0;
-				for(int j=0;j<5;j++){
-				 	if(icol==double_col[j]) {flag = 1; break;}
-				}
-				if(flag!=1) {double_col[n_double]=icol; n_double++;}
-				}
-				irow_sum+=irow;
-				icol_sum+=icol;
-				clustersize++;
-				if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
+				
+				int irow_sum = 0, icol_sum = 0;
+				for (int i = 0; i < cluster.size(); ++i) {
+					auto pix = cluster.pixel(i);
+					int irow = int(pix.x) - row_offset;
+					int icol = int(pix.y) - col_offset;
+					if ((irow >= mrow) || (icol >= mcol)) continue;	
+					if ((int)pix.x == 79 || (int)pix.x == 80){
+						int flag=0;
+						for(int j=0;j<5;j++){
+							if(irow==double_row[j]) {flag = 1; break;}
+						}
+						if(flag!=1) {double_row[n_double_x]=irow; n_double_x++;}
+					}
+					if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51){
+						int flag=0;
+						for(int j=0;j<5;j++){
+							if(icol==double_col[j]) {flag = 1; break;}
+						}
+						if(flag!=1) {double_col[n_double_y]=icol; n_double_y++;}
+					}
+					irow_sum+=irow;
+					icol_sum+=icol;
+					clustersize++;
+				//if(float(pix.adc) > cluster_max) cluster_max = float(pix.adc); 
 				//if(float(pix.adc) < cluster_min) cluster_min = float(pix.adc); 
 
-			}
-			if(n_double>2){
-			//printf("MORE THAN 2 DOUBLE COL in Y = %i, SKIPPING\n",n_double);
+				}
+				if(clustersize==0){printf("EMPTY CLUSTER, SKIPPING\n");continue;}	
+				if(n_double_x>2 or n_double_y>2){
+		//	printf("MORE THAN 2 DOUBLE COL in X  = %i, SKIPPING\n",n_double);
 			continue; //currently can only deal with single double pix
-			}
-			if(clustersize==0) {printf("EMPTY CLUSTER, SKIPPING\n");continue;}
-			int k=0;
-			int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
-			mid_x = round(float(irow_sum)/float(clustersize));
-			mid_y = round(float(icol_sum)/float(clustersize));
-			int offset_x = 6 - mid_x;
-			int offset_y = 10 - mid_y;
+		}
+		n_double_x=0; n_double_y=0;
+			//printf("max = %f, min = %f\n",cluster_max,cluster_min);
+		int clustersize_x = cluster.sizeX(), clustersize_y = cluster.sizeY();
+		mid_x = round(float(irow_sum)/float(clustersize));
+		mid_y = round(float(icol_sum)/float(clustersize));
+		int offset_x = 6 - mid_x;
+		int offset_y = 10 - mid_y;
+			//printf("mid_x = %i, mid_y = %i, cluster.size = %i, clustersize = %i\n",mid_x,mid_y,cluster.size(),clustersize); 
 
-			//double_col = 0;
+			//printf("clustersize_x = %i\n",clustersize_x);	
   // Copy clust's pixels (calibrated in electrons) into clusMatrix;
-			for (int i = 0; i < cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x) - row_offset + offset_x;
-				int icol = int(pix.y) - col_offset + offset_y;
+		for (int i = 0; i < cluster.size(); ++i) {
+			auto pix = cluster.pixel(i);
+			int irow = int(pix.x) - row_offset + offset_x;
+			int icol = int(pix.y) - col_offset + offset_y;
 					//printf("irow = %i, icol = %i\n",irow,icol);
 					//printf("mrow = %i, mcol = %i\n",mrow,mcol);
 
-				if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
-				printf("irow or icol exceeded, SKIPPING\n");
-				 continue;
-				}
-				if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
-					int flag=0;
-                     for(int j=0;j<5;j++){
-                             if(icol==double_col[j]) {flag = 1; break;}
-                     }
-                     if(flag!=1) {double_col[k]=icol; k++;}
-                     }
-				
+			if ((irow >= mrow+offset_x) || (icol >= mcol+offset_y)){
+				printf("irow or icol exceeded, SKIPPING. irow = %i, mrow = %i, offset_x = %i,icol = %i, mcol = %i, offset_y = %i\n",irow,mrow,offset_x,icol,mcol,offset_y);
+				continue;
+			}
 				//normalized value
 				//if(cluster_max!=cluster_min)
 				//clusbuf[irow][icol] = (float(pix.adc))/cluster_max;
-				clusbuf[irow][icol] = (float(pix.adc));
+			if ((int)pix.x == 79 || (int)pix.x == 80){
+				int flag=0;
+				for(int j=0;j<5;j++){
+					if(irow==double_row[j]) {flag = 1; break;}
+				}
+				if(flag!=1) {double_row[n_double_x]=irow; n_double_x++;}
+			}
+			if ((int)pix.y % 52 == 0 || (int)pix.y % 52 == 51 ){
+				int flag=0;
+				for(int j=0;j<5;j++){
+					if(icol==double_col[j]) {flag = 1; break;}
+				}
+				if(flag!=1) {double_col[n_double_y]=icol; n_double_y++;}
+			}
+			clusbuf_temp[irow][icol] = float(pix.adc);
 				//else clusbuf[irow][icol] = 1.;
- 				    //printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
+ 				//if(n_double>0) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
-			}
+		}
+
 		
-			for(int i = 0;i < TYSIZE; i++){
-				for(int j = 0; j < TXSIZE; j++){
-					clusbuf_y_temp[i] += clusbuf[j][i];
-				}
-				//if(clusbuf_y[i] > cluster_max) cluster_max = clusbuf_y[i]; 
-				//if(clusbuf_y[i] < cluster_min) cluster_min = clusbuf_y[i] ;
+		if(n_double_x==1 && clustersize_x>12) {printf("clustersize_x > 12, SKIPPING\n"); continue;} // NEED TO FIX CLUSTERSIZE COMPUTATION
+		if(n_double_x==2 && clustersize_x>11) {printf("clustersize_x > 11, SKIPPING\n"); continue;}
+		if(n_double_y==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
+		if(n_double_y==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
+		/*
+		if(n_double_x>0 or n_double_y>0){
+			printf("double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
+			for(int i=0;i<TXSIZE;i++){
+				for(int f=0;f<TYSIZE;f++)
+				printf("%f ",clusbuf_temp[i][f]);
+			printf("\n");
 			}
-			if(k==1 && clustersize_y>20) {printf("clustersize_y = %i > 20, SKIPPING\n", clustersize_y);continue;}
-			if(k==2 && clustersize_x>19) {printf("clustersize_y = %i > 19, SKIPPING\n", clustersize_y);continue;}
-			if(k==1) double_count++;
-			if(k==2) doubledouble_count++;
-			int j = 0;
-			//convert double pixels to single - ONLY WORKS FOR 1D
-			/*
-			for (int i = 0; i < cluster.size(); ++i) {
-				auto pix = cluster.pixel(i);
-				int irow = int(pix.x) - row_offset + offset_x;
-				printf("irow = %i, pix.adc = %f\n",irow,float(pix.adc));
-				if ((int)pix.x == 79 || (int)pix.x == 80){
-					clusbuf_x[irow] = clusbuf_x_temp[j]/2.;
-					clusbuf_x[irow+1] = clusbuf_x_temp[j]/2.;
-					offset_x++;
-
+		}*/
+		//first deal with double width pixels in x
+		int k=0,m=0;
+		for(int i=0;i<TXSIZE;i++){
+			if(i==double_row[m] and clustersize_x>1){
+				printf("TREATING DPIX%i IN X\n",m+1);
+				for(int j=0;j<TYSIZE;j++){
+					clusbuf[i][j]=clusbuf_temp[k][j]/2.;
+					clusbuf[i+1][j]=clusbuf_temp[k][j]/2.;
 				}
-				else clusbuf_x[irow] = clusbuf_x_temp[j];
-
+				i++;
+				if(m==0 and n_double_x==2) {
+					double_row[1]++;
+					m++;
+				}
+			}
+			else{
+				for(int j=0;j<TYSIZE;j++){
+					clusbuf[i][j]=clusbuf_temp[k][j];
+				}
+			}
+			k++;
+		}
+		k=0;m=0;
+		for(int i=0;i<TXSIZE;i++){
+			for(int j=0;j<TYSIZE;j++){
+				clusbuf_temp[i][j]=clusbuf[i][j];
+				clusbuf[i][j]=0.;
+			}
+		}
+		for(int j=0;j<TYSIZE;j++){
+			if(j==double_col[m] and clustersize_y>1){
+				printf("TREATING DPIX%i IN Y\n",m+1);
+				for(int i=0;i<TXSIZE;i++){
+					clusbuf[i][j]=clusbuf_temp[i][k]/2.;
+					clusbuf[i][j+1]=clusbuf_temp[i][k]/2.;
+				}
 				j++;
+				if(m==0 and n_double_y==2) {
+					double_col[1]++;
+					m++;
+				}
 			}
-			*/
-			for(int i = 0;i < TYSIZE; i++){
-               if(((k==1 || k==2) && i==double_col[0] && clustersize_y>1)||(k==2 && i==double_col[1])){
-                printf("TREATING A DOUBLE WIDTH PIXEL\n");	
-		clusbuf_y[i] = clusbuf_y_temp[j]/2.;
-					clusbuf_y[i+1] = clusbuf_y_temp[j]/2.;
-					i++;
-					if(k==2) double_col[1]++;
-                }
-                else clusbuf_y[i] = clusbuf_y_temp[j];
-		j++;
+			else{
+				for(int i=0;i<TXSIZE;i++){
+					clusbuf[i][j]=clusbuf_temp[i][k];
+				}
+			}
+			k++;
+		}
+		/*
+		if(n_double_x>0 or n_double_y>0){
+			printf("MODIFIED double width cluster of size %i containing %i x double pixels and %i y double pixels\n",clustersize_x,n_double_x,n_double_y);
+			for(int i=0;i<TXSIZE;i++){
+				for(int f=0;f<TYSIZE;f++)
+				printf("%f ",clusbuf[i][f]);
+			printf("\n");
+			}
+		}*/
+			/*
+			if(k==1 or k==2){
+			printf("double width cluster of size %i containing %i double pixels\n",clustersize_x,k);
+			for(int i=0;i<TXSIZE;i++){
+				for(int f=0;f<TYSIZE;f++)
+				printf("%f ",clusbuf[i][f]);
+			printf("\n");
+			}
+			for(int i = 0;i < TXSIZE; i++){
+                printf("%f ",clusbuf_x_temp[i]);
             }
-	    /*
-            if(k==2){
-	            j=TYSIZE-1;
-	            for(int i=0;i<TYSIZE;i++){
-			clusbuf_y_temp[i] = clusbuf_y[i];
-			clusbuf_y[i]=0.;
+			printf("\n");
 			}
-	            for(int i = TYSIZE-1;i >=0; i--){
-	                if(i==double_col[1] && clustersize_y>1){
-					printf("TREATING second DOUBLE WIDTH PIX\n");
-	                	clusbuf_y[i] = clusbuf_y_temp[j]/2.;
-						clusbuf_y[i-1] = clusbuf_y_temp[j]/2.;
-						i--;
-	                }
-	                else clusbuf_y[i] = clusbuf_y_temp[j];
-					j--;
-	            }
-        	}
-		*/
-            //compute cluster max
-			cluster_max = 0.;
-			for(int i = 0;i < TYSIZE; i++){
-			if(clusbuf_y[i] > cluster_max) cluster_max = clusbuf_y[i] ; 
+			
+		int j = 0;
+		for(int i = 0;i < TXSIZE; i++){
+			if(((k==1 || k==2) && i==double_row[0] && clustersize_x>1)||(k==2 && i==double_row[1])){
+				//printf("TREATING first DOUBLE WIDTH PIX\n");
+				clusbuf_x[i] = clusbuf_x_temp[j]/2.;
+				clusbuf_x[i+1] = clusbuf_x_temp[j]/2.;
+				i++;
+				if(k==2) double_row[1]++;
 			}
+			else clusbuf_x[i] = clusbuf_x_temp[j];
+			j++;
+            }
+            
+			if(k==1 or k==2){
+	         	printf("MODIFIED double width cluster\n");
+	         	for(int i = 0;i < TXSIZE; i++){
+	          	printf("%f ",clusbuf_x[i]);
+	          	}
+	         	printf("\n");
+     		}
+            */
+			//compute the 1d projection & compute cluster max
+			float cluster_max = 0., cluster_max_2d = 0.;
+            for(int i = 0;i < TYSIZE; i++){
+			for(int j = 0; j < TXSIZE; j++){
+				clusbuf_y[i] += clusbuf[j][i];
+				if(clusbuf[j][i]>cluster_max_2d) cluster_max_2d = clusbuf[j][i];
+				}
+				if(clusbuf_y[i] > cluster_max) cluster_max = clusbuf_y[i] ; 
+		    }
+			
 			//normalize 1d inputs
 			for(int i = 0; i < TYSIZE; i++) clusbuf_y[i] = clusbuf_y[i]/cluster_max;
+
+			//normalize 2d inputs
+			for(int i = 0;i < TXSIZE; i++){
+				for (int j = 0; j < TYSIZE; j++)
+				{
+					clusbuf[i][j] /= cluster_max_2d;
+				}
+			}
+            
 
 				//===============================
 				// define a tensor and fill it with cluster projection
