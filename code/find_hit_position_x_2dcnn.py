@@ -183,14 +183,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-
+'''
 callbacks = [
 EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -205,11 +205,11 @@ history = model.fit([pix_train, angles_train], [x_train],
                 epochs=n_epochs_x,
                 callbacks=callbacks,
                 validation_split=validation_split)
-
+'''
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
-plot_dnn_loss(history.history,'x',img_ext)
+#plot_dnn_loss(history.history,'x',img_ext)
 
 print("x training time for 2dcnn",time.clock()-train_time_x)
 

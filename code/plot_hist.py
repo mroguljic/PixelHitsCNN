@@ -6,7 +6,7 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '110921_2018_doubledouble'
+img_ext = '111221_2024'
 SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)
@@ -68,7 +68,7 @@ def plot_residual(residuals,label,algo):
 
 def plot_root(residuals,label,algo):
 
-	res = ROOT.TH1F("residuals","%s %s"%(algo,label),100,-300,300)
+	res = ROOT.TH1F("residuals","%s %s"%(algo,label),400,-1000,1000)
 	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
 	'''
 	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
@@ -208,14 +208,14 @@ residuals_y = plot_root(cnn2d_y,'y','2dcnn')
 #residuals_x = plot_residual(dnn_x,simhits_x,'x','dnn')
 #residuals_y = plot_residual(dnn_y,simhits_y,'y','dnn')
 
-residuals_x = plot_root(gen_x,'x','gen')
-residuals_y = plot_root(gen_y,'y','gen')
+#residuals_x = plot_root(gen_x,'x','gen')
+#residuals_y = plot_root(gen_y,'y','gen')
 
 #residuals_x = plot_root(gen_x_det,'x','gen_detangles')
 #residuals_y = plot_root(gen_y_det,'y','gen_detangles')
 
-residuals_x = plot_root(template_x,'x','template')
-residuals_y = plot_root(template_y,'y','template')
+#residuals_x = plot_root(template_x,'x','template')
+#residuals_y = plot_root(template_y,'y','template')
 '''
 residuals_x = plot_root(cnn2d_x,'x','2dcnn')
 residuals_y = plot_root(cnn2d_y,'y','2dcnn')
