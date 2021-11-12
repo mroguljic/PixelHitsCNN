@@ -47,9 +47,9 @@ h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1"
 img_ext = "2dcnn_%s_aug31"%h5_ext
 '''
-h5_date = "103021"
-h5_ext = "p1_2018_irrad_BPIXL1_doubledouble"
-img_ext = "2dcnn_%s_oct30"%h5_ext
+h5_date = "110121"
+h5_ext = "p1_2024_irrad_BPIXL1"
+img_ext = "2dcnn_%s_nov11"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_x_2d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -62,6 +62,18 @@ clustersize_x_train = f['clustersize_x'][...]
 #clustersize_y_train = f['clustersize_y'][...]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
+
+perm = np.arange(len(pix_train)) 
+np.random.shuffle(perm)
+pix_train = pix_train[perm]
+cota_train = cota_train[perm]
+cotb_train = cotb_train[perm]
+x_train = x_train[perm]
+clustersize_x_train = clustersize_x_train[perm]
+print(pix_train.shape, cota_train.shape, cotb_train.shape)
+#inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+#inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
+angles_train = np.hstack((cota_train,cotb_train))
 
 f = h5py.File('h5_files/test_x_2d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 pix_test = (f['test_hits'][...])
@@ -171,14 +183,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 callbacks = [
 EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -198,7 +210,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("x training time for 2dcnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -210,5 +222,5 @@ RMS_x = np.std(residuals_x)
 print(np.amin(residuals_x),np.amax(residuals_x))
 print("RMS_x = %f\n"%(RMS_x))
 
-plot_residuals(residuals_x,'2dcnn','x',img_ext+"testingondoubledouble")
+plot_residuals(residuals_x,'2dcnn','x',img_ext)
 #plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
