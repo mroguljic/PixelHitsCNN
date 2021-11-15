@@ -68,7 +68,7 @@ def plot_residual(residuals,label,algo):
 
 def plot_root(residuals,label,algo):
 
-	res = ROOT.TH1F("residuals","%s %s"%(algo,label),400,-1000,1000)
+	res = ROOT.TH1F("residuals","%s %s"%(algo,label),100,-300,300)
 	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
 	'''
 	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
