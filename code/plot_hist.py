@@ -6,7 +6,7 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '111221_2024'
+img_ext = '120621_2024_lothresh_chargecap'
 SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)
@@ -195,11 +195,11 @@ print("cnn2d_x_det shape = ",cnn2d_x_det.shape,"cnn2d_y_det shape = ",cnn2d_y_de
 n = min(len(cnn1d_ids),len(template_ids))
 print(len(cnn1d_ids[:n]==template_ids[:n]))
 
-#residuals_x = plot_root(cnn1d_x,'x','1dcnn')
-#residuals_y = plot_root(cnn1d_y,'y','1dcnn')
+residuals_x = plot_root(cnn1d_x,'x','1dcnn')
+residuals_y = plot_root(cnn1d_y,'y','1dcnn')
 
-residuals_x = plot_root(cnn2d_x,'x','2dcnn')
-residuals_y = plot_root(cnn2d_y,'y','2dcnn')
+#residuals_x = plot_root(cnn2d_x,'x','2dcnn')
+#residuals_y = plot_root(cnn2d_y,'y','2dcnn')
 
 #residuals_x = plot_root(cnn1d_x_det,'x','1dcnn_detangles')
 #residuals_y = plot_root(cnn1d_y_det,'y','1dcnn_detangles')
