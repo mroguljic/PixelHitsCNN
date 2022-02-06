@@ -275,7 +275,7 @@ def center_clusters(cluster_matrices,threshold):
 				one_mat=np.roll(one_mat,-shift,axis=1)
 				y_position[j]-=pixelsize_y[index]*shift
 
-		
+		one_mat[one_mat>25000.] = 25000.
 		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 		j+=1
 
@@ -392,14 +392,14 @@ p2 = 203.
 p3 = 148.
 
 
-date = "120521"
-filename = "p1_2024_lothresh_irrad_BPIXL1"
+date = "020522"
+filename = "p1_2024_cutoff_irrad_BPIXL1"
 phase1 = True
 
 if(phase1):
 	#threshold = 2000; # BPIX L1 Run 3 https://github.com/cms-sw/cmssw/blob/master/SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py#L45
-	#threshold = 3000; # BPIX L1 Phase1
-	threshold = 300
+	threshold = 3000; # BPIX L1 Phase1
+	#threshold = 300
 	fe_type = 2
 
 simulate_double = True
