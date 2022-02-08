@@ -6,7 +6,7 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '120621_2024_lothresh_chargecap'
+img_ext = '020822_2024_cutoff'
 SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)
