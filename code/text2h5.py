@@ -193,18 +193,25 @@ def center_clusters(cluster_matrices,threshold):
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
 		labels,n_clusters = label(one_mat.clip(0,1),structure=np.ones((3,3)))
-		#if(index<30): print(labels.dtype, labels.shape, labels)
+		if(index==28): print(one_mat, labels)
 	
 		max_cluster_size=0
 		#if there is more than 1 cluster, the one with largest seed is the main one
 
 		if(n_clusters>1):
-		#	print("There are %i clusters"%n_clusters)
+		#	if index < 50: 
+			#	print("index %i : There are %i clusters"%(index,n_clusters))
+			#	print(one_mat)
+			#	print("Labels = ", labels)
+			#	print(seed_index)	
 			for i in range(1,n_clusters+1):
 				cluster_idxs_x = np.argwhere(labels==i)[:,0]
 				cluster_idxs_y = np.argwhere(labels==i)[:,1]
-				if seed_index in np.argwhere(labels==i): 
-					#if(index<30): print("inside break ",seed_index)
+				#if seed_index in np.argwhere(labels==i): 
+				if np.amax(one_mat) in one_mat[labels==i]:
+		#			if(index<50): 
+			#			print("inside break ",seed_index, "i= ",i)
+			#			print(np.argwhere(labels==i))
 					break
 				#cluster_size = len(cluster_idxs_x)
 				#if cluster_size>max_cluster_size:
@@ -228,7 +235,9 @@ def center_clusters(cluster_matrices,threshold):
 		#	print("one_mat before deletion")
 		#	print(one_mat)
 		one_mat[labels!=i] = 0. #delete everything but the main cluster
-	
+		#if n_clusters>1 and index<50: 
+		#	print("deleting all clusters but that containing the largest seed") 
+		#	print(one_mat)
 		#if(index<30): 
 			
 		#	print("one_mat AFTER deletion")
@@ -456,35 +465,34 @@ print("multiplied all elements by 10")
 test_data = apply_noise_threshold(test_data,threshold,noise,threshold_noise_frac)
 #print(test_data[0].reshape((21,13)).astype(int))
 test_data = apply_gain(test_data,fe_type,common_noise_frac)
-#print(test_data[0].reshape((21,13)).astype(int))
+#print(test_data[28].reshape((13,21)).astype(int))
 #	print(test_data[i].reshape((21,13)).astype(int))
 
 test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb = center_clusters(test_data,threshold)
 #for i in range(30):
 #        print("======== Modified Cluster %i ========\n"%i)
 #        print(test_data[i].reshape((21,13)).astype(int))
-#print(test_data[0].reshape((21,13)))
+#print(test_data[28].reshape((13,21)))
 #print(x_position[0],y_position[0])
 x_flat = np.zeros((len(test_data),13))
 y_flat = np.zeros((len(test_data),21))
 project_matrices_xy(test_data)
 #print(x_flat[0],y_flat[0])
-#print(clustersize_x[0],clustersize_y[0])
-
+#print(clustersize_x[0],clustersize_y[0])'
 if simulate_double:
 	
 	f_x = h5py.File("h5_files/test_x_1d_%s_%s.hdf5"%(filename,date), "w")
 	f_y = h5py.File("h5_files/test_y_1d_%s_%s.hdf5"%(filename,date), "w")
 	x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
-	'''
-	test_data_x,test_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+	
+	#test_data_x,test_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(test_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 
-	f_x = h5py.File("h5_files/test_x_2d_%s_%s.hdf5"%(filename,date), "w")
-	f_y = h5py.File("h5_files/test_y_2d_%s_%s.hdf5"%(filename,date), "w")
+	#f_x = h5py.File("h5_files/test_x_2d_%s_%s.hdf5"%(filename,date), "w")
+	#f_y = h5py.File("h5_files/test_y_2d_%s_%s.hdf5"%(filename,date), "w")
 
-	create_datasets_2d(f_x,f_y,test_data_x,test_data_y,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
-	'''
+	#create_datasets_2d(f_x,f_y,test_data_x,test_data_y,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"test")
+	
 else:
 
 	f_x = h5py.File("h5_files/test_x_1d_nodouble_testing_%s_%s.hdf5"%(filename,date), "w")
@@ -552,14 +560,14 @@ if simulate_double:
 	f_y = h5py.File("h5_files/train_y_1d_%s_%s.hdf5"%(filename,date), "w")
 	x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_1d(x_flat,y_flat,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
-	'''
-	train_data_x,train_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
+	
+	#train_data_x,train_data_y,clustersize_x,clustersize_y,x_position,y_position,cota_x,cotb_x,cota_y,cotb_y= simulate_double_width_2d(train_data,clustersize_x,clustersize_y,x_position,y_position,cota,cotb,n_double)
 
-	f_x = h5py.File("h5_files/train_x_2d_%s_%s.hdf5"%(filename,date), "w")
-	f_y = h5py.File("h5_files/train_y_2d_%s_%s.hdf5"%(filename,date), "w")
+	#f_x = h5py.File("h5_files/train_x_2d_%s_%s.hdf5"%(filename,date), "w")
+	#f_y = h5py.File("h5_files/train_y_2d_%s_%s.hdf5"%(filename,date), "w")
 
-	create_datasets_2d(f_x,f_y,train_data_x,train_data_y,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
-	'''
+	#create_datasets_2d(f_x,f_y,train_data_x,train_data_y,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,"train")
+	
 else:
 	f_x = h5py.File("h5_files/train_x_1d_nodouble_testing_%s_%s.hdf5"%(filename,date), "w")
 	f_y = h5py.File("h5_files/train_y_1d_nodouble_testing_%s_%s.hdf5"%(filename,date), "w")
