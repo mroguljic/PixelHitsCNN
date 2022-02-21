@@ -284,7 +284,7 @@ def center_clusters(cluster_matrices,threshold):
 				one_mat=np.roll(one_mat,-shift,axis=1)
 				y_position[j]-=pixelsize_y[index]*shift
 
-		one_mat[one_mat>25000.] = 25000.
+		one_mat = one_mat/25000.
 		cluster_matrices[j]=one_mat[:,:,np.newaxis]
 		j+=1
 
@@ -309,7 +309,7 @@ def project_matrices_xy(cluster_matrices):
 def create_datasets_1d(f_x,f_y, x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,clustersize_x,clustersize_y,x_position,y_position,dset_type):
 
 	#normalize inputs
-	
+	'''
 	for index in range(len(x_flat)): #currently testing double width in 1d only 
 
 		max_c = x_flat[index].max()
@@ -319,7 +319,7 @@ def create_datasets_1d(f_x,f_y, x_flat,y_flat,cota_x,cotb_x,cota_y,cotb_y,cluste
 
 		max_c = y_flat[index].max()
 		y_flat[index] = y_flat[index]/max_c
-	
+	'''
 
 	x_dset = f_x.create_dataset("x", np.shape(x_position), data=x_position)
 	y_dset = f_y.create_dataset("y", np.shape(y_position), data=y_position)
@@ -402,7 +402,7 @@ p3 = 148.
 
 
 date = "020522"
-filename = "p1_2024_cutoff_irrad_BPIXL1"
+filename = "p1_2024_by25k_irrad_BPIXL1"
 phase1 = True
 
 if(phase1):
