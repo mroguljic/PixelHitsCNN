@@ -6,7 +6,7 @@ from scipy import optimize
 import ROOT
 from ROOT import *
 
-img_ext = '020822_2024_cutoff'
+img_ext = '022122_2024_by25k'
 SIMHITPERCLMAX = 10
 
 gStyle.SetOptStat(1)
@@ -214,8 +214,8 @@ residuals_y = plot_root(cnn1d_y,'y','1dcnn')
 #residuals_x = plot_root(gen_x_det,'x','gen_detangles')
 #residuals_y = plot_root(gen_y_det,'y','gen_detangles')
 
-#residuals_x = plot_root(template_x,'x','template')
-#residuals_y = plot_root(template_y,'y','template')
+residuals_x = plot_root(template_x,'x','template')
+residuals_y = plot_root(template_y,'y','template')
 '''
 residuals_x = plot_root(cnn2d_x,'x','2dcnn')
 residuals_y = plot_root(cnn2d_y,'y','2dcnn')

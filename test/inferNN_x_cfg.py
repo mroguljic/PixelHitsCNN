@@ -10,14 +10,14 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.Eras.Era_Run3_cff import Run3
 #from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
 
-h5_ext = "p1_2024_cutoff_irrad_BPIXL1"
+h5_ext = "p1_2024_by25k_irrad_BPIXL1"
 cpe = "cnn1d"
 n_events = 250
 use_generic = False
 use_generic_detangles = False
 use_det_angles = False
 
-if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_020522"%h5_ext
+if(cpe=="cnn1d"): graph_ext = "1dcnn_%s_022122"%h5_ext
 elif(cpe=="cnn2d"): graph_ext = "2dcnn_%s_nov11"%h5_ext
 else: graph_ext = "dnn_%s_jul28"%h5_ext
 

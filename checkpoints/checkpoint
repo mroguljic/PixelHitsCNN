@@ -1,2 +1,2 @@
-model_checkpoint_path: "cp_x1dcnn_p1_2024_cutoff_irrad_BPIXL1_020522_cutoff.ckpt"
-all_model_checkpoint_paths: "cp_x1dcnn_p1_2024_cutoff_irrad_BPIXL1_020522_cutoff.ckpt"
+model_checkpoint_path: "cp_x1dcnn_p1_2024_by25k_irrad_BPIXL1_022122.ckpt"
+all_model_checkpoint_paths: "cp_x1dcnn_p1_2024_by25k_irrad_BPIXL1_022122.ckpt"
