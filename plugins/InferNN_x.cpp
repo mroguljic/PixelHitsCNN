@@ -552,9 +552,10 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 				}
 				if(flag!=1) {double_col[n_double_y]=icol; n_double_y++;}
 			}
-			if(pix.adc>25000) clusbuf_temp[irow][icol] = 25000.;
-			else clusbuf_temp[irow][icol] = float(pix.adc);
-				//else clusbuf[irow][icol] = 1.;
+			//if(pix.adc>25000) clusbuf_temp[irow][icol] = 25000.;
+			//else clusbuf_temp[irow][icol] = float(pix.adc);
+			clusbuf_temp[irow][icol] = float(pix.adc)/25000.;	
+			//else clusbuf[irow][icol] = 1.;
  				//if(n_double>0) printf("pix[%i].adc = %i, pix.x = %i, pix.y = %i, irow = %i, icol = %i\n",i,pix.adc,pix.x,pix.y,(int(pix.x) - row_offset),int(pix.y) - col_offset);
 
 		}
@@ -677,7 +678,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 		    }
 			
 			//normalize 1d inputs
-			for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = clusbuf_x[i]/cluster_max;
+	//		for(int i = 0; i < TXSIZE; i++) clusbuf_x[i] = clusbuf_x[i]/cluster_max;
 
 			//normalize 2d inputs
 			for(int i = 0;i < TXSIZE; i++){
