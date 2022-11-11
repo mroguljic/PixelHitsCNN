@@ -138,7 +138,7 @@ n_epochs_x = 30
 n_epochs_y = 40
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
-'''
+
 
 train_time_cotb = time.clock()
 
@@ -190,7 +190,7 @@ model = Model(inputs=[inputs],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_cotb%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
@@ -198,7 +198,7 @@ model.compile(loss=loss_function,
               metrics=['mse']
               )
 
-
+'''
 callbacks = [
 EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_cotb%s.ckpt"%(img_ext),
@@ -220,7 +220,7 @@ cmsml.tensorflow.save_graph("data/graph_cotb_%s.pb.txt"%(img_ext), model, variab
 #plot_dnn_loss(history.history,'y',img_ext)
 
 print("y training time for dnn",time.clock()-train_time_cotb)
-
+'''
 start = time.clock()
 cotb_pred = model.predict([ypix_flat_test[:,:,np.newaxis]], batch_size=9000)
 inference_time_cotb = time.clock() - start
@@ -238,4 +238,4 @@ plot_residuals(residuals_cotb,'1dcnn','cotb',img_ext)
 
 #plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
-'''
+

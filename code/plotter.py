@@ -40,7 +40,7 @@ def plot_dnn_loss(history,label,img_ext):
 
 def plot_residuals(residuals,algo,label,img_ext):
 
-	res = ROOT.TH1F("residuals","%s %s"%(algo,label),400,-1000,1000)
+	res = ROOT.TH1F("residuals","%s %s"%(algo,label),40,-10,10)
 	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
 	'''
 	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
@@ -67,7 +67,7 @@ def plot_residuals(residuals,algo,label,img_ext):
 	canvas.Print("plots/python/residuals/%s_residuals_%s.png"%(label,img_ext))
 
 def plot_cot(cot_list,label,img_ext):
-	cot_hist = ROOT.TH1F(label,label, 40, -10,10)
+	cot_hist = ROOT.TH1F(label,label, 20, -0.4,0.4)
 	cot_hist.Sumw2()
 	cot_hist.SetDirectory(0)
 	for entry in cot_list:
