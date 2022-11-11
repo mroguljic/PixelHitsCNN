@@ -106,10 +106,13 @@ inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newax
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 '''
-print(angles_train.shape)
+print(np.amin(cota_train),np.amax(cota_train))
+print(np.amin(cota_test),np.amax(cota_test))
+plot_cot(cota_train,"cota_train",img_ext)
+plot_cot(cota_test,"cota_test",img_ext)
 #print(xpix_flat_test[:30])
-print(ypix_flat_test[:30])
-print("clustersize of 1: ",len(np.argwhere(clustersize_y_train==1)))
+#print(ypix_flat_test[:30])
+#print("clustersize of 1: ",len(np.argwhere(clustersize_y_train==1)))
 '''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
@@ -135,7 +138,7 @@ n_epochs_x = 30
 n_epochs_y = 40
 optimizer = Adam(lr=0.001)
 validation_split = 0.2
-
+'''
 
 train_time_cotb = time.clock()
 
@@ -235,4 +238,4 @@ plot_residuals(residuals_cotb,'1dcnn','cotb',img_ext)
 
 #plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
-
+'''

@@ -66,6 +66,18 @@ def plot_residuals(residuals,algo,label,img_ext):
 	res.Draw("pe")
 	canvas.Print("plots/python/residuals/%s_residuals_%s.png"%(label,img_ext))
 
+def plot_cot(cot_list,label,img_ext):
+	cot_hist = ROOT.TH1F(label,label, 40, -10,10)
+	cot_hist.Sumw2()
+	cot_hist.SetDirectory(0)
+	for entry in cot_list:
+		cot_hist.Fill(entry)
+	canvas = ROOT.TCanvas("canvas")
+	canvas.cd()
+	cot_hist.SetTitle("Distribution of cot #alpha")
+	cot_hist.SetLineWidth(2)
+	cot_hist.Draw("hist")
+	canvas.Print("plots/python/%s_dist_%s.png"%(label,img_ext))
 def plot_by_clustersize(residuals,clustersize,label,img_ext):
 
 	residuals = np.asarray(residuals)
