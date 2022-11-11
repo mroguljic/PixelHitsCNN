@@ -111,10 +111,13 @@ f.close()
 #print(xpix_flat_test[:30])
 #print(ypix_flat_test[:30])
 #print("clustersize of 1: ",len(np.argwhere(clustersize_x_train==1)))
-for i in range(50):
+#for i in range(50):
 #	if clustersize_x_train[i]==1:
-	print(xpix_flat_train[i])
-	
+#	print(xpix_flat_train[i])
+print(np.amin(cota_train),np.amax(cota_train))
+print(np.amin(cota_test),np.amax(cota_test))
+plot_cot(cota_train,"cota_train",img_ext)
+plot_cot(cota_test,"cota_test",img_ext)	
 '''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
