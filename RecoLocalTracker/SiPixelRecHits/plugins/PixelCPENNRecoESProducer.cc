@@ -12,6 +12,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "PhysicsTools/TensorFlow//interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -25,7 +33,7 @@
 class PixelCPENNRecoESProducer : public edm::ESProducer {
 public:
   PixelCPENNRecoESProducer(const edm::ParameterSet& p);
-  ~PixelCPENNRecoESProducer() override;
+  //~PixelCPENNRecoESProducer() override;
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord& );
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -38,7 +46,7 @@ private:
   std::string tfDnnLabel_;
   edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
   
-  //const tensorflow::Session *tfSession_;
+  const tensorflow::Session *session;
 
 
   edm::ParameterSet pset_;
@@ -54,8 +62,9 @@ PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
 //  tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   tfDnnLabel_ = p.getParameter<std::string>("tfDnnLabel");
+  printf("tfDnnLabel_ = %s\n",tfDnnLabel_.c_str());
   //filename_ = p.getParameter<std::string>("FileName");
-  
+  session = nullptr;
   useLAFromDB_ = p.getParameter<bool>("useLAFromDB");
   doLorentzFromAlignment_ = p.getParameter<bool>("doLorentzFromAlignment");
 
@@ -64,17 +73,17 @@ PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
   magfieldToken_ = c.consumes();
   pDDToken_ = c.consumes();
   hTTToken_ = c.consumes();
-  templateDBobjectToken_ = c.consumes();
+ // templateDBobjectToken_ = c.consumes();
 
   tfDnnToken_ = c.consumes(edm::ESInputTag("", tfDnnLabel_));
 
-  if (useLAFromDB_ || doLorentzFromAlignment_) {
-    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
-    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
-  }
+  //if (useLAFromDB_ || doLorentzFromAlignment_) {
+   // char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    //lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
+ // }
 }
 
-PixelCPENNRecoESProducer::~PixelCPENNRecoESProducer() {}
+//PixelCPENNRecoESProducer::~PixelCPENNRecoESProducer() {}
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produce(
     const TkPixelCPERecord& iRecord) {
@@ -87,14 +96,16 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
   //if (useLAFromDB_ || doLorentzFromAlignment_) {
   //  lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
   //}
-
+  //const tensorflow::Session* session = nullptr;
+  session = iRecord.get(tfDnnToken_).getSession();
   return std::make_unique<PixelCPENNReco>(pset_,
-                                               // &iRecord.get(magfieldToken_),
+                                                &iRecord.get(magfieldToken_),
                                                 iRecord.get(pDDToken_),
                                                 iRecord.get(hTTToken_),
                                                 //lorentzAngleProduct,
                                                 //&iRecord.get(templateDBobjectToken_),
-                                                iRecord.get(tfDnnToken_).getSession());
+                                                //iRecord.getData(tfDnnToken_).getSession()
+                                                session);
 }
 
 void PixelCPENNRecoESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -105,7 +116,7 @@ void PixelCPENNRecoESProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 
   // from PixelCPETemplateReco
   PixelCPETemplateReco::fillPSetDescription(desc);
-
+  PixelCPENNReco::fillPSetDescription(desc);
   // specific to PixelCPENNRecoESProducer
   desc.add<std::string>("ComponentName", "PixelCPENNReco");
   desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
