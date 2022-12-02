@@ -193,14 +193,14 @@ model = Model(inputs=[inputs],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_cota%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_cota%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=loss_function,
               optimizer=optimizer,
               metrics=['mse']
               )
-'''
+
 callbacks = [
 EarlyStopping(patience=5),
 ModelCheckpoint(filepath="checkpoints/cp_cota%s.ckpt"%(img_ext),
@@ -220,7 +220,7 @@ cmsml.tensorflow.save_graph("data/graph_cota_%s.pb"%(img_ext), model, variables_
 cmsml.tensorflow.save_graph("data/graph_cota_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 #plot_dnn_loss(history.history,'x',img_ext)
-'''
+
 print("cota training time for dnn",time.clock()-train_time_cota)
 
 start = time.clock()
