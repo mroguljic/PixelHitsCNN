@@ -41,9 +41,17 @@ from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
 
+
+def mse_with_errors(y_true,y_pred):
+    y_position = y_pred[:,:1]
+    y_log_error = y_pred[:,1:]
+    y_error = tf.exp(y_log_error)
+    return tf.reduce_mean(2*y_log_error+((y_true-y_position)/y_error)**2)
+
+
 h5_date = "020522"
 h5_ext = "p1_2024_by25k_irrad_BPIXL1"
-img_ext = "1dcnn_%s_022122"%h5_ext
+img_ext = "1dcnn_%s_121422"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_y_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -175,11 +183,11 @@ y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-y = Dense(1)(y)
-y_position = Activation("linear", name="y")(y)
+y_position_error = Dense(2)(y)
+#y_position = Activation("linear", name="y")(y)
 
 model = Model(inputs=[inputs,angles],
-              outputs=[y_position]
+              outputs=[y_position_error]
               )
 
 # Display a model summary
@@ -188,7 +196,7 @@ model.summary()
 #history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
-model.compile(loss=loss_function,
+model.compile(loss=mse_with_errors,
               optimizer=optimizer,
               metrics=['mse']
               )
@@ -221,15 +229,16 @@ y_pred = model.predict([ypix_flat_test[:,:,np.newaxis],angles_test], batch_size=
 inference_time_y = time.clock() - start
 
 #print("inference_time for dnn= ",(inference_time_x+inference_time_y))
-
-
-residuals_y = y_pred - y_test
+residuals_y = y_pred[:,:1] - y_test
+pulls_y = residuals_y/y_pred[:,1:]
 RMS_y = np.std(residuals_y)
-print(np.amin(residuals_y),np.amax(residuals_y))
+print("min and max residuals: ",np.amin(residuals_y),np.amax(residuals_y))
+print("min and max pulls: ",np.amin(pulls_y),np.amax(pulls_y))
 print("RMS_y = %f\n"%(RMS_y))
 
 
 plot_residuals(residuals_y,'1dcnn','y',img_ext)
+plot_residuals(pulls_y,'1dcnn','y_error',img_ext)
 
 #plot_by_clustersize(residuals_y,clustersize_y_test,'y',img_ext)
 
