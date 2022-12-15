@@ -195,14 +195,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=mse_with_errors,
               optimizer=optimizer,
               metrics=['mse']
               )
-
+'''
 callbacks = [
 EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -222,7 +222,7 @@ cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 
 #plot_dnn_loss(history.history,'x',img_ext)
-
+'''
 print("x training time for dnn",time.clock()-train_time_x)
 
 start = time.clock()
@@ -236,7 +236,7 @@ print("min and max pulls: ",np.amin(pulls_x),np.amax(pulls_x))
 print("RMS_x = %f\n"%(RMS_x))
 
 
-plot_residuals(residuals_x,'1dcnn','x',img_ext)
+#plot_residuals(residuals_x,'1dcnn','x',img_ext)
 plot_residuals(pulls_x,'1dcnn','x_error',img_ext)
 #plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 
