@@ -1,2 +1,2 @@
-model_checkpoint_path: "cp_cota2dcnn_p1_2024_irrad_BPIXL1_120122.ckpt"
-all_model_checkpoint_paths: "cp_cota2dcnn_p1_2024_irrad_BPIXL1_120122.ckpt"
+model_checkpoint_path: "cp_x1dcnn_p1_2024_by25k_irrad_BPIXL1_121422.ckpt"
+all_model_checkpoint_paths: "cp_x1dcnn_p1_2024_by25k_irrad_BPIXL1_121422.ckpt"
