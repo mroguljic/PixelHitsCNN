@@ -129,7 +129,7 @@ private:
 	float fClSimHitLx[SIMHITPERCLMAX];    // X local position of simhit 
 	float fClSimHitLy[SIMHITPERCLMAX];
 	float x_gen, x_nn;
-	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER]; int index[MAXCLUSTER]; 
+	float dx_gen[MAXCLUSTER], dx_nn[MAXCLUSTER], dx_gen_error[MAXCLUSTER], dx_nn_error[MAXCLUSTER]; int index[MAXCLUSTER]; 
 	int count=0, double_count = 0, doubledouble_count = 0,idx=-1; char path[100], infile1[300], infile2[300], infile3[300], infile4[300];
 	edm::InputTag fTrackCollectionLabel, fPrimaryVertexCollectionLabel;
 	
@@ -226,6 +226,8 @@ trackerHitAssociatorConfig_(config, consumesCollector()) {
 	for(int i=0;i<MAXCLUSTER;i++){
 		dx_nn[i]=9999.0;
 		dx_gen[i]=9999.0;
+		dx_nn_error[i]=9999.0;
+		dx_gen_error[i]=9999.0;
 		index[i]=-999;
 			//for(int j=0;j<SIMHITPERCLMAX;j++){
 			//	fClSimHitLx[i][j]=-999.0;
@@ -724,6 +726,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			}
 			// convert microns to cms
 			x_nn = output_x[0].matrix<float>()(0,0);
+			x_nn_error = output_x[0].matrix<float>()(0,1);
 
 			//printf("x_nn[%i] = %f\n",count,x_nn[count]);
 			//if(isnan(x_nn[count])){
@@ -743,6 +746,7 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 			//printf("elapsed time = %f us\n",deltaus);
 				// get the generic position
 			x_gen = pixhit->localPosition().x();
+			x_gen_error = TMath::Sqrt(pixhit->localPositionError().xx());
 				//get sim hits
 			vec_simhits_assoc.clear();
 			vec_simhits_assoc = associate->associateHit(*pixhit);
@@ -767,9 +771,11 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
             	if(fabs(x_nn-fClSimHitLx[i])<fabs(dx_nn[count]))
             		dx_nn[count] = x_nn - fClSimHitLx[i];
+            		dx_nn_error[count] = dx_nn[count]/x_nn_error;
 
             	if(fabs(x_gen-fClSimHitLx[i])<fabs(dx_gen[count]))
             		dx_gen[count] = x_gen - fClSimHitLx[i];
+            		dx_gen_error[count] = dx_gen[count]/x_gen_error;
             }	
             if(dx_gen[count] >= 999.0 || dx_nn[count] >= 999.0){
             	printf("ERROR: Residual is dx_gen=%f dx_nn=%f \n",dx_gen[count],dx_nn[count]);
@@ -823,8 +829,8 @@ void InferNN_x::analyze(const edm::Event& event, const edm::EventSetup& setup) {
     	//}
     	fprintf(sim_file,"\n");
     	*/
-    	fprintf(nn_file,"%i %f\n", index[i],dx_nn[i]);
-    	fprintf(gen_file,"%i %f\n",index[i],dx_gen[i]);
+    	fprintf(nn_file,"%i %f %f\n", index[i],dx_nn[i],dx_nn_error[i]);
+    	fprintf(gen_file,"%i %f %f\n",index[i],dx_gen[i],dx_gen_error[i]);
 
     	fprintf(clustersize_x_file,"%f %f %f %f %f %f\n", clsize_1[i][0],clsize_2[i][0],clsize_3[i][0],clsize_4[i][0],clsize_5[i][0],clsize_6[i][0]);
     }
