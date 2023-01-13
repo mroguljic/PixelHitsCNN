@@ -230,7 +230,7 @@ inference_time_y = time.clock() - start
 
 #print("inference_time for dnn= ",(inference_time_x+inference_time_y))
 residuals_y = y_pred[:,:1] - y_test
-pulls_y = residuals_y/y_pred[:,1:]
+pulls_y = residuals_y/np.exp(y_pred[:,1:])
 RMS_y = np.std(residuals_y)
 print("min and max residuals: ",np.amin(residuals_y),np.amax(residuals_y))
 print("min and max pulls: ",np.amin(pulls_y),np.amax(pulls_y))

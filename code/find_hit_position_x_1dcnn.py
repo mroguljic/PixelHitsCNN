@@ -184,12 +184,12 @@ x = Dense(64)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
-x_position_error = Dense(2)(x)
+x_position_logerror = Dense(2)(x)
 #x_position = Activation("linear", name="x")(x)
 
 
 model = Model(inputs=[inputs,angles],
-              outputs=[x_position_error]
+              outputs=[x_position_logerror]
               )
 
 # Display a model summary
@@ -229,7 +229,7 @@ start = time.clock()
 x_pred = model.predict([xpix_flat_test[:,:,np.newaxis],angles_test], batch_size=9000)
 inference_time_x = time.clock() - start
 residuals_x = x_pred[:,:1] - x_test
-pulls_x = residuals_x/x_pred[:,1:]
+pulls_x = residuals_x/np.exp(x_pred[:,1:])
 RMS_x = np.std(residuals_x)
 print("min and max residuals: ",np.amin(residuals_x),np.amax(residuals_x))
 print("min and max pulls: ",np.amin(pulls_x),np.amax(pulls_x))
