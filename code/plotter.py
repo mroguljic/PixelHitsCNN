@@ -53,7 +53,7 @@ def plot_residuals(residuals,algo,label,img_ext,type):
 	for entry in residuals:
 		res.Fill(entry)
 	print("RMS of %s %s = %f"%(algo,label,res.GetRMS()))
-	canvas = ROOT.TCanvas (" canvas ")
+	canvas = ROOT.TCanvas ("canvas","canvas",2500, 1000)
 	canvas.cd()
 	res.SetMarkerColor(ROOT.kRed);
     	res.SetMarkerStyle(20)
