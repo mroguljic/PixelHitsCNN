@@ -38,9 +38,10 @@ def plot_dnn_loss(history,label,img_ext):
 	plt.close()
 
 
-def plot_residuals(residuals,algo,label,img_ext):
+def plot_residuals(residuals,algo,label,img_ext,type):
 
-	res = ROOT.TH1F("residuals","%s %s"%(algo,label),250,-500,500)
+	if type == 'pulls': res = ROOT.TH1F("residuals","%s %s"%(algo,label),40,-30,30)
+	else: res = ROOT.TH1F("residuals","%s %s"%(algo,label),500,-1000,1000)
 	res.Sumw2() # statistical uncertainties to be calculated using the sum of weights squared
 	'''
 	Once the histogram has been filled, we want to make sure that it doesnt disappear. By default, histograms
@@ -58,13 +59,15 @@ def plot_residuals(residuals,algo,label,img_ext):
     	res.SetMarkerStyle(20)
 	res.SetMarkerSize(0.6)
 	res.SetLineColor(ROOT.kRed)
-	res.GetXaxis().SetTitle(r'$\mu m$')
+	if type != 'pulls': res.GetXaxis().SetTitle(r'$\mu m$')
 	res.GetYaxis().SetTitle("Number of events")
-	res.SetTitle("%s - residuals in %s"%(algo, label))
+	if type == 'pulls': res.SetTitle("%s - pulls in %s"%(algo, label))
+	else: res.SetTitle("%s - residuals in %s"%(algo, label))
 	res.Fit("gaus","E")
 	res.GetFunction("gaus").SetLineColor(ROOT.kBlack);
 	res.Draw("pe")
-	canvas.Print("plots/python/residuals/%s_residuals_%s.png"%(label,img_ext))
+	if type == 'pulls': canvas.Print("plots/python/residuals/%s_pulls_%s.png"%(label,img_ext))
+	else: canvas.Print("plots/python/residuals/%s_residuals_%s.png"%(label,img_ext))
 
 def plot_cot(cot_list,label,img_ext):
 	cot_hist = ROOT.TH1F(label,label, 20, -0.4,0.4)

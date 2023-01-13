@@ -236,8 +236,8 @@ print("min and max pulls: ",np.amin(pulls_x),np.amax(pulls_x))
 print("RMS_x = %f\n"%(RMS_x))
 
 
-#plot_residuals(residuals_x,'1dcnn','x',img_ext)
-plot_residuals(pulls_x,'1dcnn','x_error',img_ext)
+plot_residuals(residuals_x,'1dcnn','x',img_ext,type=' ')
+plot_residuals(pulls_x,'1dcnn','x',img_ext,type='pulls')
 #plot_by_clustersize(residuals_x,clustersize_x_test,'x',img_ext)
 
 
