@@ -51,7 +51,7 @@ def mse_with_errors(y_true,y_pred):
 
 h5_date = "020522"
 h5_ext = "p1_2024_by25k_irrad_BPIXL1"
-img_ext = "1dcnn_%s_121422"%h5_ext
+img_ext = "1dcnn_%s_030123"%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_y_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -137,12 +137,12 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 512
+batch_size = 1024
 loss_function = 'mse'
 n_epochs_x = 20
 n_epochs_y = 40
-optimizer = Adam(lr=0.001)
-validation_split = 0.2
+optimizer = Adam(lr=0.00001)
+validation_split = 0.3
 
 
 train_time_y = time.clock()
@@ -153,14 +153,14 @@ inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
 y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=3, padding="same")(y)
-y = Activation("relu")(y)
+#y = Conv1D(64, kernel_size=3, padding="same")(y)
+#y = Activation("relu")(y)
 #y = Conv1D(64, kernel_size=2, padding="same")(y)
 #y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-
+'''
 y = Conv1D(64, kernel_size=2, padding="same")(y)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=2, padding="same")(y)
@@ -168,13 +168,14 @@ y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
-
+'''
 y_cnn = Flatten()(y)
 concat_inputs = concatenate([y_cnn,angles])
 y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
+'''
 y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
@@ -183,6 +184,7 @@ y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
+'''
 y_position_error = Dense(2)(y)
 #y_position = Activation("linear", name="y")(y)
 
@@ -193,7 +195,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=mse_with_errors,
@@ -201,7 +203,7 @@ model.compile(loss=mse_with_errors,
               metrics=['mse']
               )
 
-'''
+
 callbacks = [
 EarlyStopping(patience=7),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
@@ -219,7 +221,7 @@ history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
 
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
-'''
+
 #plot_dnn_loss(history.history,'y',img_ext)
 
 print("y training time for dnn",time.clock()-train_time_y)
