@@ -39,18 +39,20 @@ import numpy as np
 import time
 from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
-import cmsml
-from optparse import OptionParser
-from optparse import OptionGroup
 
-parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
-parser.add_option("--img_ext",  default="1dcnn_%s_102523", help="file name extension for residuals and pulls")
-parser.add_option("--h5_date", default="102523", help = "date for h5 file name")
-parser.add_option("--h5_ext",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
-parser.add_option("--early_stop",  default=7, type = 'int', help="early stopping patience (no. of epochs)")
-parser.add_option("--batch_size",  default=1024, type = 'int', help="batch size for training")
-parser.add_option("--n_epochs",  default=40, type = 'int', help="no. of epochs to train for")
-(options, args) = parser.parse_args()
+from argparse import ArgumentParser
+import cmsml
+
+
+
+parser = ArgumentParser(description='Train 1D CNN on flattened clusters in x to predict x positions')
+parser.add_argument("--img_ext",  default="1dcnn_%s_102523", help="file name extension for residuals and pulls")
+parser.add_argument("--h5_date", default="102523", help = "date for h5 file name")
+parser.add_argument("--h5_ext",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_argument("--early_stop",  default=7, type = int, help="early stopping patience (no. of epochs)")
+parser.add_argument("--batch_size",  default=1024, type = int, help="batch size for training")
+parser.add_argument("--n_epochs",  default=40, type = int, help="no. of epochs to train for")
+options = parser.parse_args()
 
 def mse_with_errors(y_true,y_pred):
     y_position = y_pred[:,:1]

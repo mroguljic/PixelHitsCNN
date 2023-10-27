@@ -4,6 +4,7 @@
 #=================================
 from optparse import OptionParser
 from optparse import OptionGroup
+from argparse import ArgumentParser
 import numpy as np
 import h5py
 import numpy.random as rng
@@ -194,7 +195,7 @@ def center_clusters(cluster_matrices,threshold):
 		seed_index = np.argwhere(one_mat==np.amax(one_mat))[0]
 		#find connected components 
 		labels,n_clusters = label(one_mat.clip(0,1),structure=np.ones((3,3)))
-		if(index==28): print(one_mat, labels)
+		#if(index==28): print(one_mat, labels)
 	
 		max_cluster_size=0
 		#if there is more than 1 cluster, the one with largest seed is the main one
@@ -363,15 +364,15 @@ def create_datasets_2d(f_x,f_y,cluster_matrices_x,cluster_matrices_y, cota_x,cot
 	
 	print("made %s h5 files for 2D x and y. no. of events to %s on for x: %i and y: %i"%(dset_type,dset_type,len(cluster_matrices_x),len(cluster_matrices_y)))
 
-parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
-parser.add_option("--phase1",  default=True, help="Phase 1 or Phase 2?")
-parser.add_option("--threshold",  default=3000, type = 'int', help="Threshold in no. of electrons")
-parser.add_option("--date", default="102523", help = "date for h5 file name")
-parser.add_option("--filename",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
-parser.add_option("--fe_type",  default=2, type = 'int', help="front-end type (1 for phase 2 and 2 for phase 1)")
-parser.add_option("--simulate_double",  default=True, help="simulate double width pixels too?")
+parser = ArgumentParser(description="Preprocess Pixelav clusters for training - produces h5 files")
+parser.add_argument("--phase1",  default=True, help="Phase 1 or Phase 2?")
+parser.add_argument("--threshold",  default=3000, type = int, help="Threshold in no. of electrons")
+parser.add_argument("--date", default="102523", help = "date for h5 file name")
+parser.add_argument("--filename",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_argument("--fe_type",  default=2, type = int, help="front-end type (1 for phase 2 and 2 for phase 1)")
+parser.add_argument("--simulate_double",  default=True, help="simulate double width pixels too?")
 
-(options, args) = parser.parse_args()
+options = parser.parse_args()
 
 
 
