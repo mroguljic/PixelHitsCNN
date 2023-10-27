@@ -484,11 +484,11 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
       // convert microns to cms
       theClusterParam.NNXrec_ = output_x[0].matrix<float>()(0,0);
       theClusterParam.NNXrec_ = theClusterParam.NNXrec_ + pixelsize_x*(mid_x); 
-      theClusterParam.NNSigmaX_ = 1;
+      theClusterParam.NNSigmaX_ = output_x[0].matrix<float>()(0,1);
   
       theClusterParam.NNYrec_ = output_y[0].matrix<float>()(0,0);
       theClusterParam.NNXrec_ = theClusterParam.NNYrec_ + pixelsize_y*(mid_y);
-      theClusterParam.NNSigmaY_ = 1;
+      theClusterParam.NNSigmaY_ = output_y[0].matrix<float>()(0,1);
 
       if(isnan(theClusterParam.NNXrec_) or theClusterParam.NNXrec_>=999e4 or isnan(theClusterParam.NNYrec_) or theClusterParam.NNYrec_>=999e4) theClusterParam.ierr = 12345;
       else theClusterParam.ierr = 0.;

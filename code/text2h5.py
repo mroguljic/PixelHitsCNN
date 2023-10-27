@@ -2,7 +2,8 @@
 # Author: Sanjana Sekhar
 # Date: 1 Nov 20
 #=================================
-
+from optparse import OptionParser
+from optparse import OptionGroup
 import numpy as np
 import h5py
 import numpy.random as rng
@@ -362,24 +363,23 @@ def create_datasets_2d(f_x,f_y,cluster_matrices_x,cluster_matrices_y, cota_x,cot
 	
 	print("made %s h5 files for 2D x and y. no. of events to %s on for x: %i and y: %i"%(dset_type,dset_type,len(cluster_matrices_x),len(cluster_matrices_y)))
 
+parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
+parser.add_option("--phase1",  default=True, help="Phase 1 or Phase 2?")
+parser.add_option("--threshold",  default=3000, type = 'int', help="Threshold in no. of electrons")
+parser.add_option("--date", default="102523", help = "date for h5 file name")
+parser.add_option("--filename",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_option("--fe_type",  default=2, type = 'int', help="front-end type (1 for phase 2 and 2 for phase 1)")
+parser.add_option("--simulate_double",  default=True, help="simulate double width pixels too?")
 
-fe_type = 1
+(options, args) = parser.parse_args()
+
+
+
 gain_frac     = 0.08;
 readout_noise = 350.;
 noise = 250.;
 common_noise_frac = 0.08
 threshold_noise_frac = 0.073
-
-#--- Variables we can change, but we start with good default values
-#vcal = 47.0;	
-#vcaloffst = 60.0;
-
-# For phase 1 BPIX L1
-vcal        = 50.   # L1:   49.6 +- 2.6
-vcaloffst = 670. # L1:   -670 +- 220
-
-#--- PhaseII - initial guess
-threshold = 1000; # threshold in e-
 qperToT = 1500; # e- per TOT
 nbitsTOT = 4; # fixed and carved in stone?
 ADCMax = np.power(2, nbitsTOT)-1;
@@ -400,18 +400,33 @@ p1 = 0.711
 p2 = 203.
 p3 = 148.
 
+#--- Variables we can change, but we start with good default values
+#vcal = 47.0;	
+#vcaloffst = 60.0;
 
-date = "020522"
-filename = "p1_2024_by25k_irrad_BPIXL1"
-phase1 = True
+# For phase 1 BPIX L1
+vcal        = 50.   # L1:   49.6 +- 2.6
+vcaloffst = 670. # L1:   -670 +- 220
 
-if(phase1):
+fe_type = options.fe_type
+threshold = options.threshold
+
+if(options.phase1):
 	#threshold = 2000; # BPIX L1 Run 3 https://github.com/cms-sw/cmssw/blob/master/SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py#L45
 	threshold = 3000; # BPIX L1 Phase1
 	#threshold = 300
 	fe_type = 2
+else:
 
-simulate_double = True
+	#--- PhaseII - initial guess
+	threshold = 1000; # threshold in e-
+	fe_type = 1
+
+
+date = options.date
+filename = options.filename
+simulate_double = options.simulate_double
+
 testing_2024 = False 
 
 if testing_2024:

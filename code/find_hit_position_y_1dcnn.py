@@ -40,7 +40,17 @@ import time
 from plotter import *
 from tensorflow.keras.callbacks import EarlyStopping
 import cmsml
+from optparse import OptionParser
+from optparse import OptionGroup
 
+parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
+parser.add_option("--img_ext",  default="1dcnn_%s_102523", help="file name extension for residuals and pulls")
+parser.add_option("--h5_date", default="102523", help = "date for h5 file name")
+parser.add_option("--h5_ext",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_option("--early_stop",  default=7, type = 'int', help="early stopping patience (no. of epochs)")
+parser.add_option("--batch_size",  default=1024, type = 'int', help="batch size for training")
+parser.add_option("--n_epochs",  default=40, type = 'int', help="no. of epochs to train for")
+(options, args) = parser.parse_args()
 
 def mse_with_errors(y_true,y_pred):
     y_position = y_pred[:,:1]
@@ -49,9 +59,9 @@ def mse_with_errors(y_true,y_pred):
     return tf.reduce_mean(2*y_log_error+((y_true-y_position)/y_error)**2)
 
 
-h5_date = "020522"
-h5_ext = "p1_2024_by25k_irrad_BPIXL1"
-img_ext = "1dcnn_%s_030123"%h5_ext
+h5_date = options.h5_date
+h5_ext = options.h5_ext
+img_ext = options.img_ext%h5_ext
 
 # Load data
 f = h5py.File('h5_files/train_y_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
@@ -137,10 +147,9 @@ print(test_cx.shape)
 test_cy = test_c.sum(axis=0).reshape((1,21))
 '''
 # Model configuration
-batch_size = 1024
+batch_size = options.batch_size
 loss_function = 'mse'
-n_epochs_x = 20
-n_epochs_y = 40
+n_epochs_y = options.n_epochs
 optimizer = Adam(lr=0.00001)
 validation_split = 0.3
 
@@ -153,10 +162,10 @@ inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
 y = Conv1D(64, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
-#y = Conv1D(64, kernel_size=3, padding="same")(y)
-#y = Activation("relu")(y)
-#y = Conv1D(64, kernel_size=2, padding="same")(y)
-#y = Activation("relu")(y)
+y = Conv1D(64, kernel_size=3, padding="same")(y)
+y = Activation("relu")(y)
+y = Conv1D(64, kernel_size=2, padding="same")(y)
+y = Activation("relu")(y)
 y = BatchNormalization(axis=-1)(y)
 y = MaxPooling1D(pool_size=2,padding='same')(y)
 y = Dropout(0.25)(y)
@@ -175,16 +184,17 @@ y = Dense(64)(concat_inputs)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-'''
+
 y = Dense(128)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
+
 y = Dense(64)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
-'''
+
 y_position_error = Dense(2)(y)
 #y_position = Activation("linear", name="y")(y)
 
@@ -205,7 +215,7 @@ model.compile(loss=mse_with_errors,
 
 
 callbacks = [
-EarlyStopping(patience=7),
+EarlyStopping(patience = options.early_stop),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
                 save_weights_only=True,
             		save_best_only=True,
