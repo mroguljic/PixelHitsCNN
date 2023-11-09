@@ -128,7 +128,17 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
       ID = forwardTemplateID_;  // forward
   }
   //cout << "PixelCPETemplateReco : ID = " << ID << endl;
-
+if(fpix){
+   edm::LogError("PixelCPENNReco") << "@SUB = PixelCPENNReco::localPosition"
+                                          << "Skipping FPIX Disks " << ttopo_.pxfDisk(theDetParam.theDet->geographicalId().rawId());
+   theClusterParam.ierr = 12345;
+  }
+  // how to access layer info from det_id? can i use the tracker topology token here? so i have to add it to the det_id or
+  if(ttopo_.pxbLayer(theDetParam.theDet->geographicalId().rawId()) != 1){
+     edm::LogError("PixelCPENNReco") << "@SUB = PixelCPENNReco::localPosition"
+           << "Skipping BPIX L" << ttopo_.pxbLayer(theDetParam.theDet->geographicalId().rawId());
+     theClusterParam.ierr = 12345;
+  }
   SiPixelTemplate templ(thePixelTemp_);
 
   // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
@@ -400,7 +410,8 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
 
   if (theClusterParam.ierr == 0)  // always true here
     theClusterParam.hasFilledProb_ = true;
-
+  cout << "PixelCPETemplateReco: x = " << theClusterParam.templXrec_ << " y = " << theClusterParam.templYrec_ << endl;
+  cout << "PixelCPETemplateReco: cotalpha = " << theClusterParam.cotalpha << " cotbeta = " << theClusterParam.cotbeta << endl;
   return LocalPoint(theClusterParam.templXrec_, theClusterParam.templYrec_);
 }
 
