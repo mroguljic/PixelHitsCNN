@@ -6,7 +6,6 @@ import h5py
 import numpy.random as rng
 #from skimage.measure import label
 from scipy.ndimage.measurements import label
-from simulate_double_width import *
 import json
 from itertools import islice
 
@@ -118,7 +117,11 @@ class ClusterConverter:
 
             if self.simulate_double:
                 #Simulate_double creates new clusters in x and y so the cota/b can diverge between x and y
-                cota_x,cotb_x,cota_y,cotb_y = simulate_double_width_1d(self.x_flat,self.y_flat,self.clustersize_x,self.clustersize_y,self.x_position,self.y_position,self.cota,self.cotb,n_double)
+                print("x_flat before")
+                print(np.shape(self.x_flat))
+                cota_x,cotb_x,cota_y,cotb_y = self.simulate_double_width_1d(self.cota,self.cotb,n_double)
+                print("x_flat after")
+                print(np.shape(self.x_flat))
                 self.cota_x = cota_x
                 self.cota_y = cota_y
                 self.cotb_x = cotb_x
@@ -166,6 +169,7 @@ class ClusterConverter:
                 batch_idx+=1
                 # Process the batch
                 convert_cluster_batch(batch)
+                exit()
 
         replacer_string_x = f"_x_1d.hdf5"
         replacer_string_y = f"_y_1d.hdf5"
@@ -475,6 +479,139 @@ class ClusterConverter:
         f_y.create_dataset("clustersize_y", np.shape(self.total_clustersize_y), data=self.total_clustersize_y)
         f_x.create_dataset("x_flat", np.shape(self.total_x_flat), data=self.total_x_flat)
         f_y.create_dataset("y_flat", np.shape(self.total_y_flat), data=self.total_y_flat)
+
+    def simulate_double_width_1d(self,cota,cotb,n_double):
+
+        # only for 1d 
+        # 3 cases: double in x, double in y, double in x and y
+        # for 1d, case 3 wont make a difference to how the flat matrices look - bother about this in 2d 
+        # simulate n_double matrices for case 1 and 2
+        '''
+        general algo: 
+        skip clsize = 1 and 2
+        for N >2, clsize N simulates double width pix of clsize_d = N-1
+        this only works for clsize_d <= 12/20 ie if there is a double width pixel in a cluster of size 13 or 20 -> skip it for now
+        simulation: 
+        clsize = 2: let choice of i only be the first idx x[i]+x[i+1]/2, clsize--;
+        clsize = 3: let choice of i only be the first,second idx x[i]+x[i+1]/2, clsize--;
+        so on and so forth
+        
+        for simulating 2 double width next to each other:
+        clsize N in single -> simulates clsize N-3 in 2 double
+        start with clsize 4
+        only a maximum of clsize 10/18 can be simulated with 2 double width
+
+        '''
+        #choose clusters whose size is not 1 in x or y
+        print("no of available choices: ",len(np.argwhere(self.clustersize_x>2)[:,0]))   
+        if len(np.argwhere(self.clustersize_x>2)[:,0]) < n_double: double_idx_x = np.argwhere(self.clustersize_x>2)[:,0]
+        else: double_idx_x = rng.choice(np.argwhere(self.clustersize_x>2)[:,0],size=n_double,replace=False)
+        if len(np.argwhere(self.clustersize_y>2)[:,0]) < n_double: double_idx_y = np.argwhere(self.clustersize_y>2)[:,0]
+        else: double_idx_y = rng.choice(np.argwhere(self.clustersize_y>2)[:,0],size=n_double,replace=False)
+        #print("no of available choices: ",np.intersect1d(np.argwhere(self.clustersize_x!=1)[:,0],np.argwhere(self.clustersize_x!=2)[:,0]),np.intersect1d(np.argwhere(self.clustersize_y!=1)[:,0],np.argwhere(self.clustersize_y!=2)[:,0]))
+        print("old x_flat shape = ",self.x_flat.shape,"old y_flat shape = ",self.y_flat.shape)
+        
+        flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
+        count=0
+
+        for i in double_idx_x:
+            # for x matrices
+            #if self.clustersize_x[i]==1: print(x_flat[i])
+            nonzero_idx = np.array(np.nonzero(self.x_flat[i])).reshape((int(self.clustersize_x[i]),))
+            #self.clustersize_x[i]-=1 
+            #since this now simulates a double col pix, the cluster size goes down by 1
+            #if self.clustersize_x[i][0]-1>5: n_choices = 5
+            n_choices = self.clustersize_x[i][0]+3
+
+            #simulate all configs of double width
+            for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=True):
+                one_mat = np.copy(self.x_flat[i])
+                #if count < 30:
+                #   print("cluster x")
+                #   print(one_mat)
+                one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
+                flat_list.append(one_mat.tolist())
+                clustersize_list.append((self.clustersize_x[i]-1).tolist())
+                pos_list.append(self.x_position[i].tolist())
+                cota_list.append(cota[i].tolist())
+                cotb_list.append(cotb[i].tolist())
+                count+=1
+                #if count < 30:
+                #   print("1 dpix cluster x")
+                #   print(one_mat)
+
+                # ==================== simulate 2 dpix =====================================
+                if j<nonzero_idx[-3] and self.clustersize_x[i][0] > 3:
+                    one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+                    flat_list.append(one_mat.tolist())
+                    clustersize_list.append((self.clustersize_x[i]-3).tolist())
+                    pos_list.append(self.x_position[i].tolist())
+                    cota_list.append(cota[i].tolist())
+                    cotb_list.append(cotb[i].tolist())
+                    count+=1
+
+                #   if count < 30:
+                #       print("2 dpix cluster x")
+                #       print(one_mat)
+
+        self.x_flat = np.vstack((self.x_flat,np.array(flat_list).reshape((count,13))))
+        self.clustersize_x = np.vstack((self.clustersize_x,np.array(clustersize_list).reshape((count,1))))
+        self.x_position = np.vstack((self.x_position,np.array(pos_list).reshape((count,1))))
+        cota_x = np.vstack((cota,np.array(cota_list).reshape((count,1))))
+        cotb_x = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
+
+        flat_list,clustersize_list,pos_list,cota_list,cotb_list = [],[],[],[],[]
+        count=0
+
+        for i in double_idx_y:
+            # for y matrices
+            #if self.clustersize_y[i]==1: print(y_flat[i])
+            nonzero_idx = np.array(np.nonzero(self.y_flat[i])).reshape((int(self.clustersize_y[i]),))
+            #self.clustersize_y[i]-=1 
+            #since this now simulates a double col pix, the cluster size goes down by 1
+            if self.clustersize_y[i][0]-1>7: n_choices = 4
+            else: n_choices = self.clustersize_y[i][0]-1
+
+            #simulate all configs of double width
+            for j in rng.choice(nonzero_idx[:-1],size=int(n_choices),replace=False):
+                one_mat = np.copy(self.y_flat[i])
+                #if count < 30:
+                #   print("cluster y")
+                #   print(one_mat)
+                one_mat[j] = one_mat[j+1] = (one_mat[j]+one_mat[j+1])/2.
+                flat_list.append(one_mat.tolist())
+                clustersize_list.append((self.clustersize_y[i]-1).tolist())
+                pos_list.append(self.y_position[i].tolist())
+                cota_list.append(cota[i].tolist())
+                cotb_list.append(cotb[i].tolist())
+                count+=1
+                #if count < 30:
+                #   print("1 dpix cluster y")
+                #   print(one_mat)
+                # ==================== simulate 2 dpix =====================================
+                if j<nonzero_idx[-3] and self.clustersize_y[i][0] > 3:
+                    one_mat[j+2] = one_mat[j+3] = (one_mat[j+2]+one_mat[j+3])/2.
+                    flat_list.append(one_mat.tolist())
+                    clustersize_list.append((self.clustersize_y[i]-3).tolist())
+                    pos_list.append(self.y_position[i].tolist())
+                    cota_list.append(cota[i].tolist())
+                    cotb_list.append(cotb[i].tolist())
+                    count+=1
+
+                #   if count < 30:
+                #       print("2 dpix cluster y")
+                #       print(one_mat)
+
+        self.y_flat = np.vstack((self.y_flat,np.array(flat_list).reshape((count,21))))
+        self.clustersize_y = np.vstack((self.clustersize_y,np.array(clustersize_list).reshape((count,1))))
+        self.y_position = np.vstack((self.y_position,np.array(pos_list).reshape((count,1))))
+        cota_y = np.vstack((cota,np.array(cota_list).reshape((count,1))))
+        cotb_y = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
+
+
+        print("new x_flat shape = ",self.x_flat.shape,"new y_flat shape = ",self.y_flat.shape)
+        print("simulated 1 and 2 double width pix in x and y for 1D")
+        return cota_x,cotb_x,cota_y,cotb_y
 
 if __name__ == "__main__":
     test_object = ClusterConverter("ClusterConverterConfig.json","L1U")
