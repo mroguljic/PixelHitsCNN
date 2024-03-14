@@ -59,7 +59,7 @@ class Trainer:
 
         print(f"Loading training clusters from {self.train_h5}")
         f = h5py.File(self.train_h5, 'r')
-        pix_flat_train = f[f'train_{self.axis}_flat'][0:n_clusters]
+        pix_flat_train = f[f'{self.axis}_flat'][0:n_clusters]
         cota_train = f['cota'][0:n_clusters]
         cotb_train = f['cotb'][0:n_clusters]
         position_train = f[self.axis][0:n_clusters] 
@@ -90,7 +90,7 @@ class Trainer:
 
         print(f"Loading testing clusters from {self.test_h5}")
         f = h5py.File(self.test_h5, 'r')
-        pix_flat_test = f[f'test_{self.axis}_flat'][0:n_clusters]
+        pix_flat_test = f[f'{self.axis}_flat'][0:n_clusters]
         cota_test = f['cota'][0:n_clusters]
         cotb_test = f['cotb'][0:n_clusters]
         position_test = f[self.axis][0:n_clusters] 
@@ -102,6 +102,11 @@ class Trainer:
         self.position_test = position_test
         self.angles_test = angles_test
         self.clustersize_test = clustersize_test
+        print("HERE")
+        print(np.shape(self.pixels_test))
+        print(np.shape(self.position_test))
+        print(np.shape(self.angles_test))
+        print(np.shape(self.clustersize_test))
         print("Using {:.0f} MB of memory".format(psutil.Process().memory_info().rss / 1024 ** 2))
         self.testing_input_flag = True
 

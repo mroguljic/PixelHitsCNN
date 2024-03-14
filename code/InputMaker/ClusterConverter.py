@@ -169,7 +169,7 @@ class ClusterConverter:
 
         replacer_string_x = f"_x_1d.hdf5"
         replacer_string_y = f"_y_1d.hdf5"
-        if self.simulate_double:
+        if not self.simulate_double:
             replacer_string_x = "_nodouble"+replacer_string_x 
             replacer_string_y = "_nodouble"+replacer_string_y 
 
