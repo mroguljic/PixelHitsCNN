@@ -117,11 +117,7 @@ class ClusterConverter:
 
             if self.simulate_double:
                 #Simulate_double creates new clusters in x and y so the cota/b can diverge between x and y
-                print("x_flat before")
-                print(np.shape(self.x_flat))
                 cota_x,cotb_x,cota_y,cotb_y = self.simulate_double_width_1d(self.cota,self.cotb,n_double)
-                print("x_flat after")
-                print(np.shape(self.x_flat))
                 self.cota_x = cota_x
                 self.cota_y = cota_y
                 self.cotb_x = cotb_x
@@ -169,7 +165,6 @@ class ClusterConverter:
                 batch_idx+=1
                 # Process the batch
                 convert_cluster_batch(batch)
-                exit()
 
         replacer_string_x = f"_x_1d.hdf5"
         replacer_string_y = f"_y_1d.hdf5"
