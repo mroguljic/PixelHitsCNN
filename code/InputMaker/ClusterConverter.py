@@ -8,6 +8,7 @@ import numpy.random as rng
 from scipy.ndimage.measurements import label
 import json
 from itertools import islice
+import os 
 
 class ClusterConverter:
     #Class to load .json file and convert .txt cluster files into "realistic" clusters and store them in hdf5 format
@@ -59,15 +60,6 @@ class ClusterConverter:
         self.total_clustersize_y = None
         self.total_x_flat = None
         self.total_y_flat = None
-
-        def set_or_extend_array(new_array, member_name):
-            current_array = getattr(self, member_name)
-            if current_array is None:
-                # If array member is not defined, set it as the new array
-                setattr(self, member_name, new_array)
-            else:
-                # If array member exists, extend it along the first axis
-                setattr(self, member_name, np.concatenate((current_array, new_array), axis=0))
 
         def count_lines(filename):
             with open(filename, 'r') as file:
@@ -127,18 +119,6 @@ class ClusterConverter:
                 self.cota_y = self.cota
                 self.cotb_x = self.cotb
                 self.cotb_y = self.cotb
-
-            set_or_extend_array(self.x_position, "total_x_position")
-            set_or_extend_array(self.y_position, "total_y_position")
-            set_or_extend_array(self.cota_x, "total_cota_x")
-            set_or_extend_array(self.cota_y, "total_cota_y")
-            set_or_extend_array(self.cotb_x, "total_cotb_x")
-            set_or_extend_array(self.cotb_y, "total_cotb_y")
-            set_or_extend_array(self.clustersize_x, "total_clustersize_x")
-            set_or_extend_array(self.clustersize_y, "total_clustersize_y")
-            set_or_extend_array(self.x_flat, "total_x_flat")
-            set_or_extend_array(self.y_flat, "total_y_flat")
-
     
         set_pixelsize(input_file)
         temp_file = open(input_file, "r")
@@ -147,6 +127,17 @@ class ClusterConverter:
         n_lines = count_lines(input_file)
         n_clusters = (n_lines - 2)/self.lines_per_cluster
         n_batches  = int(np.ceil(n_clusters/batch_size))
+        
+        #Figure out output filenames
+        replacer_string_x = f"_x_1d.hdf5"
+        replacer_string_y = f"_y_1d.hdf5"
+        if not self.simulate_double:
+            replacer_string_x = "_nodouble"+replacer_string_x 
+            replacer_string_y = "_nodouble"+replacer_string_y 
+
+        f_x_name = output_file.replace(".hdf5",replacer_string_x)
+        f_y_name = output_file.replace(".hdf5",replacer_string_y)
+
         with open(input_file, 'r') as file:
             # Skip the first two lines with template and pixelsize info at the beginning of the file
             next(file)
@@ -156,6 +147,15 @@ class ClusterConverter:
             We risk running out of memory if we process all at once
             Processing is done in batches of $batch_size clusters
             '''
+            replacer_string_x = f"_x_1d.hdf5"
+            replacer_string_y = f"_y_1d.hdf5"
+            if not self.simulate_double:
+                replacer_string_x = "_nodouble"+replacer_string_x 
+                replacer_string_y = "_nodouble"+replacer_string_y 
+
+            f_x_name = output_file.replace(".hdf5",replacer_string_x)
+            f_y_name = output_file.replace(".hdf5",replacer_string_y)
+
             batch_idx = 0
             while True:
                 print(f"Batch {batch_idx}/{n_batches}")
@@ -165,20 +165,8 @@ class ClusterConverter:
                 batch_idx+=1
                 # Process the batch
                 convert_cluster_batch(batch)
+                self.create_or_append_datasets_1d(f_x_name, f_y_name)
 
-        replacer_string_x = f"_x_1d.hdf5"
-        replacer_string_y = f"_y_1d.hdf5"
-        if not self.simulate_double:
-            replacer_string_x = "_nodouble"+replacer_string_x 
-            replacer_string_y = "_nodouble"+replacer_string_y 
-
-        f_x_name = output_file.replace(".hdf5",replacer_string_x)
-        f_y_name = output_file.replace(".hdf5",replacer_string_y)
-        f_x = h5py.File(f_x_name, "w")
-        f_y = h5py.File(f_y_name, "w")
-        self.create_datasets_1d(f_x,f_y)
-        f_x.close()
-        f_y.close()
         print(f"Saved clusters to: {f_x_name}")
         print(f"Saved clusters to: {f_y_name}")
 
@@ -450,19 +438,57 @@ class ClusterConverter:
 
         self.cluster_matrices  = False#Release memory
 
+    def create_or_append_datasets_1d(self, filename_x, filename_y):
+        file_exists = os.path.isfile(filename_x) and os.path.isfile(filename_y)
+        
+        # Open the HDF5 file in append mode if it exists, otherwise create a new one
+        with h5py.File(filename_x, "a" if file_exists else "w") as f_x, h5py.File(filename_y, "a" if file_exists else "w") as f_y:
+            if not file_exists:
+                # Create datasets
+                f_x.create_dataset("x", np.shape(self.x_position), data=self.x_position,maxshape=(None,)+self.x_position.shape[1:], chunks=True)
+                f_x.create_dataset("cota", np.shape(self.cota_x), data=self.cota_x,maxshape=(None,)+self.cota_x.shape[1:], chunks=True)
+                f_x.create_dataset("cotb", np.shape(self.cotb_x), data=self.cotb_x,maxshape=(None,)+self.cotb_x.shape[1:], chunks=True)
+                f_x.create_dataset("clustersize_x", np.shape(self.clustersize_x), data=self.clustersize_x,maxshape=(None,)+self.clustersize_x.shape[1:], chunks=True)
+                f_x.create_dataset("x_flat", np.shape(self.x_flat), data=self.x_flat,maxshape=(None,)+self.x_flat.shape[1:], chunks=True)
+
+                f_y.create_dataset("y", np.shape(self.y_position), data=self.y_position,maxshape=(None,)+self.y_position.shape[1:], chunks=True)
+                f_y.create_dataset("cota", np.shape(self.cota_y), data=self.cota_y,maxshape=(None,)+self.cota_y.shape[1:], chunks=True)
+                f_y.create_dataset("cotb", np.shape(self.cotb_y), data=self.cotb_y,maxshape=(None,)+self.cotb_y.shape[1:], chunks=True)
+                f_y.create_dataset("clustersize_y", np.shape(self.clustersize_y), data=self.clustersize_y,maxshape=(None,)+self.clustersize_y.shape[1:], chunks=True)
+                f_y.create_dataset("y_flat", np.shape(self.y_flat), data=self.y_flat,maxshape=(None,)+self.y_flat.shape[1:], chunks=True)
+            else:
+                # Append datasets
+                f_x["x"].resize((f_x["x"].shape[0] + np.shape(self.x_position)[0]), axis = 0)
+                f_x["x"][-np.shape(self.x_position)[0]:] = self.x_position
+
+                f_x["cota"].resize((f_x["cota"].shape[0] + np.shape(self.cota_x)[0]), axis = 0)
+                f_x["cota"][-np.shape(self.cota_x)[0]:] = self.cota_x
+
+                f_x["cotb"].resize((f_x["cotb"].shape[0] + np.shape(self.cotb_x)[0]), axis = 0)
+                f_x["cotb"][-np.shape(self.cotb_x)[0]:] = self.cotb_x
+
+                f_x["clustersize_x"].resize((f_x["clustersize_x"].shape[0] + np.shape(self.clustersize_x)[0]), axis = 0)
+                f_x["clustersize_x"][-np.shape(self.clustersize_x)[0]:] = self.clustersize_x
+
+                f_x["x_flat"].resize((f_x["x_flat"].shape[0] + np.shape(self.x_flat)[0]), axis = 0)
+                f_x["x_flat"][-np.shape(self.x_flat)[0]:] = self.x_flat
+
+                f_y["y"].resize((f_y["y"].shape[0] + np.shape(self.y_position)[0]), axis = 0)
+                f_y["y"][-np.shape(self.y_position)[0]:] = self.y_position
+
+                f_y["cota"].resize((f_y["cota"].shape[0] + np.shape(self.cota_y)[0]), axis = 0)
+                f_y["cota"][-np.shape(self.cota_y)[0]:] = self.cota_y
+
+                f_y["cotb"].resize((f_y["cotb"].shape[0] + np.shape(self.cotb_y)[0]), axis = 0)
+                f_y["cotb"][-np.shape(self.cotb_y)[0]:] = self.cotb_y
+
+                f_y["clustersize_y"].resize((f_y["clustersize_y"].shape[0] + np.shape(self.clustersize_y)[0]), axis = 0)
+                f_y["clustersize_y"][-np.shape(self.clustersize_y)[0]:] = self.clustersize_y
+
+                f_y["y_flat"].resize((f_y["y_flat"].shape[0] + np.shape(self.y_flat)[0]), axis = 0)
+                f_y["y_flat"][-np.shape(self.y_flat)[0]:] = self.y_flat
+
     def create_datasets_1d(self,f_x,f_y):
-        #normalize inputs
-        '''
-        for index in range(len(x_flat)): #currently testing double width in 1d only 
-
-            max_c = x_flat[index].max()
-            x_flat[index] = x_flat[index]/max_c     
-
-        for index in range(len(y_flat)):
-
-            max_c = y_flat[index].max()
-            y_flat[index] = y_flat[index]/max_c
-        '''
 
         f_x.create_dataset("x", np.shape(self.total_x_position), data=self.total_x_position)
         f_y.create_dataset("y", np.shape(self.total_y_position), data=self.total_y_position)
