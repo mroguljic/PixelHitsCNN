@@ -2,7 +2,7 @@ from Trainer import Trainer
 
 for layer in ["L3m"]:
     trainer_x = Trainer("config.json",layer,"x")
-    #trainer_x.train()
+    trainer_x.train()
     trainer_x.test()
     trainer_x.visualize()
 
