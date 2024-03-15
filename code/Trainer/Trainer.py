@@ -102,7 +102,6 @@ class Trainer:
         self.position_test = position_test
         self.angles_test = angles_test
         self.clustersize_test = clustersize_test
-        print("HERE")
         print(np.shape(self.pixels_test))
         print(np.shape(self.position_test))
         print(np.shape(self.angles_test))
