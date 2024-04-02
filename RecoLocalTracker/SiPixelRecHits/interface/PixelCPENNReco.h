@@ -33,7 +33,7 @@
 //  std::atomic<tensorflow::GraphDef*> graphDef;
 //};
 
-
+//tensorflow::setLogging("3");
 class MagneticField;
 class PixelCPENNReco : public PixelCPEBase{
 public:
@@ -61,7 +61,7 @@ public:
                        const MagneticField *,
                        const TrackerGeometry &,
                        const TrackerTopology &,
-                     //  const SiPixelLorentzAngle *,
+                       const SiPixelLorentzAngle *,
                      //  const SiPixelTemplateDBObject *,
                        const tensorflow::Session *,
                        const tensorflow::Session *

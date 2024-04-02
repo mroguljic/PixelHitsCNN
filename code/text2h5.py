@@ -11,8 +11,13 @@ import numpy.random as rng
 #from skimage.measure import label
 from scipy.ndimage.measurements import label
 from simulate_double_width import *
-
+import subprocess
+import sys, commands, os, fnmatch
 np.seterr(all='raise')
+
+def print_and_do(s):
+	print("Exec: " + s)
+	os.system(s)
 
 def extract_matrices(lines,cluster_matrices):
 	#delete first 2 lines
@@ -364,23 +369,35 @@ def create_datasets_2d(f_x,f_y,cluster_matrices_x,cluster_matrices_y, cota_x,cot
 	
 	print("made %s h5 files for 2D x and y. no. of events to %s on for x: %i and y: %i"%(dset_type,dset_type,len(cluster_matrices_x),len(cluster_matrices_y)))
 
+'''
+TO RUN:
+
+python code/text2h5.py --file_in BPIX_L1F_template_events_d21901_d22100 --threshold_noise_frac 0.073 --common_noise_frac 0.06 --gain_noise_frac 0.25 --readout_noise 350. --th
+reshold 2600 --date 022224
+'''
+
+
 parser = ArgumentParser(description="Preprocess Pixelav clusters for training - produces h5 files")
 parser.add_argument("--phase1",  default=True, help="Phase 1 or Phase 2?")
 parser.add_argument("--threshold",  default=3000, type = int, help="Threshold in no. of electrons")
-parser.add_argument("--date", default="102523", help = "date for h5 file name")
-parser.add_argument("--filename",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_argument("--date", default="022224", help = "date for h5 file name")
+parser.add_argument("--filename",  default="p1_2024_BPIXL1U", help="h5 file name extension")
 parser.add_argument("--fe_type",  default=2, type = int, help="front-end type (1 for phase 2 and 2 for phase 1)")
 parser.add_argument("--simulate_double",  default=True, help="simulate double width pixels too?")
-
+parser.add_argument("--file_in",  default="BPIX_L1F_template_events_d21901_d22100", help="input template")
+parser.add_argument("--gain_frac",  default=0.25, type = float, help="gain fraction")
+parser.add_argument("--readout_noise",  default=350., type = float, help="readout noise")
+parser.add_argument("--common_noise_frac",  default=0.08, type = float, help="common noise fraction")
+parser.add_argument("--threshold_noise_frac",  default=0.073, type = float, help="threshold noise fraction")
 options = parser.parse_args()
 
-
-
-gain_frac     = 0.08;
-readout_noise = 350.;
+options.filename = "p1_2024_%s"%options.file_in.replace("_template_events","")
+path = "root://cmseos.fnal.gov//store/user/ssekhar/templates_Run3_2023_MC/templates"
+gain_frac     = options.gain_frac;
+readout_noise = options.readout_noise;
 noise = 250.;
-common_noise_frac = 0.08
-threshold_noise_frac = 0.073
+common_noise_frac = options.common_noise_frac
+threshold_noise_frac = options.threshold_noise_frac
 qperToT = 1500; # e- per TOT
 nbitsTOT = 4; # fixed and carved in stone?
 ADCMax = np.power(2, nbitsTOT)-1;
@@ -414,7 +431,7 @@ threshold = options.threshold
 
 if(options.phase1):
 	#threshold = 2000; # BPIX L1 Run 3 https://github.com/cms-sw/cmssw/blob/master/SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py#L45
-	threshold = 3000; # BPIX L1 Phase1
+	#threshold = 2600; # BPIX L1 Phase1
 	#threshold = 300
 	fe_type = 2
 else:
@@ -439,10 +456,17 @@ if testing_2024:
 	p3 = 126.5
 #====== test files ========
 
-#print("making test h5 file.")
+print("Processing file: ",options.file_in)
+print("Using the following parameters: ")
+print("noise = ",noise, " threshold = ", threshold, " thresh1_noise_frac = ", threshold_noise_frac," common_noise_frac = ", common_noise_frac," gain_noise_frac = ", gain_frac, " readout_noise = ",readout_noise," frontend_type = ", fe_type)
 
-#test_out = open("templates/template_events_d83709.out", "r")
-test_out = open("templates/2024_samples/template_events_d94222.out", "r")
+print_and_do("xrdcp -f %s/%s_test.out ."%(path,options.file_in))
+print_and_do("xrdcp -f %s/%s_train.out ."%(path,options.file_in))
+
+#print("making test h5 file.")
+test_out = open("%s_test.out"%(options.file_in), "r")
+#test_out = open("templates/BPIX_L1F_template_events_d21901_d22100_test.out", "r")
+#test_out = open("templates/2024_samples/template_events_d94222.out", "r")
 ##print("writing to file %i \n",i)
 lines = test_out.readlines()
 test_out.close()
@@ -519,10 +543,10 @@ else:
 
 #=====train files===== 
 
-#print("making train h5 file")
-
+print("making train h5 file")
+train_out = open("%s_train.out"%(options.file_in), "r")
 #train_out = open("templates/template_events_d83710.out", "r")
-train_out = open("templates/2024_samples/template_events_d94221.out", "r")
+#train_out = open("templates/BPIX_L1F_template_events_d21901_d22100_train.out", "r")
 ##print("writing to file %i \n",i)
 lines = train_out.readlines()
 train_out.close()
@@ -589,6 +613,7 @@ else:
 	f_y = h5py.File("h5_files/train_y_1d_nodouble_testing_%s_%s.hdf5"%(filename,date), "w")
 	create_datasets_1d(f_x,f_y,x_flat,y_flat,cota,cotb,cota,cotb,clustersize_x,clustersize_y,x_position,y_position,"train")
 
+print_and_do("rm -rf %s_test.out %s_train.out"%(options.file_in,options.file_in))
 
 
 

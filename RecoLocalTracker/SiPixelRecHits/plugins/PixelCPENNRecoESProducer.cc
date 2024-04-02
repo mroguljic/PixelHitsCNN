@@ -65,8 +65,9 @@ PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
   tfDnnLabel_y = p.getParameter<std::string>("tfDnnLabel_y");
   //printf("tfDnnLabel_x = %s\n",tfDnnLabel_x.c_str());
   //filename_ = p.getParameter<std::string>("FileName");
-  session = nullptr;
-  useLAFromDB_ = p.getParameter<bool>("useLAFromDB");
+  session_x = nullptr;
+  session_y = nullptr;
+  useLAFromDB_ = true;
   doLorentzFromAlignment_ = p.getParameter<bool>("doLorentzFromAlignment");
 
   pset_ = p;
@@ -78,10 +79,10 @@ PixelCPENNRecoESProducer::PixelCPENNRecoESProducer(const edm::ParameterSet& p) {
 
   tfDnnToken_x = c.consumes(edm::ESInputTag("", tfDnnLabel_x));
   tfDnnToken_y = c.consumes(edm::ESInputTag("", tfDnnLabel_y));
-  //if (useLAFromDB_ || doLorentzFromAlignment_) {
-   // char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
-    //lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
- // }
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+   char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
+  }
 }
 
 //PixelCPENNRecoESProducer::~PixelCPENNRecoESProducer() {}
@@ -93,10 +94,10 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
   // if turned off, null is ok, becomes zero
   //auto* graph = tensorflow::loadGraphDef(filename_);
 
-  //const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
-  //if (useLAFromDB_ || doLorentzFromAlignment_) {
-  //  lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
-  //}
+  const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
+  }
   //const tensorflow::Session* session = nullptr;
   session_x = iRecord.get(tfDnnToken_x).getSession();
   session_y = iRecord.get(tfDnnToken_y).getSession();
@@ -104,7 +105,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
                                                 &iRecord.get(magfieldToken_),
                                                 iRecord.get(pDDToken_),
                                                 iRecord.get(hTTToken_),
-                                                //lorentzAngleProduct,
+                                                lorentzAngleProduct,
                                                 //&iRecord.get(templateDBobjectToken_),
                                                 //iRecord.getData(tfDnnToken_).getSession()
                                                 session_x,
