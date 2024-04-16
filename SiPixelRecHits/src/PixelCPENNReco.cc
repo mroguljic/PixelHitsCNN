@@ -48,7 +48,7 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
                                            const MagneticField* mag,
                                            const TrackerGeometry& geom,
                                            const TrackerTopology& ttopo,
-                                           //const SiPixelLorentzAngle* lorentzAngle,
+                                           const SiPixelLorentzAngle* lorentzAngle,
                                            //const SiPixelTemplateDBObject* templateDBobject,
                                            const tensorflow::Session* session_x_,
                                            const tensorflow::Session* session_y_

@@ -94,10 +94,10 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
   // if turned off, null is ok, becomes zero
   //auto* graph = tensorflow::loadGraphDef(filename_);
 
-  //const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
-  //if (useLAFromDB_ || doLorentzFromAlignment_) {
-  //  lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
-  //}
+  const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
+  }
   //const tensorflow::Session* session = nullptr;
   session_x = iRecord.get(tfDnnToken_x).getSession();
   session_y = iRecord.get(tfDnnToken_y).getSession();
@@ -105,7 +105,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPENNRecoESProducer::produc
                                                 &iRecord.get(magfieldToken_),
                                                 iRecord.get(pDDToken_),
                                                 iRecord.get(hTTToken_),
-                                                //lorentzAngleProduct,
+                                                lorentzAngleProduct,
                                                 //&iRecord.get(templateDBobjectToken_),
                                                 //iRecord.getData(tfDnnToken_).getSession()
                                                 session_x,

@@ -52,8 +52,9 @@ public:
     //float templProbQ_;
 
     //int templQbin_;
-
+    tensorflow::Session* session_x, session_y;
     int ierr;
+    int layer, ladder, module;
   };
 
   // PixelCPETemplateReco( const DetUnit& det );
@@ -63,8 +64,8 @@ public:
                        const TrackerTopology &,
                        const SiPixelLorentzAngle *,
                      //  const SiPixelTemplateDBObject *,
-                       const tensorflow::Session *,
-                       const tensorflow::Session *
+                       const <std::vector<tensorflow::Session *>> ,
+                       const <std::vector<tensorflow::Session *>> 
                        );
 
   ~PixelCPENNReco() override;
@@ -101,8 +102,9 @@ private:
   std::string outputTensorName_x, outputTensorName_y;
   //std::string     fRootFileName;
 
-  const tensorflow::Session* session_x; 
-  const tensorflow::Session* session_y; 
+  const <std::vector<tensorflow::Session*>> session_x_vec; 
+  const <std::vector<tensorflow::Session*>> session_y_vec; 
+  
   //int MAXCLUSTER = 80000;
   //float micronsToCm = 1e-4;
   std::string cpe; 
