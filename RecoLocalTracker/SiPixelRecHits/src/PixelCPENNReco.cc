@@ -49,8 +49,8 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
 	const TrackerGeometry& geom,
 	const TrackerTopology& ttopo,
 	const SiPixelLorentzAngle* lorentzAngle,
-	const <std::vector<tensorflow::Session *>> session_x_vec_,
-	const <std::vector<tensorflow::Session *>> session_y_vec_
+	std::vector<const tensorflow::Session*> session_x_vec_,
+	std::vector<const tensorflow::Session*> session_y_vec_
 	)
 : PixelCPEBase(conf, mag, geom, ttopo, nullptr, nullptr, nullptr, nullptr, 59){
 
@@ -85,11 +85,13 @@ std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPENNReco::createClusterParam(c
 //  The main call to the template code.
 //------------------------------------------------------------------
 LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterParam& theClusterParamBase) const {
+	
+       
 	ClusterParamTemplate& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
 
 	if (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
 		throw cms::Exception("PixelCPENNReco::localPosition :") << "A non-pixel detector type in here?";
-  //  barrel(false) or forward(true)
+  	int layer, ladder, module;
 	const bool fpix = GeomDetEnumerators::isEndcap(theDetParam.thePart);
 
 	if(fpix){
@@ -98,24 +100,27 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 		<< " (BPIX L" << ttopo_.pxbLayer(theDetParam.theDet->geographicalId().rawId()) << ")";
 		theClusterParam.ierr = 12345;
 	}
-  else{
+  
 
 	  layer = ttopo_.pxbLayer(theDetParam.theDet->geographicalId().rawId());
 	  ladder = ttopo_.pxbLadder(theDetParam.theDet->geographicalId().rawId());
 	  module = ttopo_.pxbModule(theDetParam.theDet->geographicalId().rawId());
-	  cout << "BPIX layer " << layer << " ladder " << ladder << " module " << module << endl;
-	  }
+	  if(!fpix) cout << "BPIX layer " << layer << " ladder " << ladder << " module " << module << endl;
+	  
   
   //outer ladders = unflipped = odd nos
-
-	  if (layer == 1 and ladder%2 != 0) {session_x = session_x_vec[0]; session_y = session_y_vec[0];}
-	  else if (layer == 1 and ladder%2 == 0) {session_x = session_x_vec[1]; session_y = session_y_vec[1];}
-	  else if (layer == 2) {session_x = session_x_vec[2]; session_y = session_y_vec[2];}
-	  else if (layer == 3 and module <= 4) {session_x = session_x_vec[4]; session_y = session_y_vec[4];}
-	  else if (layer == 3 and module > 4) {session_x = session_x_vec[5]; session_y = session_y_vec[5];}
-	  else if (layer == 4 and module <= 4) {session_x = session_x_vec[6]; session_y = session_y_vec[6];}
-	  else if (layer == 4 and module > 4) {session_x = session_x_vec[7]; session_y = session_y_vec[7];}
-  // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
+  	  
+	  const tensorflow::Session* session_x; 
+          const tensorflow::Session* session_y;
+	  if (layer == 1 and ladder%2 != 0) {session_x = session_x_vec.at(0); session_y = session_y_vec.at(0);}
+	  else if (layer == 1 and ladder%2 == 0) {session_x = session_x_vec.at(1); session_y = session_y_vec.at(1);}
+	  else if (layer == 2) {session_x = session_x_vec.at(2); session_y = session_y_vec.at(2);}
+	  else if (layer == 3 and module <= 4) {session_x = session_x_vec.at(4); session_y = session_y_vec.at(4);}
+	  else if (layer == 3 and module > 4) {session_x = session_x_vec.at(5); session_y = session_y_vec.at(5);}
+	  else if (layer == 4 and module <= 4) {session_x = session_x_vec.at(6); session_y = session_y_vec.at(6);}
+	  else if (layer == 4 and module > 4) {session_x = session_x_vec.at(7); session_y = session_y_vec.at(7);}
+  	  
+   // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
   // we have the following:
   //   int minPixelRow(); // Minimum pixel index in the x direction (low edge).
   //   int maxPixelRow(); // Maximum pixel index in the x direction (top edge).
@@ -368,7 +373,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 
 		   //gettimeofday(&now0, &timz);
 			// define the output and run
-    	
+ 		std::vector<tensorflow::Tensor> output_x, output_y;   	
     		tensorflow::run(const_cast<tensorflow::Session *>(session_x), {{inputTensorName_x,cluster_flat_x}, {anglesTensorName_x,angles}}, {outputTensorName_x}, &output_x);
     		tensorflow::run(const_cast<tensorflow::Session *>(session_y), {{inputTensorName_y,cluster_flat_y}, {anglesTensorName_y,angles}}, {outputTensorName_y}, &output_y);
     	
@@ -529,7 +534,7 @@ LocalError PixelCPENNReco::localError(DetParam const& theDetParam, ClusterParam&
 		xerr = theClusterParam.NNSigmaX_ * micronsToCm;
 		yerr = theClusterParam.NNSigmaY_ * micronsToCm;
 
-		.
+		
 	}
 
 	if (theVerboseLevel > 9) {
