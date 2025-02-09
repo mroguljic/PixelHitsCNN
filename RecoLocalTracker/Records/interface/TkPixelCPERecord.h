@@ -27,6 +27,6 @@ class TkPixelCPERecord
                                                                              SiPixelTemplateDBObjectESProducerRcd,
                                                                              SiPixel2DTemplateDBObjectESProducerRcd,
                                                                              TrackerTopologyRcd,
-									     TfGraphRecord > > {};
+									                                         TfGraphRecord > > {};
 
 #endif
