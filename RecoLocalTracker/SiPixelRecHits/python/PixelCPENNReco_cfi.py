@@ -13,41 +13,42 @@ from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer
 from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer as _tfGraphDefProducer_x
 L1U_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L1U_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1U_d21601_d21800_030524.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L1_U.pb"
 )
 
 L1F_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L1F_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb"
+    #FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L1_U.pb" # need to change this
 )
 
 L2new_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L2new_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L2new.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L2new.pb"
 )
 
 L2old_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L2old_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L2old.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L2old.pb"
 )
 L3m_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L3m_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L3m.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L3m.pb"
 )
 
 L3p_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L3p_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L3p.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L3p.pb"
 )
 
 L4m_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L4m_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L4m.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L4m.pb"
 )
 
 L4p_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L4p_x",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L4p.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L4p.pb"
 )
 
 # ====================================
@@ -58,41 +59,42 @@ L4p_x = _tfGraphDefProducer_x.clone(
 from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer as _tfGraphDefProducer_y
 L1U_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L1U_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1U_d21601_d21800_030524.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L1_U.pb"
 )
 
 L1F_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L1F_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb"
+    # FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L1_U.pb"
 )
 L2new_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L2new_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L2new.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L2new.pb"
 )
 
 L2old_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L2old_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L2old.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L2old.pb"
 )
 
 L3m_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L3m_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L3m.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L3m.pb"
 )
 
 L3p_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L3p_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L3p.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L3p.pb"
 )
 
 L4m_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L4m_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L4m.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L4m.pb"
 )
 
 L4p_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L4p_y",
-    FileName = "/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L4p.pb"
+    FileName = "/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L4p.pb"
 )
 
 # NNCPE_x = _tfGraphDefProducer.clone(
@@ -100,35 +102,35 @@ L4p_y = _tfGraphDefProducer_y.clone(
 #     tensorflowGraphs = cms.VPSet(
 #         cms.PSet(
 #             name = cms.string("L1U_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1U_d21601_d21800_030524.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1U_d21601_d21800_030524.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L1F_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L2old_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L2old.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L2old.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L2new_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L2new.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L2new.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L3m_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L3m.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L3m.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L3p_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L3m.pb") #need to change this!
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L3m.pb") #need to change this!
 #         ),
 #         cms.PSet(
 #             name = cms.string("L4m_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L4m.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L4m.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L4p_x"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_x_L4p.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_x_L4p.pb")
 #         ),
 #     )
 # )
@@ -142,35 +144,35 @@ L4p_y = _tfGraphDefProducer_y.clone(
 #     tensorflowGraphs = cms.VPSet(
 #         cms.PSet(
 #             name = cms.string("L1U_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1U_d21601_d21800_030524.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1U_d21601_d21800_030524.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L1F_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L2old_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L2old.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L2old.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L2new_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L2new.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L2new.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L3m_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L3m.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L3m.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L3p_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L3m.pb") #need to change this!
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L3m.pb") #need to change this!
 #         ),
 #         cms.PSet(
 #             name = cms.string("L4m_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L4m.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L4m.pb")
 #         ),
 #         cms.PSet(
 #             name = cms.string("L4p_y"),
-#             graphPath = cms.string("/uscms_data/d3/ssekhar/CMSSW_14_0_0/src/graphs/graph_y_L4p.pb")
+#             graphPath = cms.string("/uscms/home/ssekhar/nobackup/CMSSW_14_0_1/src/graphs/graph_y_L4p.pb")
 #         ),
 #     )
 # )
