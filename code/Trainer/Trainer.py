@@ -24,7 +24,6 @@ import losses
 import cmsml
 import psutil
 import plotting
-import ThresholdManager
 
 class Trainer:
     #Class to load .json file and launch trainings
@@ -66,7 +65,8 @@ class Trainer:
 
     
     def prepare_training_input(self):
-        n_clusters = 100000#Set to -1 for all or some number like 100000 for faster debugging
+        #n_clusters = -1#Set to -1 for all or some number like 100000 for faster debugging
+        n_clusters = 1000000#Set to -1 for all or some number like 100000 for faster debugging
         print(f"Loading training clusters from {self.train_h5}")
         f = h5py.File(self.train_h5, 'r')
         print("-----Keys-----")
@@ -79,8 +79,8 @@ class Trainer:
         cota_train = f['cota'][0:n_clusters]
         cotb_train = f['cotb'][0:n_clusters]
         position_train = f[self.axis][0:n_clusters] 
-        clustersize_train = f[f'clustersize_{self.axis}'][0:n_clusters]
-        clucharges_train = self.decapitate_clusters(pix_flat_train,cota_train,cotb_train)
+        clustersize_train = f["clustersize"][0:n_clusters]
+        clucharges_train = f["cluster_charge"][0:n_clusters]
         f.close()
 
         perm = np.arange(len(pix_flat_train)) 
@@ -117,8 +117,8 @@ class Trainer:
         cota_test = f['cota'][0:n_clusters]
         cotb_test = f['cotb'][0:n_clusters]
         position_test = f[self.axis][0:n_clusters] 
-        clustersize_test = f[f'clustersize_{self.axis}'][0:n_clusters]
-        clucharges_test = self.decapitate_clusters(pix_flat_test,cota_test,cotb_test)
+        clustersize_test = f["clustersize"][0:n_clusters]
+        clucharges_test = f["cluster_charge"][0:n_clusters]
         angles_test = np.hstack((cota_test,cotb_test))
         f.close()
 
@@ -139,29 +139,20 @@ class Trainer:
         if not self.training_input_flag:
             self.prepare_training_input()
         optimizer = Adam()
-        #Maybe make these configurable as well
         validation_split = 0.02
         dropout_level = 0.10
 
         train_time = time.process_time()
 
         if self.axis=="x":
-            inputs = Input(shape=(13,1)) #13 in x dimension
+            inputs = Input(shape=(13,1),name="pixel_projection_x") #13 in x dimension
             input_dim=16
         else:
-            inputs = Input(shape=(21,1)) #21 in y dimension because they are longer on average
+            inputs = Input(shape=(21,1),name="pixel_projection_y") #21 in y dimension because they are longer on average
             input_dim=24
 
-        angles = Input(shape=(2,))
-        charges= Input(shape=(1,))
-        
-        #This can and should be optimized
-        # x = Conv1D(64, kernel_size=3, padding="same")(inputs)
-        # x = Activation("relu")(x)
-        # x = BatchNormalization(axis=-1)(x)
-        # x = Dropout(dropout_level)(x)
-        # x_cnn = Flatten()(x)
-        #concat_inputs = concatenate([x_cnn,angles,charges])
+        angles = Input(shape=(2,),name="angles")
+        charges= Input(shape=(1,),name="cluster_charge")
 
         inputs_flat = Flatten()(inputs)  # Shape becomes (batch_size, 13)
         concat_inputs = concatenate([inputs_flat, angles, charges])
@@ -189,30 +180,25 @@ class Trainer:
         variance = LeakyReLU(alpha=0.01)(variance)
         variance = BatchNormalization()(variance)
         variance = Dropout(dropout_level)(variance)
-        
         # Residual connection
         variance_res = Add()([variance, Dense(4 * input_dim)(concat_inputs)])
         variance_out = Dense(1, activation='softplus')(variance_res)
-        
+        #variance_out = variance_out + 2. # This ensure computation stability
+
         position_variance = concatenate([position_out, variance_out])
 
         model = Model(inputs=[inputs,angles,charges],outputs=[position_variance])
 
         # Display a model summary
         model.summary()
-        #from keras.utils.vis_utils import plot_model
-        #plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
-
-        #If we want to continue from a saved training
-        #history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
         # Compile the model
         run_eagerly = False #Set to true if we want to printout inputs during training, useful for debugging
         loss_func   = getattr(losses,self.loss_name)
-        model.compile(loss=loss_func,optimizer=optimizer,run_eagerly=run_eagerly,metrics = [losses.mse_position,losses.mean_pulls,loss_func])
+        #model.compile(loss=loss_func,optimizer=optimizer,run_eagerly=run_eagerly,metrics = [losses.mse_position,losses.mean_pulls,loss_func])
+        model.compile(loss=loss_func,optimizer=optimizer,run_eagerly=run_eagerly,metrics = [losses.mse_position,loss_func])
 
         #Load weights from checkpoint if exists
-        #checkpoint_filepath=self.checkpoint
         checkpoint_filepath=self.checkpoint
         if os.path.exists(checkpoint_filepath+".index"):
             print(f"Loading weights from {checkpoint_filepath}")

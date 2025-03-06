@@ -1,10 +1,10 @@
 from tensorflow.math import log
 from tensorflow import print as tfprint
-from tensorflow import reduce_mean
+from tensorflow import reduce_mean, maximum
 
-def nll_loss(y_true,y_pred):
+def nll_loss(y_true,y_pred,epsilon=1e-1):
     y_position  = y_pred[:,0]
-    y_variance  = y_pred[:,1]
+    y_variance  = maximum(y_pred[:,1],epsilon)
     y_target    = y_true[:,0]
     y_log_var   = log(y_variance)
 

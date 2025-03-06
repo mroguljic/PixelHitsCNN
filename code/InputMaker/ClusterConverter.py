@@ -15,7 +15,7 @@ import time
 class ClusterConverter:
     #Class to load .json file and convert .txt cluster files into "realistic" clusters and store them in hdf5 format
 
-    def __init__(self,json_file,dataset,template_id):
+    def __init__(self,json_file,dataset,template_id,decapitation=False):
         
         with open(json_file) as f:
             json_file = json.load(f)
@@ -38,6 +38,7 @@ class ClusterConverter:
 
             self.threshold_manager = ThresholdManager.ThresholdManager(template_id)
             self.CHARGE_UNIT = 25000
+            self.decapitation = decapitation
 
             self.print_attributes()        
 
@@ -51,22 +52,16 @@ class ClusterConverter:
 
     def decapitate_clusters(self):
         #Limit charge in cluster and return original total cluster charge
-        #print("Decapitating pixels")
-        #start_time = time.time() 
         self.threshold_manager.get_pixmax(0., 0.)#Dummy calls to get rid of first few inputs that result in template details
         self.threshold_manager.get_pixmax(0., 0.)
         for i, cluster in enumerate(self.cluster_matrices):
-            # if(i%10000==0):
-            #     print(f"{i}/{len(self.cluster_matrices)}")
+
             pixmax = float(self.threshold_manager.get_pixmax(self.cota[i][0], self.cotb[i][0]))
             pixmax = pixmax/self.CHARGE_UNIT #At this point, clusters are already divided by unit charge
             orig_clu_charge = np.sum(cluster)
-            self.cluster_matrices[i, :, :, 0] = np.minimum(self.cluster_matrices[i, :, :, 0], pixmax)
+            if self.decapitation:
+                self.cluster_matrices[i, :, :, 0] = np.minimum(self.cluster_matrices[i, :, :, 0], pixmax)
             self.cluster_charge[i][0] = orig_clu_charge
-        #self.threshold_manager.terminate_process()
-        #end_time = time.time()
-        #elapsed_time = end_time - start_time
-        #print(f"Decapitation time: {elapsed_time:.1f} seconds")
     
     def text_to_hdf5(self,input_file,output_file):
         '''
@@ -115,16 +110,11 @@ class ClusterConverter:
 
             self.apply_noise_threshold()
             self.apply_gain()
-
             self.center_clusters()
-
             self.decapitate_clusters()
-
             self.x_flat = np.zeros((len(self.cluster_matrices),13))
             self.y_flat = np.zeros((len(self.cluster_matrices),21))
             self.project_matrices_xy()
-
-
             if self.simulate_double:
                 #Simulate_double creates new clusters in x and y so the cota/b can diverge between x and y
                 cota_x,cotb_x,cota_y,cotb_y,cluster_charge_x,cluster_charge_y = self.simulate_double_width_1d(self.cota,self.cotb,self.cluster_charge,n_double)
@@ -451,6 +441,7 @@ class ClusterConverter:
             self.y_position = self.y_position[:-n_empty]
             self.cota = self.cota[:-n_empty]
             self.cotb = self.cotb[:-n_empty]
+            self.cluster_charge = self.cluster_charge[:-n_empty]
 
     def project_matrices_xy(self):
 
@@ -520,7 +511,6 @@ class ClusterConverter:
                 f_y["y_flat"][-np.shape(self.y_flat)[0]:] = self.y_flat
 
     def simulate_double_width_1d(self,cota,cotb,cluster_charge,n_double):
-
         # only for 1d 
         # 3 cases: double in x, double in y, double in x and y
         # for 1d, case 3 wont make a difference to how the flat matrices look - bother about this in 2d 
@@ -601,8 +591,6 @@ class ClusterConverter:
         cota_x = np.vstack((cota,np.array(cota_list).reshape((count,1))))
         cotb_x = np.vstack((cotb,np.array(cotb_list).reshape((count,1))))
         cluster_charge_x =  np.vstack((cluster_charge,np.array(charge_list).reshape((count,1))))
-
-
         flat_list,clustersize_list,pos_list,cota_list,cotb_list,charge_list = [],[],[],[],[],[]
         count=0
 
