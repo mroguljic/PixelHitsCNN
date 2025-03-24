@@ -25,7 +25,7 @@
 #include "boost/multi_array.hpp"
 
 #include <iostream>
-
+#include <chrono>
 using namespace SiPixelTemplateReco;
 //using namespace SiPixelTemplateSplit;
 using namespace std;
@@ -45,6 +45,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
                                            const TrackerGeometry& geom,
                                            const TrackerTopology& ttopo,
                                            const SiPixelLorentzAngle* lorentzAngle,
+                                           const std::vector<SiPixelTemplateStore>* templateStore,
                                            const SiPixelTemplateDBObject* templateDBobject)
     : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, nullptr, templateDBobject, nullptr, 1) {
   //cout << endl;
@@ -62,24 +63,20 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
 
   if (LoadTemplatesFromDB_) {
     //cout << "PixelCPETemplateReco: Loading templates from database (DB) --------- " << endl;
-
-    // Initialize template store to the selected ID [Morris, 6/25/08]
-    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
-      throw cms::Exception("PixelCPETemplateReco")
-          << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-          << (*templateDBobject_).version() << "\n\n";
+    thePixelTemp_ = templateStore;
   } else {
     //cout << "PixelCPETemplateReco : Loading templates for barrel and forward from ASCII files ----------" << endl;
     barrelTemplateID_ = conf.getParameter<int>("barrelTemplateID");
     forwardTemplateID_ = conf.getParameter<int>("forwardTemplateID");
     templateDir_ = conf.getParameter<int>("directoryWithTemplates");
 
-    if (!SiPixelTemplate::pushfile(barrelTemplateID_, thePixelTemp_, templateDir_))
+    thePixelTemp_ = &thePixelTempCache_;
+    if (!SiPixelTemplate::pushfile(barrelTemplateID_, thePixelTempCache_, templateDir_))
       throw cms::Exception("PixelCPETemplateReco")
           << "\nERROR: Template ID " << barrelTemplateID_
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
 
-    if (!SiPixelTemplate::pushfile(forwardTemplateID_, thePixelTemp_, templateDir_))
+    if (!SiPixelTemplate::pushfile(forwardTemplateID_, thePixelTempCache_, templateDir_))
       throw cms::Exception("PixelCPETemplateReco")
           << "\nERROR: Template ID " << forwardTemplateID_
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
@@ -128,18 +125,8 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
       ID = forwardTemplateID_;  // forward
   }
   //cout << "PixelCPETemplateReco : ID = " << ID << endl;
-if(fpix){
-   edm::LogError("PixelCPENNReco") << "@SUB = PixelCPENNReco::localPosition"
-                                          << "Skipping FPIX Disks " << ttopo_.pxfDisk(theDetParam.theDet->geographicalId().rawId());
-   theClusterParam.ierr = 12345;
-  }
-  // how to access layer info from det_id? can i use the tracker topology token here? so i have to add it to the det_id or
-  if(ttopo_.pxbLayer(theDetParam.theDet->geographicalId().rawId()) != 1){
-     edm::LogError("PixelCPENNReco") << "@SUB = PixelCPENNReco::localPosition"
-           << "Skipping BPIX L" << ttopo_.pxbLayer(theDetParam.theDet->geographicalId().rawId());
-     theClusterParam.ierr = 12345;
-  }
-  SiPixelTemplate templ(thePixelTemp_);
+
+  SiPixelTemplate templ(*thePixelTemp_);
 
   // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
   // we have the following:
@@ -247,6 +234,10 @@ if(fpix){
 
   float locBz = theDetParam.bz;
   float locBx = theDetParam.bx;
+  
+
+
+  auto start = std::chrono::high_resolution_clock::now();
 
   theClusterParam.ierr = PixelTempReco1D(ID,
                                          theClusterParam.cotalpha,
@@ -264,7 +255,10 @@ if(fpix){
                                          theClusterParam.templQbin_,
                                          speed_,
                                          theClusterParam.templProbQ_);
-
+  
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+  std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
   // ******************************************************************
 
   // Check exit status
@@ -410,8 +404,8 @@ if(fpix){
 
   if (theClusterParam.ierr == 0)  // always true here
     theClusterParam.hasFilledProb_ = true;
-  cout << "PixelCPETemplateReco: x = " << theClusterParam.templXrec_ << " y = " << theClusterParam.templYrec_ << endl;
-  cout << "PixelCPETemplateReco: cotalpha = " << theClusterParam.cotalpha << " cotbeta = " << theClusterParam.cotbeta << endl;
+  //cout << "PixelCPETemplateReco: x = " << theClusterParam.templXrec_ << " y = " << theClusterParam.templYrec_ << endl;
+  //cout << "PixelCPETemplateReco: cotalpha = " << theClusterParam.cotalpha << " cotbeta = " << theClusterParam.cotbeta << endl;
   return LocalPoint(theClusterParam.templXrec_, theClusterParam.templYrec_);
 }
 
