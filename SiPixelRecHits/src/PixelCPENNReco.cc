@@ -4,6 +4,8 @@
 
 
 // Geometry services
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
@@ -50,10 +52,11 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
 	const TrackerGeometry& geom,
 	const TrackerTopology& ttopo,
 	const SiPixelLorentzAngle* lorentzAngle,
+	const SiPixelGenErrorDBObject* genErrorDBObject,
 	std::vector<const tensorflow::Session*> session_x_vec_,
 	std::vector<const tensorflow::Session*> session_y_vec_
 	)
-: PixelCPEBase(conf, mag, geom, ttopo, nullptr, nullptr, nullptr, nullptr, 59){
+: PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, nullptr, 59){
 
 	tensorflow::setLogging("0");	
 	session_x_vec = session_x_vec_;
@@ -69,6 +72,11 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
 	outputTensorName_y = conf.getParameter<std::string>("outputTensorName_y");
 
 	cpe = conf.getParameter<std::string>("cpe");
+
+	if (!SiPixelGenError::pushfile(*genErrorDBObject_, thePixelGenError_))
+      throw cms::Exception("InvalidCalibrationLoaded")
+          << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
+          << (*genErrorDBObject_).version();
 }
 
 //-----------------------------------------------------------------------------
@@ -91,6 +99,8 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 	
        
 	ClusterParamTemplate& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
+	ClusterParamGeneric& theClusterParam_ge = static_cast<ClusterParamGeneric&>(theClusterParamBase);
+
 	theClusterParam.ierr = 0;
 
 	if (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
@@ -312,8 +322,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 	//printf("%i\n",pix.adc);	
 			
 			clustMatrix_temp[irow][icol] = float(pix.adc)/norm_charge;
-			cluster_charge += clustMatrix_temp[irow][icol];
-			if (clustMatrix_temp[irow][icol] > pixmax) pixmax = clustMatrix_temp[irow][icol];
+			
 		}
 	}
 	
@@ -379,7 +388,53 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 		}
 		k++;
 	}
-//compute the 1d projection 
+
+
+	float locBz = theDetParam.bz;
+	float locBx = theDetParam.bx;
+	// LogDebug("PixelCPEFast") << "PixelCPEFast::localPosition(...) : locBz = " << locBz;
+  
+	theClusterParam_ge.pixmx = std::numeric_limits<int>::max();  // max pixel charge for truncation of 2-D cluster
+  
+	theClusterParam_ge.sigmay = -999.9;  // CPE Generic y-error for multi-pixel cluster
+	theClusterParam_ge.sigmax = -999.9;  // CPE Generic x-error for multi-pixel cluster
+	theClusterParam_ge.sy1 = -999.9;     // CPE Generic y-error for single single-pixel
+	theClusterParam_ge.sy2 = -999.9;     // CPE Generic y-error for single double-pixel cluster
+	theClusterParam_ge.sx1 = -999.9;     // CPE Generic x-error for single single-pixel cluster
+	theClusterParam_ge.sx2 = -999.9;     // CPE Generic x-error for single double-pixel cluster
+  
+	float dummy;
+	float qclus = 20000.;
+	bool IBC = false;
+  
+	SiPixelGenError gtempl(thePixelGenError_);
+	int gtemplID = theDetParam.detTemplateId;
+  
+	theClusterParam.qBin_ = gtempl.qbin(gtemplID,
+										theClusterParam_ge.cotalpha,
+										theClusterParam_ge.cotbeta,
+										locBz,
+										locBx,
+										qclus,
+										IBC,
+										theClusterParam_ge.pixmx,
+										theClusterParam_ge.sigmay,
+										dummy,
+										theClusterParam_ge.sigmax,
+										dummy,
+										theClusterParam_ge.sy1,
+										dummy,
+										theClusterParam_ge.sy2,
+										dummy,
+										theClusterParam_ge.sx1,
+										dummy,
+										theClusterParam_ge.sx2,
+										dummy);
+  
+	pixmax = theClusterParam_ge.pixmx;
+	cout << " theClusterParam_ge.pixmx =  " << pixmax << endl;
+	
+	//compute the 1d projection 
 	for(int i = 0;i < TXSIZE; i++){
 		for(int j = 0; j < TYSIZE; j++){
 			if (clustMatrix[i][j] > pixmax) clustMatrix[i][j] = pixmax;
@@ -391,7 +446,9 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 			clustMatrix_y[i] += clustMatrix[j][i];
 		}
 	}
-  // Output:
+	
+	
+										// Output:
     float nonsense = -99999.9f;  // nonsense init value
     theClusterParam.NNXrec_ = theClusterParam.NNYrec_ = theClusterParam.NNSigmaX_ =
     theClusterParam.NNSigmaY_ = nonsense;
@@ -414,7 +471,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 
     	angles.tensor<float,2>()(0, 0) = theClusterParam.cotalpha;
     	angles.tensor<float,2>()(0, 1) = theClusterParam.cotbeta;
-	ccharge.tensor<float,2>()(0, 0) = cluster_charge;
+	ccharge.tensor<float,2>()(0, 0) = pixmax;
 
     	for (int i = 0; i < TXSIZE; i++) 
     		cluster_flat_x.tensor<float,3>()(0, i, 0) = clustMatrix_x[i];
