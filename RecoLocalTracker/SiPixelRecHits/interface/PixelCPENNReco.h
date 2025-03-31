@@ -34,10 +34,10 @@ public:
    struct ClusterParamTemplate : ClusterParam {
      ClusterParamTemplate(const SiPixelCluster &cl) : ClusterParam(cl) {}
   //   // The result of PixelTemplateReco2D
-  //   float NNXrec_;
-  //   float NNYrec_;
-  //   float NNSigmaX_;
-  //   float NNSigmaY_;
+    float NNXrec_;
+    float NNYrec_;
+    float NNSigmaX_;
+    float NNSigmaY_;
   //   // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
   //   // These can only be accessed if we change silicon pixel data formats and add them to the rechit
   //   //float templProbX_;
@@ -48,9 +48,7 @@ public:
   //   //int templQbin_;
     
   //   int ierr;
-    
-  //   //const std::vector<tensorflow::Session *> session_x_vec;
-  //   //const std::vector<tensorflow::Session *> session_y_vec;
+  
    };
   // PixelCPETemplateReco( const DetUnit& det );
   PixelCPENNReco(edm::ParameterSet const &conf,
