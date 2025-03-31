@@ -73,6 +73,11 @@ PixelCPENNReco::PixelCPENNReco(edm::ParameterSet const& conf,
 	outputTensorName_y = conf.getParameter<std::string>("outputTensorName_y");
 
 	cpe = conf.getParameter<std::string>("cpe");
+	
+	float NNXrec_ =  -99999.9f;
+	float NNYrec_ =  -99999.9f;
+	float NNSigmaX_ =  -99999.9f;
+	float NNSigmaY_ = -99999.9f;
 
 	if (!SiPixelGenError::pushfile(*genErrorDBObject_, thePixelGenError_))
       throw cms::Exception("InvalidCalibrationLoaded")
@@ -102,7 +107,7 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 	ClusterParamTemplate& theClusterParam = static_cast<ClusterParamTemplate&>(theClusterParamBase);
 	ClusterParamGeneric& theClusterParam_ge = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
-	ierr = 0;
+	float ierr = 0;
 
 	if (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
 		throw cms::Exception("PixelCPENNReco::localPosition :") << "A non-pixel detector type in here?";
@@ -451,8 +456,6 @@ LocalPoint PixelCPENNReco::localPosition(DetParam const& theDetParam, ClusterPar
 	
 	
 										// Output:
-    float nonsense = -99999.9f;  // nonsense init value
-    NNXrec_ = NNYrec_ = NNSigmaX_ = NNSigmaY_ = nonsense;
 
     cout << " ierr " << ierr << endl;
 

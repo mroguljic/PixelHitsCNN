@@ -31,8 +31,8 @@
 class MagneticField;
 class PixelCPENNReco : public PixelCPEGenericBase{
 public:
-  // struct ClusterParamTemplate : ClusterParam {
-  //   ClusterParamTemplate(const SiPixelCluster &cl) : ClusterParam(cl) {}
+   struct ClusterParamTemplate : ClusterParam {
+     ClusterParamTemplate(const SiPixelCluster &cl) : ClusterParam(cl) {}
   //   // The result of PixelTemplateReco2D
   //   float NNXrec_;
   //   float NNYrec_;
@@ -51,8 +51,7 @@ public:
     
   //   //const std::vector<tensorflow::Session *> session_x_vec;
   //   //const std::vector<tensorflow::Session *> session_y_vec;
-  // };
-
+   };
   // PixelCPETemplateReco( const DetUnit& det );
   PixelCPENNReco(edm::ParameterSet const &conf,
                        const MagneticField *,
@@ -103,7 +102,7 @@ private:
   std::vector<const tensorflow::Session *> session_x_vec; 
   std::vector<const tensorflow::Session *> session_y_vec; 
   
-  float ierr, NNXrec_, NNYrec_, NNSigmaX_, NNSigmaY_;
+  //float ierr, NNXrec_, NNYrec_, NNSigmaX_, NNSigmaY_; 
   std::string cpe; 
   //int layer, ladder, module;
   //float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
