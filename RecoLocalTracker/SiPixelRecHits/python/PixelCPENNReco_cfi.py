@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.SiPixelRecHits._templates_NN_default_cfi import _templates_NN_default
 templates = _templates_NN_default.clone()
 
-from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer 
+#from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer 
 
 # ====================================
 # Graphs for X inference
@@ -13,42 +13,41 @@ from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer
 from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer as _tfGraphDefProducer_x
 L1U_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L1U_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L1_U.pb"
+    FileName = "graphs/decap/graph_decap_x_L1_U.pb"
 )
 
 L1F_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L1F_x",
-    #FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb"
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L1_U.pb" # need to change this
+    FileName = "graphs/decap/graph_decap_x_L1_F.pb"
 )
 
 L2new_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L2new_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L2new.pb"
+    FileName = "graphs/pre_decap/graph_x_L2new.pb"
 )
 
 L2old_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L2old_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L2old.pb"
+    FileName = "graphs/pre_decap/graph_x_L2old.pb"
 )
 L3m_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L3m_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L3m.pb"
+    FileName = "graphs/decap/graph_decap_x_L3m.pb"
 )
 
 L3p_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L3p_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L3p.pb"
+    FileName = "graphs/decap/graph_decap_x_L3p.pb"
 )
 
 L4m_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L4m_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L4m.pb"
+    FileName = "graphs/decap/graph_decap_x_L4m.pb"
 )
 
 L4p_x = _tfGraphDefProducer_x.clone(
     ComponentName = "L4p_x",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_x_L4p.pb"
+    FileName = "graphs/decap/graph_decap_x_L4p.pb"
 )
 
 # ====================================
@@ -59,42 +58,41 @@ L4p_x = _tfGraphDefProducer_x.clone(
 from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer as _tfGraphDefProducer_y
 L1U_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L1U_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L1_U.pb"
+    FileName = "graphs/decap/graph_decap_y_L1_U.pb"
 )
 
 L1F_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L1F_y",
-    # FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_1dcnn_p1_2024_BPIX_L1F_d21901_d22100_030524.pb"
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L1_U.pb"
+    FileName = "graphs/decap/graph_decap_y_L1_F.pb"
 )
 L2new_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L2new_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L2new.pb"
+    FileName = "graphs/pre_decap/graph_y_L2new.pb"
 )
 
 L2old_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L2old_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L2old.pb"
+    FileName = "graphs/pre_decap/graph_y_L2old.pb"
 )
 
 L3m_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L3m_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L3m.pb"
+    FileName = "graphs/decap/graph_decap_y_L3m.pb"
 )
 
 L3p_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L3p_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L3p.pb"
+    FileName = "graphs/decap/graph_decap_y_L3p.pb"
 )
 
 L4m_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L4m_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L4m.pb"
+    FileName = "graphs/decap/graph_decap_y_L4m.pb"
 )
 
 L4p_y = _tfGraphDefProducer_y.clone(
     ComponentName = "L4p_y",
-    FileName = "/uscms_data/d1/ssekhar/CMSSW_14_0_1/src/graphs/graph_y_L4p.pb"
+    FileName = "graphs/decap/graph_decap_y_L4p.pb"
 )
 
 # NNCPE_x = _tfGraphDefProducer.clone(
