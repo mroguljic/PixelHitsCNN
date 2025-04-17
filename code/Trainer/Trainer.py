@@ -20,6 +20,7 @@ from tensorflow import device
 from tensorflow.keras.layers import Reshape
 from tensorflow.keras.layers import LeakyReLU
 from tensorflow.keras.layers import Add
+from tensorflow import clip_by_value
 import losses
 import cmsml
 import psutil
@@ -144,59 +145,55 @@ class Trainer:
 
         train_time = time.process_time()
 
-        if self.axis=="x":
-            inputs = Input(shape=(13,1),name="pixel_projection_x") #13 in x dimension
-            input_dim=16
+        if self.axis == "x":
+            inputs = Input(shape=(13, 1), name="pixel_projection_x")  # 13 in x dimension
+            input_dim = 16
         else:
-            inputs = Input(shape=(21,1),name="pixel_projection_y") #21 in y dimension because they are longer on average
-            input_dim=24
+            inputs = Input(shape=(21, 1), name="pixel_projection_y")  # 21 in y dimension
+            input_dim = 24
 
-        angles = Input(shape=(2,),name="angles")
-        charges= Input(shape=(1,),name="cluster_charge")
+        angles = Input(shape=(2,), name="angles")
+        charges = Input(shape=(1,), name="cluster_charge")
 
         inputs_flat = Flatten()(inputs)  # Shape becomes (batch_size, 13)
         concat_inputs = concatenate([inputs_flat, angles, charges])
 
-        # Position estimation branch
-        position = Dense(16 * input_dim)(concat_inputs)
-        position = LeakyReLU(alpha=0.01)(position)
-        position = Dense(8 * input_dim)(position)
+        # Position estimation branch (simplified)
+        position = Dense(8 * input_dim)(concat_inputs)
         position = LeakyReLU(alpha=0.01)(position)
         position = Dense(4 * input_dim)(position)
         position = LeakyReLU(alpha=0.01)(position)
         position = BatchNormalization()(position)
         position = Dropout(dropout_level)(position)
-        
+
         # Residual connection
         position_res = Add()([position, Dense(4 * input_dim)(concat_inputs)])
         position_out = Dense(1)(position_res)
-        
-        # Variance estimation branch
-        variance = Dense(16 * input_dim)(concat_inputs)
-        variance = LeakyReLU(alpha=0.01)(variance)
-        variance = Dense(8 * input_dim)(variance)
-        variance = LeakyReLU(alpha=0.01)(variance)
-        variance = Dense(4 * input_dim)(variance)
-        variance = LeakyReLU(alpha=0.01)(variance)
-        variance = BatchNormalization()(variance)
-        variance = Dropout(dropout_level)(variance)
+
+        # uncertainty estimation branch (simplified)
+        uncertainty = Dense(8 * input_dim)(concat_inputs)
+        uncertainty = LeakyReLU(alpha=0.01)(uncertainty)
+        uncertainty = Dense(4 * input_dim)(uncertainty)
+        uncertainty = LeakyReLU(alpha=0.01)(uncertainty)
+        uncertainty = BatchNormalization()(uncertainty)
+        uncertainty = Dropout(dropout_level)(uncertainty)
+
         # Residual connection
-        variance_res = Add()([variance, Dense(4 * input_dim)(concat_inputs)])
-        variance_out = Dense(1, activation='softplus')(variance_res)
-        #variance_out = variance_out + 2. # This ensure computation stability
+        uncertainty_res = Add()([uncertainty, Dense(4 * input_dim)(concat_inputs)])
+        uncertainty_out = Dense(1, activation='softplus')(uncertainty_res)
+        uncertainty_out = clip_by_value(uncertainty_out, 3., 120.)# Limit uncertainty to 3-120 um window
 
-        position_variance = concatenate([position_out, variance_out])
+        position_uncertainty = concatenate([position_out, uncertainty_out])
 
-        model = Model(inputs=[inputs,angles,charges],outputs=[position_variance])
+        model = Model(inputs=[inputs, angles, charges], outputs=[position_uncertainty])
 
-        # Display a model summary
+        # Display model summary
         model.summary()
 
         # Compile the model
-        run_eagerly = False #Set to true if we want to printout inputs during training, useful for debugging
-        loss_func   = getattr(losses,self.loss_name)
-        #model.compile(loss=loss_func,optimizer=optimizer,run_eagerly=run_eagerly,metrics = [losses.mse_position,losses.mean_pulls,loss_func])
-        model.compile(loss=loss_func,optimizer=optimizer,run_eagerly=run_eagerly,metrics = [losses.mse_position,loss_func])
+        run_eagerly = False
+        loss_func = getattr(losses, self.loss_name)
+        model.compile(loss=loss_func, optimizer=optimizer, run_eagerly=run_eagerly, metrics=[losses.mse_position, loss_func])
 
         #Load weights from checkpoint if exists
         checkpoint_filepath=self.checkpoint
@@ -248,7 +245,7 @@ class Trainer:
         inference_time_x = time.process_time() - start
         print("Inference on {} cluster took {:.3f} s".format(len(pred),inference_time_x))
         residuals = pred[:,0] - self.position_test[:,0]
-        pulls     = residuals/np.sqrt(pred[:,1])
+        pulls     = residuals/pred[:,1]
 
         self.resolution = np.std(residuals)
         self.bias       = np.mean(residuals)
@@ -260,6 +257,7 @@ class Trainer:
         plot_name = f"{self.layer}_{self.axis}"
         plotting.plot_residuals(residuals,residuals_output_file,plot_type="Residuals",name=plot_name)
         plotting.plot_residuals(pulls,pulls_output_file,plot_type="Pulls",name=plot_name)
+        plotting.plot_uncertainties(pred[:, 1], f"plots/{self.layer}_{self.axis}_uncertainties.pdf")
 
     def visualize(self):
         if not self.testing_input_flag:
@@ -278,7 +276,7 @@ class Trainer:
             temp_data_set = {
             'cluster': clusters_for_plotting[i],
             'angles': angles_for_plotting[i],
-            'prediction_variance': pred[i],
+            'prediction_uncertainty': pred[i],
             'position': position_for_plotting[i],
             'pixel_pitch': self.pitch,
             'resolution': self.resolution,

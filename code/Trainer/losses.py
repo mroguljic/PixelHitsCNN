@@ -2,12 +2,13 @@ from tensorflow.math import log
 from tensorflow import print as tfprint
 from tensorflow import reduce_mean, maximum
 
-def nll_loss(y_true,y_pred,epsilon=1e-1):
-    y_position  = y_pred[:,0]
-    y_variance  = maximum(y_pred[:,1],epsilon)
-    y_target    = y_true[:,0]
-    y_log_var   = log(y_variance)
+def nll_loss(y_true,y_pred):
+    y_position = y_pred[:,0]
+    y_uncertainty = y_pred[:,1]
+    y_target = y_true[:,0]
+    y_variance = y_uncertainty ** 2
 
+    y_log_var = log(y_variance)
     #Eq. 4 https://arxiv.org/pdf/2109.08213.pdf
     return reduce_mean(y_log_var+(y_target-y_position)**2/y_variance)
 

@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import sqrt
 from scipy.stats import norm
 from scipy.optimize import curve_fit
 
@@ -38,13 +37,13 @@ def plot_clusters(data_sets, file_name):
 
     for ax, data_set in zip(axs, data_sets):
         cluster = data_set['cluster']
-        prediction_variance = data_set['prediction_variance']
+        prediction_uncertainty = data_set['prediction_uncertainty']
         position = data_set['position']
         pixel_pitch = data_set['pixel_pitch']
         angles = data_set['angles']
 
-        prediction = microns_to_pixel(prediction_variance[0], len(cluster), pixel_pitch)
-        error = sqrt(prediction_variance[1]) / pixel_pitch
+        prediction = microns_to_pixel(prediction_uncertainty[0], len(cluster), pixel_pitch)
+        error = prediction_uncertainty[1] / pixel_pitch
         true_position = microns_to_pixel(position, len(cluster), pixel_pitch)
 
         make_1d_pixels_plot(cluster, prediction, error, true_position, ax, cot_alpha=angles[0], cot_beta=angles[1])
@@ -114,4 +113,34 @@ def plot_residuals(residuals, output_file, plot_type="Residuals",name=""):
     plt.savefig(output_file)
     if ".pdf" in output_file:
         plt.savefig(output_file.replace(".pdf", ".png"))
+    plt.close()
+
+
+def plot_uncertainties(uncertainties, file_name):
+    plt.figure(figsize=(8, 6))
+    plt.hist(uncertainties, bins=26, color='skyblue', edgecolor='black', alpha=0.7, range=(0, 130))
+    
+    plt.xlabel('Uncertainty (microns)', fontsize=16)
+    plt.ylabel('Frequency [a.u.]', fontsize=16)
+
+    mean_uncertainty = np.mean(uncertainties)
+    std_uncertainty = np.std(uncertainties)
+    max_uncertainty = np.max(uncertainties)
+    print(f"MAX UNCERTAINTY: {max_uncertainty:.1f}")
+    
+    plt.text(0.95, 0.95, f'Mean: {mean_uncertainty:.2f} microns\nStd: {std_uncertainty:.2f} microns',
+             transform=plt.gca().transAxes, fontsize=14, verticalalignment='top', horizontalalignment='right',
+             bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+
+    uncertainty_5 = np.sum(uncertainties == 5) / len(uncertainties) * 100
+    uncertainty_120 = np.sum(uncertainties == 120) / len(uncertainties) * 100
+
+    print(f"Percentage of entries with uncertainty = 5 microns: {uncertainty_5:.2f}%")
+    print(f"Percentage of entries with uncertainty = 120 microns: {uncertainty_120:.2f}%")
+
+    print(f"Saving {file_name}")
+    plt.tight_layout()
+    plt.savefig(file_name)
+    if ".pdf" in file_name:
+        plt.savefig(file_name.replace(".pdf", ".png"))
     plt.close()
