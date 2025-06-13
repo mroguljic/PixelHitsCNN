@@ -20,6 +20,7 @@
 #include <map>
 
 #include <iostream>
+#include <chrono>
 
 using namespace SiPixelTemplateReco;
 //using namespace SiPixelTemplateSplit;
@@ -40,6 +41,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
                                              const TrackerGeometry& geom,
                                              const TrackerTopology& ttopo,
                                              const SiPixelLorentzAngle* lorentzAngle,
+                                             const std::vector<SiPixelTemplateStore>* templateStore,
                                              const SiPixelTemplateDBObject* templateDBobject,
                                              const SiPixel2DTemplateDBObject* templateDBobject2D)
     : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, nullptr, templateDBobject, nullptr, 1) {
@@ -47,12 +49,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
 
   //--- Parameter to decide between DB or text file template access
   if (LoadTemplatesFromDB_) {
-    // Initialize template store to the selected ID [Morris, 6/25/08]
-    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
-      throw cms::Exception("PixelCPEClusterRepair")
-          << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-          << (*templateDBobject_).version() << "\n\n";
-
+    thePixelTemp_ = templateStore;
     // Initialize template store to the selected ID [Morris, 6/25/08]
     if (!SiPixelTemplate2D::pushfile(*templateDBobject2D, thePixelTemp2D_))
       throw cms::Exception("PixelCPEClusterRepair")
@@ -65,13 +62,14 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
     barrelTemplateID_ = conf.getParameter<int>("barrelTemplateID");
     forwardTemplateID_ = conf.getParameter<int>("forwardTemplateID");
     templateDir_ = conf.getParameter<int>("directoryWithTemplates");
+    thePixelTemp_ = &thePixelTempCache_;
 
-    if (!SiPixelTemplate::pushfile(barrelTemplateID_, thePixelTemp_, templateDir_))
+    if (!SiPixelTemplate::pushfile(barrelTemplateID_, thePixelTempCache_, templateDir_))
       throw cms::Exception("PixelCPEClusterRepair")
           << "\nERROR: Template ID " << barrelTemplateID_
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
 
-    if (!SiPixelTemplate::pushfile(forwardTemplateID_, thePixelTemp_, templateDir_))
+    if (!SiPixelTemplate::pushfile(forwardTemplateID_, thePixelTempCache_, templateDir_))
       throw cms::Exception("PixelCPEClusterRepair")
           << "\nERROR: Template ID " << forwardTemplateID_
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
@@ -312,7 +310,7 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
                                            SiPixelTemplateReco::ClusMatrix& clusterPayload,
                                            int ID,
                                            LocalPoint& lp) const {
-  SiPixelTemplate templ(thePixelTemp_);
+  SiPixelTemplate templ(*thePixelTemp_);
 
   // Output:
   float nonsense = -99999.9f;  // nonsense init value
@@ -338,7 +336,9 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
   const bool deadpix = false;
   std::vector<std::pair<int, int>> zeropix;
   int nypix = 0, nxpix = 0;
-  //
+  
+  auto start = std::chrono::high_resolution_clock::now();
+
   theClusterParam.ierr = PixelTempReco1D(ID,
                                          theClusterParam.cotalpha,
                                          theClusterParam.cotbeta,
@@ -359,6 +359,10 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
                                          theClusterParam.probabilityQ_,
                                          nypix,
                                          nxpix);
+  
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+  std::cout << "Execution time: " << duration.count() << " microseconds" << std::endl;
   // ******************************************************************
 
   //--- Check exit status
@@ -551,7 +555,7 @@ void PixelCPEClusterRepair::checkRecommend2D(DetParam const& theDetParam,
     return;
   }
   // The 1d pixel template
-  SiPixelTemplate templ(thePixelTemp_);
+  SiPixelTemplate templ(*thePixelTemp_);
   if (!templ.interpolate(ID, theClusterParam.cotalpha, theClusterParam.cotbeta, theDetParam.bz, theDetParam.bx)) {
     //error setting up template, return false
     theClusterParam.recommended2D_ = false;

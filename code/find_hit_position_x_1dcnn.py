@@ -27,21 +27,26 @@ from tensorflow.keras.callbacks import EarlyStopping
 from argparse import ArgumentParser
 import cmsml
 
-
+# test_x_1d_p1_2024_BPIX_L1U_d21601_d21800_022224.hdf5
 
 parser = ArgumentParser(description='Train 1D CNN on flattened clusters in x to predict x positions')
-parser.add_argument("--img_ext",  default="1dcnn_%s_102523", help="file name extension for residuals and pulls")
-parser.add_argument("--h5_date", default="102523", help = "date for h5 file name")
-parser.add_argument("--h5_ext",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_argument("--img_ext",  default="1dcnn_%s_030524", help="file name extension for residuals and pulls")
+parser.add_argument("--h5_date", default="022224", help = "date for h5 file name")
+parser.add_argument("--h5_ext",  default="p1_2024_BPIX_L1F_d21901_d22100", help="h5 file name extension")
 parser.add_argument("--early_stop",  default=7, type = int, help="early stopping patience (no. of epochs)")
-parser.add_argument("--batch_size",  default=1024, type = int, help="batch size for training")
-parser.add_argument("--n_epochs",  default=40, type = int, help="no. of epochs to train for")
+parser.add_argument("--batch_size",  default=628, type = int, help="batch size for training")
+parser.add_argument("--n_epochs",  default=100, type = int, help="no. of epochs to train for")
 options = parser.parse_args()
 
 def mse_with_errors(x_true,x_pred):
     x_position = x_pred[:,:1]
     x_log_error = x_pred[:,1:]
     x_error = tf.exp(x_log_error)
+    #x_pos = tf.make_ndarray(x_position)
+    #x_train = tf.make_ndarray(x_true)
+    #print("x_true [0] ", x_true[0], "x_position shape ", x_position[0])
+    #x_true = tf.convert_to_tensor(x_true)
+    #x_position = tf.convert_to_tensor(x_position)
     return tf.reduce_mean(2*x_log_error+((x_true-x_position)/x_error)**2)
 
 h5_date = options.h5_date
@@ -76,7 +81,7 @@ angles_train = np.hstack((cota_train,cotb_train))
 
 #h5_date = "110121"
 #h5_ext = "p1_2024_irrad_BPIXL1"
-
+print('h5_files/test_x_1d_%s_%s.hdf5'%(h5_ext,h5_date))
 f = h5py.File('h5_files/test_x_1d_%s_%s.hdf5'%(h5_ext,h5_date), 'r')
 xpix_flat_test = f['test_x_flat'][...]
 #ypix_flat_test = f['test_y_flat'][...]
@@ -90,6 +95,9 @@ inputs_x_test = np.hstack((xpix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 #inputs_y_test = np.hstack((ypix_flat_test,cota_test,cotb_test))[:,:,np.newaxis]
 angles_test = np.hstack((cota_test,cotb_test))
 f.close()
+
+
+#print("x_true shape = ", tf.make_ndarray(x_train))
 '''
 h5_date = "082821"
 h5_ext = "p1_2018_irrad_BPIXL1_file2"
@@ -109,7 +117,7 @@ inputs_x_train = np.hstack((xpix_flat_train,cota_train,cotb_train))[:,:,np.newax
 inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newaxis]
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
-'''
+
 #print(angles_train.shape)
 #print(xpix_flat_test[:30])
 #print(ypix_flat_test[:30])
@@ -118,7 +126,7 @@ for i in range(50):
 #	if clustersize_x_train[i]==1:
 	print(xpix_flat_train[i])
 	
-'''
+
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
 xpix_flat_test/=norm_x
@@ -141,19 +149,25 @@ batch_size = options.batch_size
 loss_function = 'mse'
 n_epochs_x = options.n_epochs
 
-optimizer = Adam(lr=0.0001)
-validation_split = 0.3
+optimizer = Adam(lr=0.001)
+validation_split = 0.2
 
 train_time_x = time.clock()
 #train flat x
 
 inputs = Input(shape=(13,1)) #13 in x dimension + 2 angles
 angles = Input(shape=(2,))
-x = Conv1D(64, kernel_size=3, padding="same")(inputs)
+x = Conv1D(32, kernel_size=3, padding="same")(inputs)
 x = Activation("relu")(x)
 x = Conv1D(64, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
-x = Conv1D(64, kernel_size=2, padding="same")(x)
+x = BatchNormalization(axis=-1)(x)
+x = MaxPooling1D(pool_size=2,padding='same')(x)
+x = Dropout(0.25)(x)
+
+x = Conv1D(64, kernel_size=3, padding="same")(x)
+x = Activation("relu")(x)
+x = Conv1D(32, kernel_size=3, padding="same")(x)
 x = Activation("relu")(x)
 x = BatchNormalization(axis=-1)(x)
 x = MaxPooling1D(pool_size=2,padding='same')(x)
@@ -169,7 +183,7 @@ x = Dropout(0.25)(x)
 '''
 x_cnn = Flatten()(x)
 concat_inputs = concatenate([x_cnn,angles])
-x = Dense(64)(concat_inputs)
+x = Dense(32)(concat_inputs)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -179,7 +193,7 @@ x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
 '''
-x = Dense(64)(x)
+x = Dense(32)(x)
 x = Activation("relu")(x)
 x = BatchNormalization()(x)
 x = Dropout(0.25)(x)
@@ -195,14 +209,14 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_x%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=mse_with_errors,
               optimizer=optimizer,
-              metrics=['mse']
+              metrics=[mse_with_errors]
               )
-
+'''
 callbacks = [
 EarlyStopping(patience = options.early_stop),
 ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
@@ -210,17 +224,16 @@ ModelCheckpoint(filepath="checkpoints/cp_x%s.ckpt"%(img_ext),
 		            save_weights_only=True,
                 monitor='val_loss')
 ]
-
 # Fit data to model
 history = model.fit([xpix_flat_train[:,:,np.newaxis],angles_train], [x_train],
                 batch_size=batch_size,
                 epochs=n_epochs_x,
                 callbacks=callbacks,
                 validation_split=validation_split)
-
+'''
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_x_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
-
+print(x_position_logerror[0], x_train[0])
 #plot_dnn_loss(history.history,'x',img_ext)
 
 print("x training time for dnn",time.clock()-train_time_x)
