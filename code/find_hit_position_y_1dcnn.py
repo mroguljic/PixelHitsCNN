@@ -19,7 +19,7 @@ from keras.callbacks import EarlyStopping
 '''
 import h5py
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adamax
 from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.layers import Conv1D
 from tensorflow.keras.layers import MaxPooling1D
@@ -46,12 +46,12 @@ import cmsml
 
 
 parser = ArgumentParser(description='Train 1D CNN on flattened clusters in x to predict x positions')
-parser.add_argument("--img_ext",  default="1dcnn_%s_102523", help="file name extension for residuals and pulls")
-parser.add_argument("--h5_date", default="102523", help = "date for h5 file name")
-parser.add_argument("--h5_ext",  default="p1_2024_by25k_irrad_BPIXL1", help="h5 file name extension")
+parser.add_argument("--img_ext",  default="1dcnn_%s_030524", help="file name extension for residuals and pulls")
+parser.add_argument("--h5_date", default="022224", help = "date for h5 file name")
+parser.add_argument("--h5_ext",  default="p1_2024_BPIX_L1U_d21601_d21800", help="h5 file name extension")
 parser.add_argument("--early_stop",  default=7, type = int, help="early stopping patience (no. of epochs)")
-parser.add_argument("--batch_size",  default=1024, type = int, help="batch size for training")
-parser.add_argument("--n_epochs",  default=40, type = int, help="no. of epochs to train for")
+parser.add_argument("--batch_size",  default=628, type = int, help="batch size for training")
+parser.add_argument("--n_epochs",  default=30, type = int, help="no. of epochs to train for")
 options = parser.parse_args()
 
 def mse_with_errors(y_true,y_pred):
@@ -126,10 +126,10 @@ inputs_y_train = np.hstack((ypix_flat_train,cota_train,cotb_train))[:,:,np.newax
 angles_train = np.hstack((cota_train,cotb_train))
 f.close()
 '''
-print(angles_train.shape)
+#print(angles_train.shape)
 #print(xpix_flat_test[:30])
-print(ypix_flat_test[:30])
-print("clustersize of 1: ",len(np.argwhere(clustersize_y_train==1)))
+#print(ypix_flat_test[:30])
+#print("clustersize of 1: ",len(np.argwhere(clustersize_y_train==1)))
 '''
 norm_x = np.amax(xpix_flat_train)
 xpix_flat_train/=norm_x
@@ -152,8 +152,8 @@ test_cy = test_c.sum(axis=0).reshape((1,21))
 batch_size = options.batch_size
 loss_function = 'mse'
 n_epochs_y = options.n_epochs
-optimizer = Adam(lr=0.00001)
-validation_split = 0.3
+optimizer = Adamax(lr=0.001)
+validation_split = 0.2
 
 
 train_time_y = time.clock()
@@ -162,14 +162,18 @@ train_time_y = time.clock()
 
 inputs = Input(shape=(21,1)) #13 in y dimension + 2 angles
 angles = Input(shape=(2,))
-y = Conv1D(64, kernel_size=3, padding="same")(inputs)
+y = Conv1D(32, kernel_size=3, padding="same")(inputs)
 y = Activation("relu")(y)
 y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
-y = Conv1D(64, kernel_size=2, padding="same")(y)
+y = MaxPooling1D(pool_size=3,padding='same')(y)
+y = Dropout(0.25)(y)
+y = Conv1D(64, kernel_size=3, padding="same")(y)
 y = Activation("relu")(y)
-y = BatchNormalization(axis=-1)(y)
-y = MaxPooling1D(pool_size=2,padding='same')(y)
+y = Conv1D(32, kernel_size=3, padding="same")(y)
+y = Activation("relu")(y)
+#y = BatchNormalization(axis=-1)(y)
+y = MaxPooling1D(pool_size=3,padding='same')(y)
 y = Dropout(0.25)(y)
 '''
 y = Conv1D(64, kernel_size=2, padding="same")(y)
@@ -187,12 +191,12 @@ y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 
-y = Dense(128)(y)
+y = Dense(32)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
 
-y = Dense(64)(y)
+y = Dense(32)(y)
 y = Activation("relu")(y)
 y = BatchNormalization()(y)
 y = Dropout(0.25)(y)
@@ -207,7 +211,7 @@ model = Model(inputs=[inputs,angles],
 # Display a model summary
 model.summary()
 
-#history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
+history = model.load_weights("checkpoints/cp_y%s.ckpt"%(img_ext))
 
 # Compile the model
 model.compile(loss=mse_with_errors,
@@ -215,7 +219,7 @@ model.compile(loss=mse_with_errors,
               metrics=['mse']
               )
 
-
+'''
 callbacks = [
 EarlyStopping(patience = options.early_stop),
 ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
@@ -223,14 +227,14 @@ ModelCheckpoint(filepath="checkpoints/cp_y%s.ckpt"%(img_ext),
             		save_best_only=True,
                 monitor='val_loss')
 ]
-
+print(y_train.shape, y_position_error.shape)
 # Fit data to model
 history = model.fit([ypix_flat_train[:,:,np.newaxis],angles_train], [y_train],
                 batch_size=batch_size,
                 epochs=n_epochs_y,
                 validation_split=validation_split,
                 callbacks=callbacks)
-
+'''
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb"%(img_ext), model, variables_to_constants=True)
 cmsml.tensorflow.save_graph("data/graph_y_%s.pb.txt"%(img_ext), model, variables_to_constants=True)
 

@@ -4,14 +4,8 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-// Already in the base class
-//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-//#include "Geometry/Surface/interface/GloballyPositioned.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericBase.h"
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
@@ -33,39 +27,39 @@
 //  std::atomic<tensorflow::GraphDef*> graphDef;
 //};
 
-
+//tensorflow::setLogging("3");
 class MagneticField;
-class PixelCPENNReco : public PixelCPEBase{
+class PixelCPENNReco : public PixelCPEGenericBase{
 public:
-  struct ClusterParamTemplate : ClusterParam {
-    ClusterParamTemplate(const SiPixelCluster &cl) : ClusterParam(cl) {}
-    // The result of PixelTemplateReco2D
+   struct ClusterParamTemplate : ClusterParam {
+     ClusterParamTemplate(const SiPixelCluster &cl) : ClusterParam(cl) {}
+  //   // The result of PixelTemplateReco2D
     float NNXrec_;
     float NNYrec_;
     float NNSigmaX_;
     float NNSigmaY_;
-    // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
-    // These can only be accessed if we change silicon pixel data formats and add them to the rechit
-    //float templProbX_;
-    //float templProbY_;
+  //   // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
+  //   // These can only be accessed if we change silicon pixel data formats and add them to the rechit
+  //   //float templProbX_;
+  //   //float templProbY_;
 
-    //float templProbQ_;
+  //   //float templProbQ_;
 
-    //int templQbin_;
-
-    int ierr;
-  };
-
+  //   //int templQbin_;
+    
+  //   int ierr;
+  
+   };
   // PixelCPETemplateReco( const DetUnit& det );
   PixelCPENNReco(edm::ParameterSet const &conf,
                        const MagneticField *,
                        const TrackerGeometry &,
                        const TrackerTopology &,
-                     //  const SiPixelLorentzAngle *,
-                     //  const SiPixelTemplateDBObject *,
-                       const tensorflow::Session *,
-                       const tensorflow::Session *
-                       );
+                       const SiPixelLorentzAngle *,
+                       const SiPixelGenErrorDBObject *,
+                       std::vector<const tensorflow::Session *> ,
+                       std::vector<const tensorflow::Session *> 
+                       ) ;
 
   ~PixelCPENNReco() override;
 
@@ -85,28 +79,30 @@ private:
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
 
   // Template storage
-  std::vector<SiPixelTemplateStore> thePixelTemp_;
+  // std::vector<SiPixelTemplateStore> thePixelTemp_;
+  //--- DB Error Parametrization object, new light templates
+  std::vector<SiPixelGenErrorStore> thePixelGenError_;
 
-  int speed_;
+  // int speed_;
 
-  bool UseClusterSplitter_;
+  // bool UseClusterSplitter_;
 
-  // Template file management (when not getting the templates from the DB)
-  int barrelTemplateID_;
-  int forwardTemplateID_;
-  std::string templateDir_;
+  // // Template file management (when not getting the templates from the DB)
+  // int barrelTemplateID_;
+  // int forwardTemplateID_;
+  // std::string templateDir_;
 
   std::string graphPath_x, graphPath_y;
-  std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y;
+  std::string inputTensorName_x, inputTensorName_y, anglesTensorName_x, anglesTensorName_y, cchargeTensorName_x, cchargeTensorName_y;
   std::string outputTensorName_x, outputTensorName_y;
   //std::string     fRootFileName;
 
-  const tensorflow::Session* session_x; 
-  const tensorflow::Session* session_y; 
-  //int MAXCLUSTER = 80000;
-  //float micronsToCm = 1e-4;
+  std::vector<const tensorflow::Session *> session_x_vec; 
+  std::vector<const tensorflow::Session *> session_y_vec; 
+  
+  //float ierr, NNXrec_, NNYrec_, NNSigmaX_, NNSigmaY_; 
   std::string cpe; 
-  //int mid_x = 0, mid_y = 0;
+  //int layer, ladder, module;
   //float clsize_1[MAXCLUSTER][2], clsize_2[MAXCLUSTER][2], clsize_3[MAXCLUSTER][2], clsize_4[MAXCLUSTER][2], clsize_5[MAXCLUSTER][2], clsize_6[MAXCLUSTER][2];
   //struct timeval now0, now1;
   //struct timezone timz;
