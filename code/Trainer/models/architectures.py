@@ -3,6 +3,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv1D, Dense, Flatten
 from tensorflow.keras.layers import Dropout, BatchNormalization, LeakyReLU
 from tensorflow.keras.layers import Add, concatenate
+from tensorflow.keras.layers import Lambda
 
 def baseline_model(inputs, angles, charges, input_dim, dropout_level=0.10):
     inputs_flat = Flatten()(inputs)
@@ -29,8 +30,10 @@ def baseline_model(inputs, angles, charges, input_dim, dropout_level=0.10):
 
     uncertainty_res = Add()([uncertainty, Dense(4 * input_dim)(concat_inputs)])
     uncertainty_out = Dense(1, activation='softplus')(uncertainty_res)
-    uncertainty_out = tf.clip_by_value(uncertainty_out, 3.0, 120.0)
 
+    #uncertainty_out = tf.clip_by_value(uncertainty_out, 3.0, 120.0)
+    uncertainty_out = Lambda(lambda x: tf.clip_by_value(x, 3.0, 120.0))(uncertainty_out)#TF versions incompatibility
+    
     position_uncertainty = concatenate([position_out, uncertainty_out])
     model = Model(inputs=[inputs, angles, charges], outputs=[position_uncertainty])
     return model
