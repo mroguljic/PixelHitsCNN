@@ -1,0 +1,2 @@
+model_checkpoint_path: "graph_decap_y_L4p.ckpt"
+all_model_checkpoint_paths: "graph_decap_y_L4p.ckpt"
