@@ -21,7 +21,8 @@ template_id_dict={
 }
 
 decapitation=True
-for layer in ["L1F","L1U","L3m","L3p","L4m","L4p"]:
+#for layer in ["L1F","L1U","L3m","L3p","L4m","L4p"]:
+for layer in ["L1F","L1U"]:
     file_tag = dataset_directory_dict[layer]
     input_file = f"/ssd-data1/mrogul/orig_clusters/{file_tag}"
     output_folder = "/ssd-data1/mrogul/clusters/v2"

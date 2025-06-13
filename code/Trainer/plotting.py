@@ -92,6 +92,13 @@ def plot_residuals(residuals, output_file, plot_type="Residuals",name=""):
 
     legend_label = f"{name} {plot_type}"
     n, bins, patches = plt.hist(residuals, bins=bins, density=True, alpha=0.7, color='lightblue', edgecolor='black',label=legend_label)
+
+    threshold = 200  # microns or units matching your data
+    residuals = np.array(residuals)
+    fraction_above_threshold = np.mean(np.abs(residuals) > threshold)
+    print(f"Fraction of residuals with |value| > {threshold} um: {fraction_above_threshold:.4f}")
+
+
     bins_centers = 0.5 * (bins[:-1] + bins[1:])
     amplitude, mean, stddev = fit_gaussian(n, bins_centers, initial_params=initial_params)  # Use n instead of residuals
 
@@ -144,3 +151,58 @@ def plot_uncertainties(uncertainties, file_name):
     if ".pdf" in file_name:
         plt.savefig(file_name.replace(".pdf", ".png"))
     plt.close()
+
+
+def plot_nll_and_mse(history, output_file_prefix):
+    keys = history.keys()
+    
+    # Try to detect the loss and mse keys (adjust if needed)
+    nll_train_key = None
+    nll_val_key = None
+    mse_train_key = None
+    mse_val_key = None
+    
+    for key in keys:
+        if 'val' not in key and 'nll' in key:
+            nll_train_key = key
+        elif 'val' in key and 'nll' in key:
+            nll_val_key = key
+        if 'val' not in key and 'mse_position' in key:
+            mse_train_key = key
+        elif 'val' in key and 'mse_position' in key:
+            mse_val_key = key
+
+
+    # Plot NLL loss train vs val
+    plt.figure(figsize=(8,5))
+    if nll_train_key and nll_val_key:
+        if(len(history[nll_train_key])<3):
+            print("WARNING: Need at least three epochs to plot NLL and MSE history")
+            return
+        #We skip the first two epochs because we can have a very large loss/mse at the start of training, messing up the scale
+        plt.plot(history[nll_train_key][2:], label='NLL Train')
+        plt.plot(history[nll_val_key][2:], label='NLL Validation')
+        plt.xlabel('Epoch')
+        plt.ylabel('NLL Loss')
+        plt.title('NLL Loss: Train vs Validation')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(f"{output_file_prefix}_nll_loss.png")
+        plt.close()
+    else:
+        print("Could not find NLL keys for train and validation in history")
+
+    # Plot MSE position train vs val
+    plt.figure(figsize=(8,5))
+    if mse_train_key and mse_val_key:
+        plt.plot(history[mse_train_key][2:], label='MSE Position Train')
+        plt.plot(history[mse_val_key][2:], label='MSE Position Validation')
+        plt.xlabel('Epoch')
+        plt.ylabel('MSE Position')
+        plt.title('MSE Position: Train vs Validation')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(f"{output_file_prefix}_mse_position.png")
+        plt.close()
+    else:
+        print("Could not find MSE Position keys for train and validation in history")

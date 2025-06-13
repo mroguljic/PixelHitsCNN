@@ -33,7 +33,7 @@ def mse_position(y_true,y_pred):
     y_position  = y_pred[:,0]
     y_target    = y_true[:,0]
 
-    return reduce_mean((y_target-y_position)**2)
+    return reduce_mean((y_target - y_position)**2)
 
 def mean_pulls(y_true,y_pred):
     y_position  = y_pred[:,0]
@@ -41,3 +41,17 @@ def mean_pulls(y_true,y_pred):
     y_variance  = y_pred[:,1]
 
     return reduce_mean((y_target-y_position)**2/y_variance)
+
+
+def nll_with_annealing(y_true, y_pred, alpha):
+    y_position = y_pred[:, 0]
+    y_uncertainty = y_pred[:, 1]
+    y_target = y_true[:, 0]
+
+    y_variance = y_uncertainty ** 2 + 1e-6
+    log_var = log(y_variance)
+
+    mse = reduce_mean((y_target - y_position) ** 2)
+    nll = reduce_mean(log_var + (y_target - y_position) ** 2 / y_variance)
+
+    return alpha * mse + (1. - alpha) * nll

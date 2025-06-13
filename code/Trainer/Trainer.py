@@ -21,10 +21,13 @@ from tensorflow.keras.layers import Reshape
 from tensorflow.keras.layers import LeakyReLU
 from tensorflow.keras.layers import Add
 from tensorflow import clip_by_value
-import losses
+import tensorflow as tf
+from models import losses
+from models import architectures
 import cmsml
 import psutil
 import plotting
+from models import AlphaScheduler 
 
 class Trainer:
     #Class to load .json file and launch trainings
@@ -43,8 +46,8 @@ class Trainer:
             config = json.load(f)[layer]
             self.epochs = config["epochs"]
             self.batch_size = config["batch_size"]
-            self.batches_per_epoch = config["batches_per_epoch"]
             self.loss_name = config["loss_name"]
+            self.modelname = config["modelname"]
             if axis=="x":
                 self.train_h5 = config["train_x_h5"]
                 self.test_h5 = config["test_x_h5"]
@@ -66,8 +69,7 @@ class Trainer:
 
     
     def prepare_training_input(self):
-        #n_clusters = -1#Set to -1 for all or some number like 100000 for faster debugging
-        n_clusters = 1000000#Set to -1 for all or some number like 100000 for faster debugging
+        n_clusters = -1#Set to -1 for all or some number like 100000 for faster debugging
         print(f"Loading training clusters from {self.train_h5}")
         f = h5py.File(self.train_h5, 'r')
         print("-----Keys-----")
@@ -83,7 +85,7 @@ class Trainer:
         clustersize_train = f["clustersize"][0:n_clusters]
         clucharges_train = f["cluster_charge"][0:n_clusters]
         f.close()
-
+        print(f"Loaded {len(pix_flat_train)} clusters")
         perm = np.arange(len(pix_flat_train)) 
         np.random.shuffle(perm)
         
@@ -154,56 +156,31 @@ class Trainer:
 
         angles = Input(shape=(2,), name="angles")
         charges = Input(shape=(1,), name="cluster_charge")
-
-        inputs_flat = Flatten()(inputs)  # Shape becomes (batch_size, 13)
-        concat_inputs = concatenate([inputs_flat, angles, charges])
-
-        # Position estimation branch (simplified)
-        position = Dense(8 * input_dim)(concat_inputs)
-        position = LeakyReLU(alpha=0.01)(position)
-        position = Dense(4 * input_dim)(position)
-        position = LeakyReLU(alpha=0.01)(position)
-        position = BatchNormalization()(position)
-        position = Dropout(dropout_level)(position)
-
-        # Residual connection
-        position_res = Add()([position, Dense(4 * input_dim)(concat_inputs)])
-        position_out = Dense(1)(position_res)
-
-        # uncertainty estimation branch (simplified)
-        uncertainty = Dense(8 * input_dim)(concat_inputs)
-        uncertainty = LeakyReLU(alpha=0.01)(uncertainty)
-        uncertainty = Dense(4 * input_dim)(uncertainty)
-        uncertainty = LeakyReLU(alpha=0.01)(uncertainty)
-        uncertainty = BatchNormalization()(uncertainty)
-        uncertainty = Dropout(dropout_level)(uncertainty)
-
-        # Residual connection
-        uncertainty_res = Add()([uncertainty, Dense(4 * input_dim)(concat_inputs)])
-        uncertainty_out = Dense(1, activation='softplus')(uncertainty_res)
-        uncertainty_out = clip_by_value(uncertainty_out, 3., 120.)# Limit uncertainty to 3-120 um window
-
-        position_uncertainty = concatenate([position_out, uncertainty_out])
-
-        model = Model(inputs=[inputs, angles, charges], outputs=[position_uncertainty])
-
+        model_fn = getattr(architectures, self.modelname)
+        model = model_fn(inputs, angles, charges, input_dim)
+        #model.alpha = tf.Variable(1.0, trainable=False, dtype=tf.float32)
         # Display model summary
         model.summary()
 
         # Compile the model
         run_eagerly = False
         loss_func = getattr(losses, self.loss_name)
-        model.compile(loss=loss_func, optimizer=optimizer, run_eagerly=run_eagerly, metrics=[losses.mse_position, loss_func])
+        #loss_func = lambda y_true, y_pred: losses.nll_with_annealing(y_true, y_pred, model.alpha)
+        model.compile(loss=loss_func, optimizer=optimizer, run_eagerly=run_eagerly, metrics=[loss_func,losses.mse_position])
 
         #Load weights from checkpoint if exists
         checkpoint_filepath=self.checkpoint
         if os.path.exists(checkpoint_filepath+".index"):
+            #print("Skipping loading weights")
             print(f"Loading weights from {checkpoint_filepath}")
             model.load_weights(checkpoint_filepath)
             
         #Uncomment if you want to save weights in a different file!
         #checkpoint_filepath = checkpoint_filepath.replace(".ckpt",".{epoch:02d}-{val_loss:.2f}.ckpt")
-
+        
+        #decay_rate = 1.0/(self.epochs-3)#Stay at least two epochs on alpha=0.0 
+        #print(f"Alpha decay rate {decay_rate:.3f}")
+        #alpha_scheduler = AlphaScheduler.AlphaScheduler(total_epochs=self.epochs, initial_alpha=1.0, decay_rate=decay_rate)
         callbacks = [
         ModelCheckpoint(filepath=checkpoint_filepath,
                         save_best_only=True,
@@ -212,6 +189,7 @@ class Trainer:
                         monitor=self.loss_name,
                         save_freq="epoch")
                         #save_freq=1000)
+                        #alpha_scheduler
         ]
 
         # Fit data to model
@@ -219,8 +197,7 @@ class Trainer:
                         batch_size=self.batch_size,
                         epochs=self.epochs,
                         callbacks=callbacks,
-                        validation_split=validation_split,
-                        steps_per_epoch=self.batches_per_epoch)
+                        validation_split=validation_split)
 
 
         model.save(self.model_dest)
@@ -231,7 +208,7 @@ class Trainer:
             os.makedirs("plots")
         history_plot = f"plots/{self.layer}_{self.axis}_history.png"
         plotting.plot_dnn_loss(history.history,history_plot)
-
+        plotting.plot_nll_and_mse(history.history, f"plots/{self.layer}_{self.axis}")
         print("Training time: {:.0f}s".format(time.process_time()-train_time))
 
     def test(self):
