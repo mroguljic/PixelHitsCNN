@@ -272,8 +272,8 @@ class Trainer:
             self.prepare_testing_input()
         model = load_model(self.model_dest, custom_objects={self.loss_name: getattr(losses,self.loss_name),"mse_position":losses.mse_position,"mean_pulls":losses.mean_pulls})
         n_to_plot = 20
-        uncertainty_min = 120
-        uncertainty_max = 120
+        uncertainty_min = 30
+        uncertainty_max = 50
         cluster_idx = []
         for x in range(self.pred.shape[0]):
             if self.pred[x,1] >= uncertainty_min and self.pred[x,1] <= uncertainty_max:
