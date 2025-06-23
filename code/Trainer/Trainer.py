@@ -28,6 +28,7 @@ import cmsml
 import psutil
 import plotting
 from models import AlphaScheduler 
+import random
 
 class Trainer:
     #Class to load .json file and launch trainings
@@ -218,11 +219,11 @@ class Trainer:
 
         start = time.process_time()
         #with device('/CPU:0'):
-        pred = model.predict([self.pixels_test[:,:,np.newaxis],self.angles_test,self.clucharges_test], batch_size=400000)
+        self.pred = model.predict([self.pixels_test[:,:,np.newaxis],self.angles_test,self.clucharges_test], batch_size=400000)
         inference_time_x = time.process_time() - start
-        print("Inference on {} cluster took {:.3f} s".format(len(pred),inference_time_x))
-        residuals = pred[:,0] - self.position_test[:,0]
-        pulls     = residuals/pred[:,1]
+        print("Inference on {} cluster took {:.3f} s".format(len(self.pred),inference_time_x))
+        residuals = self.pred[:,0] - self.position_test[:,0]
+        pulls     = residuals/self.pred[:,1]
 
         self.resolution = np.std(residuals)
         self.bias       = np.mean(residuals)
@@ -234,7 +235,7 @@ class Trainer:
         plot_name = f"{self.layer}_{self.axis}"
         plotting.plot_residuals(residuals,residuals_output_file,plot_type="Residuals",name=plot_name)
         plotting.plot_residuals(pulls,pulls_output_file,plot_type="Pulls",name=plot_name)
-        plotting.plot_uncertainties(pred[:, 1], f"plots/{self.layer}_{self.axis}_uncertainties.pdf")
+        plotting.plot_uncertainties(self.pred[:, 1], f"plots/{self.layer}_{self.axis}_uncertainties.pdf")
 
     def visualize(self):
         if not self.testing_input_flag:
@@ -249,6 +250,44 @@ class Trainer:
         
         plotting_data_sets = []
         plotting_file_name = f"plots/{self.layer}_{self.axis}.pdf"
+        for i in range(n_to_plot):
+            temp_data_set = {
+            'cluster': clusters_for_plotting[i],
+            'angles': angles_for_plotting[i],
+            'prediction_uncertainty': pred[i],
+            'position': position_for_plotting[i],
+            'pixel_pitch': self.pitch,
+            'resolution': self.resolution,
+            'bias': self.bias
+
+            }
+            plotting_data_sets.append(temp_data_set)
+        
+    
+        plotting.plot_clusters(plotting_data_sets,plotting_file_name)
+
+    #plots random sample of clusters within provided range of uncertainty 
+    def visualize_cluster_uncertainty(self): 
+        if not self.testing_input_flag:
+            self.prepare_testing_input()
+        model = load_model(self.model_dest, custom_objects={self.loss_name: getattr(losses,self.loss_name),"mse_position":losses.mse_position,"mean_pulls":losses.mean_pulls})
+        n_to_plot = 20
+        uncertainty_min = 120
+        uncertainty_max = 120
+        cluster_idx = []
+        for x in range(self.pred.shape[0]):
+            if self.pred[x,1] >= uncertainty_min and self.pred[x,1] <= uncertainty_max:
+                cluster_idx.append(x)
+        idx_to_plot = random.sample(cluster_idx, n_to_plot)
+        
+        clusters_for_plotting = self.pixels_test[idx_to_plot]
+        angles_for_plotting   = self.angles_test[idx_to_plot]
+        position_for_plotting = self.position_test[idx_to_plot,0]
+        charges_for_plotting = self.clucharges_test[idx_to_plot,0]
+        pred = model.predict([clusters_for_plotting[:,:,np.newaxis],angles_for_plotting,charges_for_plotting])
+        
+        plotting_data_sets = []
+        plotting_file_name = f"plots/{self.layer}_{self.axis}_{uncertainty_min}_{uncertainty_max}.pdf"
         for i in range(n_to_plot):
             temp_data_set = {
             'cluster': clusters_for_plotting[i],
