@@ -1,0 +1,36 @@
+{
+"L1U":{
+    "train_x_h5"   :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1U_x_train.h5",
+    "test_x_h5"    :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1U_x_test.h5",
+    "checkpoint_x" :"/users/alitak/PixelHitsCNN/code/checkpoints/graph_decap_x_specialized.weights.h5",
+    "model_dest_x" :"/users/alitak/PixelHitsCNN/code/data/graph_decap_x_L1_U_specialized.h5",
+    "train_y_h5"   :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1U_y_train.h5",
+    "test_y_h5"    :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1U_y_test.h5",
+    "checkpoint_y" :"/users/alitak/PixelHitsCNN/code/checkpoints/graph_decap_y_specialized.weights.h5",
+    "model_dest_y" :"/users/alitak/PixelHitsCNN/code/data/graph_decap_y_L1_U_specialized.h5",
+    "modelname"    : "baseline_model",
+    "batch_size"   : 4096,
+    "epochs"       : 1000,
+    "batches_per_epoch" : 3000,
+    "loss_name"    : "nll_loss",
+    "pitch_x"      : 150.0,
+    "pitch_y"      : 100.0
+    },
+"L1F":{
+    "train_x_h5"   :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1F_x_train.h5",
+    "test_x_h5"    :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1F_x_test.h5",
+    "checkpoint_x" :"/users/alitak/PixelHitsCNN/code/checkpoints/graph_decap_x_L1_F_specialized.weights.h5",
+    "model_dest_x" :"/users/alitak/PixelHitsCNN/code/data/graph_decap_x_L1_F_specialized.h5",
+    "train_y_h5"   :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1F_y_train.h5",
+    "test_y_h5"    :"/users/alitak/PixelHitsCNN/code/Trainer/data/subsets/L1F_y_test.h5",
+    "checkpoint_y" :"/users/alitak/PixelHitsCNN/code/checkpoints/graph_decap_y_L1_F_specialized.weights.h5",
+    "model_dest_y" :"/users/alitak/PixelHitsCNN/code/data/graph_decap_y_L1_F_specialized.h5",
+    "modelname"    : "baseline_model",
+    "batch_size"   : 4096,
+    "epochs"       : 1000,
+    "batches_per_epoch" : 1000,
+    "loss_name"    : "nll_loss",
+    "pitch_x"      : 150.0,
+    "pitch_y"      : 100.0
+    } 
+}
