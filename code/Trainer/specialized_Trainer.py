@@ -39,7 +39,8 @@ class Trainer:
         #axis: "x" or "y"
         assert axis=="x" or axis=="y", f"Invalid axis '{axis}'. Valid choices are 'x' or 'y'"
         self.axis = axis
-        self.input_flag = False
+        self.testing_input_flag = False
+        self.training_input_flag = False
         self.layer = layer
         self.resolution = -999.
         self.bias = -999.
@@ -69,60 +70,8 @@ class Trainer:
                 print(name)
         h5file.visititems(visit_fn)
 
-    def prepare_train_test_input(self):
-        n_clusters = -1#Set to -1 for all or some number like 100000 for faster debugging
-        print(f"Loading clusters from {self.train_h5} -this is the updated method")
-        f = h5py.File(self.train_h5, 'r')
-        print("-----Keys-----")
-        self.print_h5_keys(f)
-        print("-----Keys-----")
-        if f'train_{self.axis}_flat' in f:#In some files, train_ prefix is not present
-            pix_flat = f[f'train_{self.axis}_flat'][0:n_clusters]
-        else:
-            pix_flat = f[f'{self.axis}_flat'][0:n_clusters]
-        cota = f['cota'][0:n_clusters]
-        cotb = f['cotb'][0:n_clusters]
-        position = f[self.axis][0:n_clusters] 
-        clustersize = f["clustersize"][0:n_clusters]
-        clucharges = f["cluster_charge"][0:n_clusters]
-        f.close()
-        print(f"Loaded {len(pix_flat)} clusters")
-        
-        train_split = 0.9
-        n_train_clusters = int(len(pix_flat) * train_split)
-        np.random.seed(42)
-        perm = np.arange(len(pix_flat)) 
-        np.random.shuffle(perm)
-        
-        pix_flat = pix_flat[perm]
-        cota = cota[perm]
-        cotb = cotb[perm]
-        position = position[perm]
-        clustersize = clustersize[perm]
-        clucharges = clucharges[perm]
-        angles = np.hstack((cota,cotb))
-
-        self.pixels_train = pix_flat[0:n_train_clusters]
-        self.position_train = position[0:n_train_clusters]
-        self.angles_train = angles[0:n_train_clusters]
-        self.clustersize_train = clustersize[0:n_train_clusters]
-        self.clucharges_train = clucharges[0:n_train_clusters]
-        print("Using {:.0f} MB of memory".format(psutil.Process().memory_info().rss / 1024 ** 2))
-
-        self.pixels_test = pix_flat[n_train_clusters:]
-        self.position_test = position[n_train_clusters:]
-        self.angles_test = angles[n_train_clusters:]
-        self.clustersize_test = clustersize[n_train_clusters:]
-        self.clucharges_test = clucharges[n_train_clusters:]
-        print(np.shape(self.pixels_test))
-        print(np.shape(self.position_test))
-        print(np.shape(self.angles_test))
-        print(np.shape(self.clustersize_test))
-        print(np.shape(self.clucharges_test))
-        print("Using {:.0f} MB of memory".format(psutil.Process().memory_info().rss / 1024 ** 2))
-        self.input_flag = True
-
-    '''def prepare_training_input(self):
+    
+    def prepare_training_input(self):
         n_clusters = -1#Set to -1 for all or some number like 100000 for faster debugging
         print(f"Loading training clusters from {self.train_h5}")
         f = h5py.File(self.train_h5, 'r')
@@ -140,8 +89,6 @@ class Trainer:
         clucharges_train = f["cluster_charge"][0:n_clusters]
         f.close()
         print(f"Loaded {len(pix_flat_train)} clusters")
-        
-        np.random.seed(42)
         perm = np.arange(len(pix_flat_train)) 
         np.random.shuffle(perm)
         
@@ -192,12 +139,12 @@ class Trainer:
         print(np.shape(self.clustersize_test))
         print(np.shape(self.clucharges_test))
         print("Using {:.0f} MB of memory".format(psutil.Process().memory_info().rss / 1024 ** 2))
-        self.testing_input_flag = True'''
+        self.testing_input_flag = True
 
     def train(self):
-        if not self.input_flag:
-            self.prepare_train_test_input()
-        optimizer = Adam()#learning_rate = 0.01)
+        if not self.training_input_flag:
+            self.prepare_training_input()
+        optimizer = Adam()
         validation_split = 0.02
         dropout_level = 0.10
 
@@ -226,12 +173,11 @@ class Trainer:
 
         #Load weights from checkpoint if exists
         checkpoint_filepath=self.checkpoint
-        '''if os.path.exists(checkpoint_filepath):
+        """if os.path.exists(checkpoint_filepath):
+            #print("Skipping loading weights")
             print(f"Loading weights from {checkpoint_filepath}")
-            model.load_weights(checkpoint_filepath)
-        else:
-            print("Skipping loading weights")'''
-
+            model.load_weights(checkpoint_filepath)"""
+            
         #Uncomment if you want to save weights in a different file!
         #checkpoint_filepath = checkpoint_filepath.replace(".ckpt",".{epoch:02d}-{val_loss:.2f}.ckpt")
         
@@ -256,7 +202,6 @@ class Trainer:
                         callbacks=callbacks,
                         validation_split=validation_split)
 
-        self.training_pred = model.predict([self.pixels_train[:,:,np.newaxis],self.angles_train,self.clucharges_train], batch_size=self.batch_size)
 
         model.save(self.model_dest)
         cmsml.tensorflow.save_graph(self.model_dest+".pb", model, variables_to_constants=True)
@@ -270,8 +215,8 @@ class Trainer:
         print("Training time: {:.0f}s".format(time.process_time()-train_time))
 
     def test(self):
-        if not self.input_flag:
-            self.prepare_train_test_input()
+        if not self.testing_input_flag:
+            self.prepare_testing_input()
         model = load_model(self.model_dest, custom_objects={self.loss_name: getattr(losses,self.loss_name),"mse_position":losses.mse_position,"mean_pulls":losses.mean_pulls})
 
         start = time.process_time()
@@ -295,10 +240,10 @@ class Trainer:
         plotting.plot_uncertainties(self.pred[:, 1], f"plots/{self.layer}_{self.axis}_uncertainties.pdf")
 
     def visualize(self):
-        if not self.input_flag:
-            self.prepare_train_test_input()
+        if not self.testing_input_flag:
+            self.prepare_testing_input()
         model = load_model(self.model_dest, custom_objects={self.loss_name: getattr(losses,self.loss_name),"mse_position":losses.mse_position,"mean_pulls":losses.mean_pulls})
-        n_to_plot = 10
+        n_to_plot = 25
         clusters_for_plotting = self.pixels_test[:n_to_plot]
         angles_for_plotting   = self.angles_test[:n_to_plot]
         position_for_plotting = self.position_test[:n_to_plot,0]
@@ -325,8 +270,8 @@ class Trainer:
 
     #plots random sample of clusters within provided range of uncertainty 
     def visualize_cluster_uncertainty(self): 
-        if not self.input_flag:
-            self.prepare_train_test_input()
+        if not self.testing_input_flag:
+            self.prepare_testing_input()
         model = load_model(self.model_dest, custom_objects={self.loss_name: getattr(losses,self.loss_name),"mse_position":losses.mse_position,"mean_pulls":losses.mean_pulls})
         n_to_plot = 20
         uncertainty_min = 30
@@ -363,8 +308,8 @@ class Trainer:
     
     #Generates a plot of desired data type vs uncertainty
     def plot_vs_uncertainty(self, data_type):
-        if not self.input_flag:
-            self.prepare_train_test_input()
+        if not self.testing_input_flag:
+            self.prepare_testing_input()
         model = load_model(self.model_dest, custom_objects={self.loss_name: getattr(losses,self.loss_name),"mse_position":losses.mse_position,"mean_pulls":losses.mean_pulls})
         file_name = f"plots/{self.layer}_{self.axis}_{data_type}.png"
         
@@ -396,39 +341,10 @@ class Trainer:
         plt.savefig(file_name)
         print("Saving "+file_name)
         plt.close()
-        
-    def save_max_training_clusters(self):
-        cluster_idx = np.where(self.training_pred[:,1]==120)[0] 
 
-        os.makedirs("data/subsets", exist_ok=True)
-        file_path = "data/subsets/"+self.layer+"_"+self.axis+"_train.h5"
-        
-        with h5py.File(self.train_h5, "r") as source_file:
-            with h5py.File(file_path, "w") as dest_file:
-                for key in source_file.keys():
-                    full_data = source_file[key][:]
-                    subset = full_data[cluster_idx]
-                    dest_file.create_dataset(key, data=subset)
-        print("Saved training subset at "+file_path)
-
-    def save_max_test_clusters(self):
-        cluster_idx = np.where(self.pred[:,1]==120)[0] 
-
-        os.makedirs("data/subsets", exist_ok=True)
-        file_path = "data/subsets/"+self.layer+"_"+self.axis+"_test.h5"
-
-        with h5py.File(self.test_h5, "r") as source_file:
-            with h5py.File(file_path, "w") as dest_file:
-                for key in source_file.keys():
-                    full_data = source_file[key][:]
-                    subset = full_data[cluster_idx]
-                    dest_file.create_dataset(key, data=subset)
-
-        print("Saved validation subset at "+file_path)
-    
     def plot_barycenter_vs_hit(self, data_type):
         temp = []
-        file_name = f"data/plots/{self.layer}_{self.axis}_{data_type}_original.png"
+        file_name = f"data/plots/{self.layer}_{self.axis}_{data_type}_specialized.png"
         if data_type == "test":
             pixel_indices = np.arange(self.pixels_test[0].size)
             for x in range(self.pixels_test.shape[0]):
@@ -452,11 +368,12 @@ class Trainer:
         
         mean = np.mean(residuals)
         std = np.std(residuals)
-        
+
         plt.hist(residuals, bins=bin_arr, edgecolor='black')
-        plt.title('Barycenter - hit position '+self.layer+"_"+self.axis+"_"+data_type)
+        plt.title('Barycenter - hit position (max uncertainty) '+self.layer+"_"+self.axis+"_"+data_type)
         plt.xlabel('Residual')
         plt.ylabel('Frequency')
         plt.savefig(file_name)
         print("Saving plot "+file_name)
         plt.close()
+
